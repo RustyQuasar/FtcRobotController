@@ -47,13 +47,9 @@ public class Teleop extends LinearOpMode {
             }
 
             if (manualMode) {
-
-            } else {
-            //Why is there an else? Idk
             }
-
-
             Mechanum.periodic(telemetry);
+            Shooter.aim();
             telemetry.addData("Manual Mode: ", manualMode);
             telemetry.update();
         }

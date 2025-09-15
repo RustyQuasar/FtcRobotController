@@ -82,7 +82,9 @@ public class SmartShooter {
         telemetry.addLine("Shooter");
         telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addLine("Turret position: " + turretNeck.getPosition());
+        telemetry.addLine("Turret neck position: " + turretNeck.getPosition());
+        telemetry.addLine("Turret head position: " + turretHead.getPosition());
+        telemetry.update();
     }
     private double xTurn(double xOffset){
         double angleToTurn = (Constants.ShooterConstants.FOV / Constants.ShooterConstants.resX) * xOffset;
@@ -93,6 +95,7 @@ public class SmartShooter {
     double y = Math.pow((-9.8 * (distance/2)), 2);
     double angle = Math.toDegrees(Math.atan(y/x));
     return angle / 360;
+    //#TODO: This is assuming equal levelling, fix based on the height difference
     }
     private void initAprilTag() {
 
