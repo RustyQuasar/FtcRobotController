@@ -23,6 +23,13 @@ public class Constants {
     public static final class ShooterConstants {
         public static final String leftShooter = "leftShooter";
         public static final String rightShooter = "rightShooter";
+        public static final String turretNeck = "turretNeck";
+        public static final String turretHead = "turretHead";
+        public static final int centerOffset = 12;
+        public static final double TurretRadius = 0; //#TODO: figure out what this is
+        public static final int resX = 640;
+        public static  final int resY = 480;
+        public static final int FOV = 55;
     }
 
     public static final class ElevatorConstants {

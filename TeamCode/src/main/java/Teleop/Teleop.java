@@ -14,35 +14,23 @@ import Commands.SmartShooter;
 public class Teleop extends LinearOpMode {
 
     Gamepad activeGamepad1;
-
-    Gamepad previousGamepad1;
-
     static boolean manualMode;
-
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter Shooter;
-
-
+    String TEAM;
     @Override
     public void runOpMode() {
         telemetry.update();
-
         activeGamepad1 = new Gamepad();
-
-        previousGamepad1 = new Gamepad();
-
         manualMode = true;
-
         Mechanum = new MechanumDrive(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter(hardwareMap);
+        Shooter = new SmartShooter(hardwareMap, TEAM);
 
         waitForStart();
 
         while (opModeIsActive()) {
-
-            previousGamepad1.copy(activeGamepad1);
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.a);
 
