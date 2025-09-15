@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.Constants.DriveTrainConstants;
 
 public class MechanumDrive {
 
@@ -24,10 +23,10 @@ public class MechanumDrive {
     private double yawOffset;
 
     public MechanumDrive(HardwareMap hardwareMap) {
-        frontLeft0 = hardwareMap.get(DcMotor.class, DriveTrainConstants.frontLeftMotor);
-        frontRight1 = hardwareMap.get(DcMotor.class, DriveTrainConstants.frontRightMotor);
-        backLeft2 = hardwareMap.get(DcMotor.class, DriveTrainConstants.backLeftMotor);
-        backRight3 = hardwareMap.get(DcMotor.class, DriveTrainConstants.backRightMotor);
+        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
+        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
+        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor);
+        backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor);
 
         frontLeft0.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight1.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -44,7 +43,7 @@ public class MechanumDrive {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         imu.initialize(parameters);
 
-        yawOffset = imu.getAngularOrientation().firstAngle - DriveTrainConstants.controlHubOffset;
+        yawOffset = imu.getAngularOrientation().firstAngle - Constants.DriveTrainConstants.controlHubOffset;
     }
 
     public void drive(double driveY, double driveX, double rotation) {
@@ -88,7 +87,7 @@ public class MechanumDrive {
      * Updates the yaw offset to the current heading
      */
     public void resetYaw() {
-        yawOffset = getRawHeading() - DriveTrainConstants.controlHubOffset;
+        yawOffset = getRawHeading() - Constants.DriveTrainConstants.controlHubOffset;
     }
 
     /**
