@@ -47,13 +47,14 @@ public class SmartShooter {
         }
         initAprilTag();
     }
-    public void shoot(double power) {
-        leftShooter.setPower(power);
-        rightShooter.setPower(power);
-    }
-    public void stop() {
-        leftShooter.setPower(0);
-        rightShooter.setPower(0);
+    public void shoot() {
+
+//        leftShooter.setPower(power);
+//        rightShooter.setPower(power);
+//    }
+//    public void stop() {
+//        leftShooter.setPower(0);
+//        rightShooter.setPower(0);
     }
     public void aim(){
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();

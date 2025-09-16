@@ -1,21 +1,28 @@
 package Commands;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class SmartIntake {
-    private final DcMotor leftIntake;
-    private final DcMotor rightIntake;
+    private final DcMotor motorIntake;
+
+    private final ColorSensor colorSen;
 
     private boolean motifState = false;
+    private int ballCount=0;
     private String[] artifactOrder = {"N","N","N"};
     public SmartIntake(HardwareMap hardwareMap) {
-        leftIntake = hardwareMap.get(DcMotor.class, "leftIntake");
-        rightIntake = hardwareMap.get(DcMotor.class, "rightIntake");
+        motorIntake = hardwareMap.get(DcMotor.class, "leftIntake");
+        colorSen = hardwareMap.get(ColorSensor.class, "colorSensor");
     }
 
-    public void colorRegister(int colorRedValue) {
+    public boolean isBall() {
+        return colorSen.blue()<50;
+    }
+    public void colorRegister() {
+        double colorRedValue=  colorSen.red();
         artifactOrder[3]=  artifactOrder[2];
         artifactOrder[2]=  artifactOrder[1];
 if(colorRedValue>=200){
@@ -24,10 +31,43 @@ if(colorRedValue>=200){
     artifactOrder[1]=  "G";
 }
     }
+    public void colorWipe() {
+       artifactOrder[1] = "N";
+        artifactOrder[2] = "N";
+        artifactOrder[3] = "N";
+        ballCount=0;
+    }
     public void intakeStateSwitch() {
  motifState=!motifState;
         }
-    public void intake(boolean swap_sort) {
+    public void intake(boolean buttonPressed) {
+        if(buttonPressed&&ballCount!=3){
+if(motifState){
+    while(!isBall()) {
+        motorIntake.setPower(0.8);
+    }
+    ballCount++;
+    colorRegister();
+    if(!(artifactOrder[ballCount-1]=SmartShooter.getColor()[3-ballCount])) {
+        ballCount--;
+        motorIntake.setPower(-1);
+        try {
+            Thread.sleep(500);
+        } catch (Exception e) {
+
+        }
+    }
+
+    }else{
+    while(!isBall()) {
+        motorIntake.setPower(0.8);
+    }
+    ballCount++;
+    colorRegister();
+}
+}
+        motorIntake.setPower(0);
+
 
     }
 

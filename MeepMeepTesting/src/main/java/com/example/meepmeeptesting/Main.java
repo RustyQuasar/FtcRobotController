@@ -13,8 +13,9 @@ public class Main {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
-
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-34, -34, 0))
+        int wantedAuto=2;
+        switch (wantedAuto) {
+            case 1:  myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-34, -34, 0))
 //                BANG
                 .turn(Math.toRadians(-30))
                 .lineToX(-8)
@@ -24,6 +25,20 @@ public class Main {
                 .lineToX(10)
                 .lineToX(-38)
 //                BANG
+                    .build());
+                    break;
+            case 2:
+                myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(52, -52, 0))
+//                BANG
+
+                        .lineToX(32)
+                        .lineToX(52)
+//                BANG
+
+                        .lineToX(10)
+                        .lineToX(52).build());
+                break;}
+
 //                .turn(Math.toRadians(73.5)) //174
 //                .turn(Math.toRadians(100.5))
 //                .lineToX(-40)
@@ -34,7 +49,7 @@ public class Main {
 //                .lineToX(-37)
 //                .turn(Math.toRadians(-95))
 //                .lineToY(-7)
-                .build());
+
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_BLACK)
                 .setDarkMode(true)
