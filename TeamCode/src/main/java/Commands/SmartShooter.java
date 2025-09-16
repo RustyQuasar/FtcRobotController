@@ -58,13 +58,11 @@ public class SmartShooter {
     public void aim(){
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         double detectedX;
-        double detectedY;
         double distance;
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             if (detection.id == aimedTagID) {
                 detectedX = detection.ftcPose.x;
-                detectedY = detection.ftcPose.y;
                 distance = detection.ftcPose.range;
                 turretNeck.setPosition(turretNeck.getPosition() + xTurn(detectedX - Constants.ShooterConstants.resX));
                 turretHead.setPosition(turretHead.getPosition() + yTurn(distance + Constants.ShooterConstants.centerOffset));
@@ -91,14 +89,19 @@ public class SmartShooter {
         return angleToTurn / 360;
     }
     private double yTurn(double distance){
-    double x = distance/2;
-    double y = Math.pow((-9.8 * (distance/2)), 2);
+    //double x = distance/2;
+    //double y = -9.8 * (distance/2 - 0) * (distance/2 - ((48-17)*0.0254));
+    //ChatGPT gave some assistence with this
+    double heightDiffM = (48-17)*0.0254;
+    double trueDistance = distance+(12 * (0.0254));
+    double c = heightDiffM / 9.8;
+    double x = 0.5 * (trueDistance - (c/trueDistance));
+    double y = (-98/4) * Math.pow((trueDistance - (c/trueDistance)), 2);
     double angle = Math.toDegrees(Math.atan(y/x));
     return angle / 360;
-    //#TODO: This is assuming equal levelling, fix based on the height difference
+    //#TODO: This is assuming equal levelling and no air res, fix based on the height difference
     }
     private void initAprilTag() {
-
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
 
