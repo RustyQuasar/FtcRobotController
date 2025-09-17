@@ -34,7 +34,7 @@ public class Teleop extends LinearOpMode {
                 Intake.intake(activeGamepad1.right_bumper);
 
             if (activeGamepad1.right_trigger>0.5) {
-                  Shooter.shoot();
+                  Shooter.transfer();
                   Intake.colorWipe();
             }
             if (activeGamepad1.back) {
