@@ -11,62 +11,66 @@ public class SmartIntake {
     private final ColorSensor colorSen;
 
     private boolean motifState = false;
-    private int ballCount=0;
-    private String[] artifactOrder = {"N","N","N"};
+    private int ballCount = 0;
+    private String[] artifactOrder = {"N", "N", "N"};
+
     public SmartIntake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(DcMotor.class, "leftIntake");
         colorSen = hardwareMap.get(ColorSensor.class, "colorSensor");
     }
 
     public boolean isBall() {
-        return colorSen.blue()<50;
+        return colorSen.blue() < 50;
     }
+
     public void colorRegister() {
-        double colorRedValue=  colorSen.red();
-        artifactOrder[3]=  artifactOrder[2];
-        artifactOrder[2]=  artifactOrder[1];
-if(colorRedValue>=200){
-    artifactOrder[1]=  "P";
-} else{
-    artifactOrder[1]=  "G";
-}
+        double colorRedValue = colorSen.red();
+        artifactOrder[3] = artifactOrder[2];
+        artifactOrder[2] = artifactOrder[1];
+        if (colorRedValue >= 200) {
+            artifactOrder[1] = "P";
+        } else {
+            artifactOrder[1] = "G";
+        }
     }
+
     public void colorWipe() {
-       artifactOrder[1] = "N";
+        artifactOrder[1] = "N";
         artifactOrder[2] = "N";
         artifactOrder[3] = "N";
-        ballCount=0;
+        ballCount = 0;
     }
 
     public void intakeStateSwitch() {
- motifState=!motifState;
-        }
+        motifState = !motifState;
+    }
+
     public void intake(boolean buttonPressed) {
-        if(buttonPressed&&ballCount!=3){
-if(motifState){
-    while(!isBall()) {
-        motorIntake.setPower(0.8);
-    }
-    ballCount++;
-    colorRegister();
-    if(!(artifactOrder[ballCount-1]=SmartShooter.getColor()[3-ballCount])) {
-        ballCount--;
-        motorIntake.setPower(-1);
-        try {
-            Thread.sleep(500);
-        } catch (Exception e) {
+        if (buttonPressed && ballCount != 3) {
+            if (motifState) {
+                while (!isBall()) {
+                    motorIntake.setPower(0.8);
+                }
+                ballCount++;
+                colorRegister();
+                if (!(artifactOrder[ballCount - 1] = Constants.VisionConstants.colours[3 - ballCount])) {
+                    ballCount--;
+                    motorIntake.setPower(-1);
+                    try {
+                        Thread.sleep(500);
+                    } catch (Exception e) {
 
+                    }
+                }
+
+            } else {
+                while (!isBall()) {
+                    motorIntake.setPower(0.8);
+                }
+                ballCount++;
+                colorRegister();
+            }
         }
-    }
-
-    }else{
-    while(!isBall()) {
-        motorIntake.setPower(0.8);
-    }
-    ballCount++;
-    colorRegister();
-}
-}
         motorIntake.setPower(0);
 
 
