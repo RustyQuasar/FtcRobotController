@@ -29,8 +29,10 @@ public final class Constants {
         public static final double shooterGearRatio = (61 * 1); //Gear multiplier
         public static final String turretNeck = "turretNeck";
         public static final String turretHead = "turretHead";
+        public static final String transferServo = "transferServo";
         public static final double turretNeckGearRatio = 2; //Gear multiplier
         public static final double turretHeadGearRatio = 2; //Gear multiplier
+        public static final double turretTransferGearRatio = 2; //Gear multiplier
         public static final int centerOffset = 12;
         public static final double TurretRadius = 0; //#TODO: figure out what this is
     }

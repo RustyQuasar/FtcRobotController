@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SmartShooter {
     private final DcMotor leftShooter, rightShooter;
-    private final Servo turretNeck, turretHead;
+    private final Servo turretNeck, turretHead, transferServo;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, 0, 0, 0); //Idk what this is but I'm too afraid to delete it
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
@@ -42,6 +42,7 @@ public class SmartShooter {
         rightShooter = hardwareMap.get(DcMotor.class, "rightShooter");
         turretNeck = hardwareMap.get(Servo.class, "turretNeck");
         turretHead = hardwareMap.get(Servo.class, "turretHead");
+        transferServo = hardwareMap.get(Servo.class, "transferServo");
         leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -88,6 +89,7 @@ public class SmartShooter {
             if (detection.id == aimedTagID) {
                 double neckHeading = (turretNeck.getPosition() * Constants.ShooterConstants.turretNeckGearRatio);
                 neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
+                neckHeading += Constants.DriveTrainConstants.controlHubOffset;
                 if (fv > 0) {
                     angle1 = 0;
                 } else {
@@ -130,7 +132,7 @@ public class SmartShooter {
                 telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
                  */
             } else if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
-                setColours(currentDetections, colours);
+                Constants.VisionConstants.colours = setColours(currentDetections, colours);
             }
         }
     }
@@ -141,6 +143,10 @@ public class SmartShooter {
         } else {
             return 0;
         }
+    }
+
+    public void transfer() {
+        transferServo.setPosition(1);
     }
 
     private void setShooterVelocity(double x, double y, double currentVelocity) {
@@ -239,19 +245,20 @@ public class SmartShooter {
         visionPortal.setProcessorEnabled(aprilTag, true);
     }
 
-    public void setColours(List<AprilTagDetection> currentDetections, String[] colours) {
+    public String[] setColours(List<AprilTagDetection> currentDetections, String[] colours) {
         String[] blank = {"N", "N", "N"};
         if (Arrays.equals(colours, blank)) {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.id == 21) {
-                    Constants.VisionConstants.colours.set("G", "P", "P");
+                    return new String[]{"G", "P", "P"};
                 } else if (detection.id == 22) {
-                    Constants.VisionConstants.colours.set("P", "G", "P");
+                    return new String[]{"P", "G", "P"};
                 } else if (detection.id == 23) {
-                    Constants.VisionConstants.colours.set("P", "P", "G");
+                    return new String[]{"P", "P", "G"};
                 }
             }
         }
+        return blank;
     }
 
     private double leftShooterVelocity(DcMotor leftShooter, int DCMotorMax, double gearRatio) {
