@@ -36,8 +36,6 @@ public class SmartShooter {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private int aimedTagID;
-    private final int resX = 640;
-    private final int resY = 480;
     List<AprilTagDetection> currentDetections;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM) {
@@ -63,13 +61,13 @@ public class SmartShooter {
             Thread.sleep(10);                      // not recommended — use a longer window
             int finalReading = rightShooter.getCurrentPosition();
 
-            double deltaTicks = (double) (finalReading - initReading);
-            double deltaTimeSec = 0.01;
+            double deltaTicks = finalReading - initReading;
+            double deltaTimeSec = 0.01; // 10 ms
             double motorRevs = deltaTicks / (double) DCMotorMax;
             double wheelRevs = motorRevs * gearRatio;          // if your gearRatio is motorRev/wheelRev
-            double wheelCircum = Math.PI * 4 * 0.0254;      // 4 * pi * 0.0254 (4in diameter)
+            double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;      
             double meters = wheelRevs * wheelCircum;
-            double velocity = meters / deltaTimeSec;
+            double velocity = meters / deltaTimeSec; // m/s
             return velocity;
 
         } catch (Exception e) {
@@ -84,7 +82,7 @@ public class SmartShooter {
 
     public void aim(double[] v, String[] colours) {
         double detectedX;
-        double distance;
+        double distanceMeters;
         double fv = v[0];
         double sv = v[1];
         currentDetections = aprilTag.getDetections();
@@ -93,6 +91,7 @@ public class SmartShooter {
             int angle1, angle2;
             double frontV, sideV;
             if (detection.id == aimedTagID) {
+                // convert servo position to degrees (your existing mapping)
                 double neckHeading = (turretNeck.getPosition() * Constants.ShooterConstants.turretNeckGearRatio);
                 neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
                 neckHeading += Constants.DriveTrainConstants.controlHubOffset;
@@ -116,9 +115,7 @@ public class SmartShooter {
                     }
                 }
                 double angle1Cos = fv * Math.cos(Math.toRadians(totals[0] + angle1));
-                ;
                 double angle2Cos = sv * Math.cos(Math.toRadians(totals[1] + angle2));
-                ;
                 if (totals[0] <= totals[1]) {
                     frontV = angle1Cos;
                     sideV = angle2Cos;
@@ -127,9 +124,12 @@ public class SmartShooter {
                     sideV = angle1Cos;
                 }
                 detectedX = detection.ftcPose.x;
-                distance = detection.ftcPose.range + (Constants.ShooterConstants.centerOffset * 0.0254);
-                turretNeck.setPosition(turretNeck.getPosition() + xTurn(detectedX - (resX / 2), sideV, distance));
-                turretHead.setPosition(turretHead.getPosition() + yTurn(distance, frontV));
+                // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
+                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset) * Constants.inToM;
+
+                // Update turret positions with corrected unit handling and corrected math
+                turretNeck.setPosition(turretNeck.getPosition() + xTurn(detectedX - (Constants.VisionConstants.resX / 2), sideV, distanceMeters));
+                turretHead.setPosition(turretHead.getPosition() + yTurn(distanceMeters, frontV));
                 /*
                 Telemetry scanned info
                 telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
@@ -156,11 +156,43 @@ public class SmartShooter {
         //#TODO
     }
 
-    private void setShooterVelocity(double x, double y, double currentVelocity) {
-        //ChatGPT generated formula, using this prompt: "Physics and math question: Not accounting for air resistance, use the vertex of a parabola (being named x and y respectively), and the use of a slope (gravity/9.8) to find the velocity of a thrown ball needed for the slope."
-        double neededVelocity = Math.sqrt((9.8 * (Math.pow(x, 2) + (4 * Math.pow(y, 2)))) / (2 * y));
-        neededVelocity -= currentVelocity;
-        double power = neededVelocity / (4 * Math.PI * 0.0254 * Constants.ShooterConstants.shooterGearRatio);
+    private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {
+        // Corrected physics:
+        // Compute minimum initial projectile speed v_min (m/s) required to reach horizontal distance R and vertical offset h:
+        // v_min = sqrt( g * R^2 / ( sqrt(R^2 + h^2) - h ) )
+        // (derived from discriminant of projectile equation)
+        double g = 9.8;
+        if (R <= 0) {
+            return; // can't compute
+        }
+        double denom = Math.sqrt(R * R + h * h) - h;
+        if (denom <= 0) {
+            return; // invalid geometry
+        }
+        double vMin = Math.sqrt((g * R * R) / denom);
+
+        // compute required additional linear velocity (m/s) to reach vMin (accounting for current wheel/projectile linear speed)
+        double neededLinearVelocity = vMin - currentVelocity;
+        if (neededLinearVelocity <= 0) {
+            // already at or above required velocity
+            return;
+        }
+
+        // Convert required linear velocity of projectile to shooter wheel / motor units.
+        // wheelCircum = circumference of 4" wheel in meters
+        double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
+        // wheel revs per second needed:
+        double wheelRevsPerSec = neededLinearVelocity / wheelCircum;
+        // motor revs per second needed (if shooterGearRatio is motorRev / wheelRev)
+        double motorRevsPerSec = wheelRevsPerSec * Constants.ShooterConstants.shooterGearRatio;
+
+        // Without knowing a motor-max-RPS, we keep your original simple scaling:
+        // power ~ motorRevsPerSec (you may want to divide by maxMotorRevsPerSec if you have it)
+        double power = motorRevsPerSec / 60.0; // optional normalization: convert RPS to "per minute" scale (example).
+        // NOTE: The correct normalization depends on your expected mapping of 'power' to motor revs.
+        // If you have a known max motor RPM or max rev/sec, divide motorRevsPerSec by that to get 0..1 power.
+        // For now keep it conservative by scaling down (divide by 60) — adjust when you test on hardware.
+
         shoot(power);
     }
 
@@ -174,34 +206,117 @@ public class SmartShooter {
     }
 
     private double xTurn(double xOffset, double velocity, double distance) {
-        double angleToTurn = (Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;//Degrees to turn
-        angleToTurn -= (Math.toDegrees(Math.atan(velocity / distance))) / (180 * Constants.ShooterConstants.turretNeckGearRatio);
-        return angleToTurn;
+        // xOffset: pixel offset from center
+        // velocity: lateral velocity (m/s)
+        // distance: target distance (m)
+        // compute degrees to turn from pixel offset
+        double angleToTurnDeg = (Constants.VisionConstants.FOV / (double) Constants.VisionConstants.resX) * xOffset; // degrees
+
+        // compute lead angle (radians) then convert to degrees:
+        double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance)); // small-angle approximation: atan(velocity/distance)
+        // convert degrees to servo position deltas:
+        double neckDeltaFromPixels = angleToTurnDeg / Constants.ShooterConstants.turretNeckGearRatio;
+        double neckDeltaFromLead = leadAngleDeg / Constants.ShooterConstants.turretNeckGearRatio;
+
+        // final position delta (servo units)
+        return neckDeltaFromPixels - neckDeltaFromLead;
     }
 
     private double yTurn(double distance, double velocity) {
-        //double x = distance/2;
-        //double y = -9.8 * (distance/2 - 0) * (distance/2 - ((48-17)*0.0254));
-        //ChatGPT gave some assistance with this
-        double heightDiffM = (48 - 17 + 5) * 0.0254;
-        double c = heightDiffM / 9.8;
-        double x = 0.5 * (distance - (c / distance));
-        double y = (-98 / 4) * Math.pow((distance - (c / distance)), 2);
-        setShooterVelocity(x, y, velocity);
-        double angle = Math.toDegrees(Math.atan(2 * y / x));
-        return angle / (180 * Constants.ShooterConstants.turretHeadGearRatio);
+        // distance (m) horizontal distance to target
+        // velocity (m/s) current shooter wheel linear velocity (m/s)
+
+        // compute height difference (target height - shooter height) in meters (use your constants)
+        double heightDiffM = (48 - 17 + 5) * Constants.inToM; // kept your original numbers and converted to meters
+
+        double R = distance;
+        double h = heightDiffM;
+
+        if (R <= 0) {
+            return 0;
+        }
+
+        // compute minimal required initial speed (and set shooter speed)
+        setShooterVelocity(R, h, velocity);
+
+        // compute the pitch angle (radians) for the minimal-speed trajectory:
+        // using t = tan(theta) = v^2 / (g * R) where v is the v_min computed earlier.
+        double g = 9.8;
+        double denom = Math.sqrt(R * R + h * h) - h;
+        if (denom <= 0) {
+            return 0;
+        }
+        double vMin = Math.sqrt((g * R * R) / denom);
+        double t = (vMin * vMin) / (g * R); // tan(theta)
+        double angleRad = Math.atan(t);
+        double angleDeg = Math.toDegrees(angleRad);
+
+        // convert degrees to turret-head servo position delta (using same mapping as you used elsewhere)
+        double positionDelta = angleDeg / Constants.ShooterConstants.turretHeadGearRatio;
+        return positionDelta;
         //#TODO: This is assuming equal levelling and no air res, fix based on the height difference
     }
 
     private void initAprilTag() {
 
-        // Create the AprilTag processor the easy way.
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
+        // Create the AprilTag processor.
+        aprilTag = new AprilTagProcessor.Builder()
+
+                // The following default settings are available to un-comment and edit as needed.
+                .setDrawAxes(false)
+                .setDrawCubeProjection(false)
+                .setDrawTagOutline(true)
+                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+
+                // == CAMERA CALIBRATION ==
+                // If you do not manually specify calibration parameters, the SDK will attempt
+                // to load a predefined calibration for your camera.
+                //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+                // ... these parameters are fx, fy, cx, cy.
+                //Calibrations can be found in teamwebcamcalibrations.xml under res/xml, then ctrl+f C270
+                //However idk how to use em
+                .build();
+
+        // Adjust Image Decimation to trade-off detection-range for detection-rate.
+        // eg: Some typical detection data using a Logitech C920 WebCam
+        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
+        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
+        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
+        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
+        // Note: Decimation can be changed on-the-fly to adapt during a match.
         aprilTag.setDecimation(3);
 
-        // Create the vision portal the easy way.
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    hardwareMap.get(WebcamName.class, "Webcam"), aprilTag);
+        // Create the vision portal by using a builder.
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+
+        // Set the camera (webcam vs. built-in RC phone camera).
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam"));
+
+        // Choose a camera resolution. Not all cameras support all resolutions.
+        builder.setCameraResolution(new Size(640, 480));
+
+        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
+        builder.enableLiveView(true);
+
+        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
+        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+
+        // Choose whether or not LiveView stops if no processors are enabled.
+        // If set "true", monitor shows solid orange screen if no processors enabled.
+        // If set "false", monitor shows camera view without annotations.
+        builder.setAutoStopLiveView(false);
+
+        // Set and enable the processor.
+        builder.addProcessor(aprilTag);
+
+        // Build the Vision Portal, using the above settings.
+        visionPortal = builder.build();
+
+        // Disable or re-enable the aprilTag processor at any time.
+        visionPortal.setProcessorEnabled(aprilTag, true);
+
     }
 
     public String[] setColours(List<AprilTagDetection> currentDetections, String[] colours) {
@@ -230,7 +345,7 @@ public class SmartShooter {
             double deltaTimeSec = 0.01;
             double motorRevs = deltaTicks / (double) DCMotorMax;
             double wheelRevs = motorRevs * gearRatio;          // if your gearRatio is motorRev/wheelRev
-            double wheelCircum = Math.PI * 4 * 0.0254;      // 4 * pi * 0.0254 (4in diameter)
+            double wheelCircum = Math.PI * 4 * Constants.inToM;      // 4 * pi * Constants.ShooterConstants.inToM (4in diameter)
             double meters = wheelRevs * wheelCircum;
             double velocity = meters / deltaTimeSec;
             return velocity;

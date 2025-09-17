@@ -3,7 +3,8 @@ package Utilities;
 public class Constants {
     public static final int DCMotorMax = 1464; //360 degrees
     public static final int ServoMax = 1; //180 degrees
-
+    public static final double inToM = 0.0254;
+    public static final int defaultDCRPS = (100/60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
     public static final class DriveTrainConstants {
 
         //Wheel constants
@@ -16,7 +17,7 @@ public class Constants {
         //idk
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
-        public static final double wheelDiameter = 5;
+        public static final double wheelDiameter = 0.10; //in meters
     }
 
     public static final class IntakeConstants {
@@ -35,6 +36,7 @@ public class Constants {
         public static final double turretNeckGearRatio = 2; //Gear multiplier
         public static final double turretHeadGearRatio = 2; //Gear multiplier
         public static final double turretTransferGearRatio = 2; //Gear multiplier
+        public static final double flyWheelDiameter = 4 * inToM;
         public static final int centerOffset = 12;
         public static final double TurretRadius = 0; //#TODO: figure out what this is
     }

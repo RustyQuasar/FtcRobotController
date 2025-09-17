@@ -17,7 +17,7 @@ public class Teleop extends LinearOpMode {
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter Shooter;
-    String TEAM = "RED";
+    String TEAM = "RED"; //Has to be "RED" or "BLUE"
 
     @Override
     public void runOpMode() {
