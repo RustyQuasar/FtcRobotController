@@ -20,14 +20,15 @@ public class Constants {
     }
 
     public static final class IntakeConstants {
-
-        public static final String intake2 = "intake";
+        public static final String intake = "intake";
+        public static final String colourSensor = "colourSensor"; //#TODO: Figure out what it's actually called and configure accordingly
     }
 
     public static final class ShooterConstants {
         public static final String leftShooter0 = "leftShooter";
         public static final String rightShooter1 = "rightShooter";
         public static final double shooterGearRatio = (61 * 1); //Gear multiplier
+        //TODO: Get actual hardware for neck, head and transfer in configuration
         public static final String turretNeck = "turretNeck";
         public static final String turretHead = "turretHead";
         public static final String transferServo = "transferServo";
@@ -39,7 +40,7 @@ public class Constants {
     }
 
     public static final class VisionConstants {
-        public static final String camera = "Webcam 1";
+        public static final String camera = "Webcam";
         public static final int resX = 640;
         public static final int resY = 480;
         public static final int FOV = 55;

@@ -1,5 +1,6 @@
 package Commands;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -8,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import Utilities.Constants;
 
 public class SmartIntake {
-    private final DcMotor motorIntake;
+    private final CRServo motorIntake;
 
     private final ColorSensor colorSen;
 
@@ -17,8 +18,8 @@ public class SmartIntake {
   public String[] artifactOrder = {"N", "N", "N"};
 
     public SmartIntake(HardwareMap hardwareMap) {
-        motorIntake = hardwareMap.get(DcMotor.class, "leftIntake");
-        colorSen = hardwareMap.get(ColorSensor.class, "colorSensor");
+        motorIntake = hardwareMap.get(CRServo.class, Constants.IntakeConstants.intake);
+        colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
     }
 
     public boolean isBall() {
