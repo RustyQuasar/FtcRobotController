@@ -116,7 +116,7 @@ public class MechanumDrive {
      * @return double[] with {forward, strafe} velocities
      */
 
-    public double[] getDrivetrainVelocities(int wheelDiameter, double gearRatio) {
+    public double[] getDrivetrainVelocities(double wheelDiameter, double gearRatio) {
         try {
             // ---- 1. Record initial encoder positions ----
             int[] initReading = {

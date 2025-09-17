@@ -12,7 +12,7 @@ public class SmartIntake {
 
     private boolean motifState = false;
     private int ballCount = 0;
-    private String[] artifactOrder = {"N", "N", "N"};
+  public String[] artifactOrder = {"N", "N", "N"};
 
     public SmartIntake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(DcMotor.class, "leftIntake");
@@ -53,7 +53,7 @@ public class SmartIntake {
                 }
                 ballCount++;
                 colorRegister();
-                if (!(artifactOrder[ballCount - 1] = Constants.VisionConstants.colours[3 - ballCount])) {
+                if (!(artifactOrder[ballCount - 1].equals(Constants.VisionConstants.colours[3 - ballCount]))) {
                     ballCount--;
                     motorIntake.setPower(-1);
                     try {

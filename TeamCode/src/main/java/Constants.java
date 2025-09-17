@@ -15,7 +15,8 @@ public final class Constants {
         public static final String imu = "imu";
         //idk
         public static final double controlHubOffset = 0;
-        public static final double wheelGearRatio = (61 * 1);
+        public static final double gearRatio = (61 * 1);
+        public static final double wheelDiameter = 5;
     }
 
     public static final class IntakeConstants {

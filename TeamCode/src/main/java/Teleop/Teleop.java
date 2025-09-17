@@ -34,7 +34,7 @@ public class Teleop extends LinearOpMode {
                 Intake.intake(activeGamepad1.right_bumper);
 
             if (activeGamepad1.right_trigger>0.5) {
-                Shooter.transfer();
+                  Shooter.shoot();
                   Intake.colorWipe();
             }
             if (activeGamepad1.back) {
@@ -54,7 +54,7 @@ public class Teleop extends LinearOpMode {
             if (manualMode) {
             }
             Mechanum.periodic(telemetry);
-            Shooter.aim(Mechanum.getDrivetrainVelocities(Constants.DriveTrainConstants.wheelDiameter, Constants.DriveTrainConstants.gearRatio));
+            Shooter.aim(Mechanum.getDrivetrainVelocities(Constants.DriveTrainConstants.wheelDiameter , Constants.DriveTrainConstants.gearRatio),Constants.VisionConstants.colours);
             telemetry.addData("Manual Mode: ", manualMode);
             telemetry.update();
         }
