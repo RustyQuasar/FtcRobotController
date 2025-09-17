@@ -1,6 +1,6 @@
-;
+package Utilities;
 
-public final class Constants {
+public class Constants {
     public static final int DCMotorMax = 1464; //360 degrees
     public static final int ServoMax = 1; //180 degrees
 

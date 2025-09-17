@@ -23,6 +23,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.Arrays;
 import java.util.List;
 
+import Utilities.Constants;
+
 public class SmartShooter {
     private final DcMotor leftShooter, rightShooter;
     private final Servo turretNeck, turretHead, transferServo;
