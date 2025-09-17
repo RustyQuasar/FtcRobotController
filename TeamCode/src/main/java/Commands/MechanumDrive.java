@@ -23,10 +23,10 @@ public class MechanumDrive {
     private double yawOffset;
 
     public MechanumDrive(HardwareMap hardwareMap) {
-        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
-        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
-        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor);
-        backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor);
+        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
+        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
+        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
+        backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
 
         frontLeft0.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight1.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -106,6 +106,72 @@ public class MechanumDrive {
         }
 
         return heading;
+    }
+
+    /**
+     * Returns {forwardVelocity, strafeVelocity} in distance units per second.
+     *
+     * @param wheelDiameter Diameter of wheel (same unit as desired velocity output)
+     * @param gearRatio     Gear ratio (wheel revs per motor rev)
+     * @return double[] with {forward, strafe} velocities
+     */
+
+    public double[] getDrivetrainVelocities(int wheelDiameter, double gearRatio) {
+        try {
+            // ---- 1. Record initial encoder positions ----
+            int[] initReading = {
+                    frontLeft0.getCurrentPosition(),
+                    frontRight1.getCurrentPosition(),
+                    backLeft2.getCurrentPosition(),
+                    backRight3.getCurrentPosition()
+            };
+
+            // ---- 2. Measure time between samples ----
+            long startTime = System.currentTimeMillis();
+            Thread.sleep(5); // short delay (5ms)
+            long endTime = System.currentTimeMillis();
+            double deltaTime = (endTime - startTime) / 1000.0; // convert ms → seconds
+
+            // ---- 3. Record final encoder positions ----
+            int[] finalReading = {
+                    frontLeft0.getCurrentPosition(),
+                    frontRight1.getCurrentPosition(),
+                    backLeft2.getCurrentPosition(),
+                    backRight3.getCurrentPosition()
+            };
+
+            // ---- 4. Compute tick differences for each motor ----
+            double[] diffs = {
+                    finalReading[0] - initReading[0],
+                    finalReading[1] - initReading[1],
+                    finalReading[2] - initReading[2],
+                    finalReading[3] - initReading[3]
+            };
+
+            // ---- 5. Convert ticks → linear wheel velocities ----
+            double ticksPerRev = 537.7;  // adjust for your motor type (ex: goBILDA 5202/3/4)
+            double wheelCircumference = Math.PI * wheelDiameter; // distance per rev
+            double[] vWheel = new double[4];
+
+            for (int i = 0; i < 4; i++) {
+                double revs = diffs[i] / ticksPerRev; // motor revolutions in deltaTime
+                double distance = revs * wheelCircumference * gearRatio;
+                vWheel[i] = distance / deltaTime; // velocity of each wheel
+            }
+
+            // ---- 6. Apply mecanum math ----
+            double forward = (vWheel[0] + vWheel[1] + vWheel[2] + vWheel[3]) / 4.0; //Forward positive, backward negative
+            double strafe = (vWheel[0] - vWheel[1] - vWheel[2] + vWheel[3]) / 4.0; //Right positive, left negative
+
+            // ---- 7. Correct for √2 loss in strafe ----
+            strafe *= Math.sqrt(2);
+
+            // ---- 8. Return {forward, strafe} ----
+            return new double[]{forward, strafe};
+
+        } catch (Exception e) {
+            return new double[]{0, 0}; // safe fallback
+        }
     }
 
     public void periodic(Telemetry telemetry) {

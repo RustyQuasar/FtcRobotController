@@ -37,6 +37,7 @@ if(colorRedValue>=200){
         artifactOrder[3] = "N";
         ballCount=0;
     }
+
     public void intakeStateSwitch() {
  motifState=!motifState;
         }

@@ -17,6 +17,7 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter Shooter;
     String TEAM;
+
     @Override
     public void runOpMode() {
         telemetry.update();
@@ -25,7 +26,6 @@ public class Teleop extends LinearOpMode {
         Mechanum = new MechanumDrive(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, TEAM);
-
         waitForStart();
 
         while (opModeIsActive()) {
@@ -54,7 +54,7 @@ public class Teleop extends LinearOpMode {
             if (manualMode) {
             }
             Mechanum.periodic(telemetry);
-            Shooter.aim();
+            Shooter.aim(Mechanum.getDrivetrainVelocities(Constants.DriveTrainConstants.wheelDiameter, Constants.DriveTrainConstants.gearRatio));
             telemetry.addData("Manual Mode: ", manualMode);
             telemetry.update();
         }
