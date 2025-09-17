@@ -79,9 +79,11 @@ public class SmartShooter {
         rightShooter.setPower(power);
     }
 
-    public void aim(double fv, double sv, String[] colours) {
+    public void aim(double[] v, String[] colours) {
         double detectedX;
         double distance;
+        double fv = v[0];
+        double sv = v[1];
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             int angle1, angle2;
