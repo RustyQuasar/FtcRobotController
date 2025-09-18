@@ -44,7 +44,7 @@ public class SmartShooter {
         rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter1);
         turretNeck = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretNeck);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
-        transferServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.transferServo);
+        transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
         leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
