@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
+import Commands.Vision;
 import Utilities.Constants;
 
 @TeleOp
@@ -17,6 +18,7 @@ public class Teleop extends LinearOpMode {
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter Shooter;
+    Vision Vision;
     String TEAM = "RED"; //Has to be "RED" or "BLUE"
 
     @Override
@@ -25,8 +27,9 @@ public class Teleop extends LinearOpMode {
         activeGamepad1 = new Gamepad();
         manualMode = true;
         Mechanum = new MechanumDrive(hardwareMap);
+        Vision = new Vision(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter(hardwareMap, TEAM);
+        Shooter = new SmartShooter(hardwareMap, TEAM, Vision);
         waitForStart();
 
         while (opModeIsActive()) {
