@@ -29,13 +29,11 @@ public class Vision {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     List<AprilTagDetection> currentDetections;
-    HardwareMap hardwareMap;
-    public Vision(HardwareMap map){
-        hardwareMap = map;
-        initAprilTag();
+    public Vision(HardwareMap hardwareMap){
+        initAprilTag(hardwareMap);
     }
 
-    private void initAprilTag() {
+    private void initAprilTag(HardwareMap hardwareMap) {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
@@ -96,7 +94,7 @@ public class Vision {
         visionPortal.setProcessorEnabled(aprilTag, true);
 
     }
-    public List<AprilTagDetection> getDetecions(){
+    public List<AprilTagDetection> getDetections(){
         return currentDetections;
     }
     public void updateAprilTags(){

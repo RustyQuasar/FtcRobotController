@@ -33,6 +33,7 @@ public class Teleop extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            Vision.updateAprilTags();
             activeGamepad1.copy(gamepad1);
 
                 Intake.intake(activeGamepad1.right_bumper);

@@ -67,7 +67,7 @@ public class SmartShooter {
         double fv = v[0];
         double sv = v[1];
         // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : Vision.getDetecions()) {
+        for (AprilTagDetection detection : Vision.getDetections()) {
             int angle1, angle2;
             double frontV, sideV;
             if (detection.id == aimedTagID) {
