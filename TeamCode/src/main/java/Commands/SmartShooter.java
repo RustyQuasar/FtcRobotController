@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.har
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.security.cert.CertSelector;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,7 +30,8 @@ import Utilities.Constants;
 
 public class SmartShooter {
     private final DcMotor leftShooter, rightShooter;
-    private final Servo turretNeck, turretHead, transferServo;
+    private final Servo turretNeck, turretHead;
+    private final CRServo transferServo;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, 0, 0, 0); //Idk what this is but I'm too afraid to delete it
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
@@ -43,7 +46,7 @@ public class SmartShooter {
         rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter1);
         turretNeck = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretNeck);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
-        transferServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.transferServo);
+        transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
         leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -152,7 +155,7 @@ public class SmartShooter {
     }
 
     public void transfer() {
-        transferServo.setPosition(1);
+        transferServo.setPower(1);
         //#TODO
     }
 
