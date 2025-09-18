@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.har
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,7 +21,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.security.cert.CertSelector;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class SmartShooter {
         rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter1);
         turretNeck = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretNeck);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
-        transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
+        transferServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.transferServo);
         leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -117,14 +115,13 @@ public class SmartShooter {
                         totals[i] *= -1;
                     }
                 }
-                double angle1Cos = fv * Math.cos(Math.toRadians(totals[0] + angle1));
-                double angle2Cos = sv * Math.cos(Math.toRadians(totals[1] + angle2));
+                double hypotenuse = Math.sqrt(Math.pow(fv, 2) + Math.pow(sv, 2));
                 if (totals[0] <= totals[1]) {
-                    frontV = angle1Cos;
-                    sideV = angle2Cos;
+                    frontV = hypotenuse * Math.sin(Math.toRadians(totals[0]));
+                    sideV = hypotenuse * Math.cos(Math.toRadians(totals[0]));
                 } else {
-                    frontV = angle2Cos;
-                    sideV = angle1Cos;
+                    frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
+                    sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
                 }
                 detectedX = detection.ftcPose.x;
                 // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
