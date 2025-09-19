@@ -35,10 +35,12 @@ public class Constants {
         public static final double shooterGearRatio = (61 * 1); //Gear multiplier
         //TODO: Get actual hardware for neck, head and transfer in configuration
         //Servos
-        public static final String turretNeck = "turretNeck"; //Expansion hub Servo port 0
         public static final String turretHead = "turretHead"; //Expansion hub Servo port 1
         //CR Servo
+        public static final String turretNeckServo = "turretNeckServo"; //Expansion hub Servo port 0
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
+        //Encoders
+        public static final String turretNeckEncoder = "turretNeckEncoder";
         public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
         public static final double turretHeadGearRatio = 2; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
