@@ -2,6 +2,7 @@ package Commands;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -15,20 +16,20 @@ import Utilities.Constants;
 
 public class MechanumDrive {
 
-    private final DcMotor frontLeft0;
-    private final DcMotor frontRight1;
-    private final DcMotor backLeft2;
-    private final DcMotor backRight3;
+    private final DcMotorEx frontLeft0;
+    private final DcMotorEx frontRight1;
+    private final DcMotorEx backLeft2;
+    private final DcMotorEx backRight3;
 
     private final BNO055IMU imu;
 
     private double yawOffset;
 
     public MechanumDrive(HardwareMap hardwareMap) {
-        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
-        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
-        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
-        backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
+        frontLeft0 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0);
+        frontRight1 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1);
+        backLeft2 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backLeftMotor2);
+        backRight3 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backRightMotor3);
 
         frontLeft0.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight1.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -52,7 +53,6 @@ public class MechanumDrive {
 
         double botHeading = getHeading();
         double headingRadians = Math.toRadians(botHeading);
-
 
         // Rotate the movement direction counter to the bot's rotation
 
@@ -119,61 +119,18 @@ public class MechanumDrive {
      */
 
     public double[] getDrivetrainVelocities(double wheelDiameter, double gearRatio) {
-        try {
-            // ---- 1. Record initial encoder positions ----
-            int[] initReading = {
-                    frontLeft0.getCurrentPosition(),
-                    frontRight1.getCurrentPosition(),
-                    backLeft2.getCurrentPosition(),
-                    backRight3.getCurrentPosition()
-            };
-
-            // ---- 2. Measure time between samples ----
-            long startTime = System.currentTimeMillis();
-            Thread.sleep(5); // short delay (5ms)
-            long endTime = System.currentTimeMillis();
-            double deltaTime = (endTime - startTime) / 1000.0; // convert ms → seconds
-
-            // ---- 3. Record final encoder positions ----
-            int[] finalReading = {
-                    frontLeft0.getCurrentPosition(),
-                    frontRight1.getCurrentPosition(),
-                    backLeft2.getCurrentPosition(),
-                    backRight3.getCurrentPosition()
-            };
-
-            // ---- 4. Compute tick differences for each motor ----
-            double[] diffs = {
-                    finalReading[0] - initReading[0],
-                    finalReading[1] - initReading[1],
-                    finalReading[2] - initReading[2],
-                    finalReading[3] - initReading[3]
-            };
-
-            // ---- 5. Convert ticks → linear wheel velocities ----
-            double ticksPerRev = 537.7;  // adjust for your motor type (ex: goBILDA 5202/3/4)
-            double wheelCircumference = Math.PI * wheelDiameter; // distance per rev
-            double[] vWheel = new double[4];
-
-            for (int i = 0; i < 4; i++) {
-                double revs = diffs[i] / ticksPerRev; // motor revolutions in deltaTime
-                double distance = revs * wheelCircumference * gearRatio;
-                vWheel[i] = distance / deltaTime; // velocity of each wheel
-            }
-
-            // ---- 6. Apply mecanum math ----
-            double forward = (vWheel[0] + vWheel[1] + vWheel[2] + vWheel[3]) / 4.0; //Forward positive, backward negative
-            double strafe = (vWheel[0] - vWheel[1] - vWheel[2] + vWheel[3]) / 4.0; //Right positive, left negative
-
-            // ---- 7. Correct for √2 loss in strafe ----
-            strafe *= Math.sqrt(2);
-
-            // ---- 8. Return {forward, strafe} ----
-            return new double[]{forward, strafe};
-
-        } catch (Exception e) {
-            return new double[]{0, 0}; // safe fallback
+        double[] TicksPerSecond = {frontLeft0.getVelocity(), frontRight1.getVelocity(), backLeft2.getVelocity(), backRight3.getVelocity()};
+        double wheelCircumference = Math.PI * wheelDiameter; // distance per rev
+        double[] vWheel = new double[4];
+        for (int i = 0; i < 4; i++) {
+            double distance = wheelCircumference * gearRatio;
+            vWheel[i] = distance * TicksPerSecond[i] / Constants.DCMotorMax;
         }
+        double forward = (vWheel[0] + vWheel[1] + vWheel[2] + vWheel[3]) / 4.0; //Forward positive, backward negative
+        double strafe = (vWheel[0] - vWheel[1] - vWheel[2] + vWheel[3]) / 4.0; //Right positive, left negative
+        strafe *= Math.sqrt(2);
+        return new double[]{forward, strafe};
+
     }
 
     public void periodic(Telemetry telemetry) {

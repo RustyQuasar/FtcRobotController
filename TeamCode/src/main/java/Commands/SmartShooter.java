@@ -3,6 +3,7 @@ package Commands;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,15 +14,15 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import Utilities.Constants;
 
 public class SmartShooter {
-    private final DcMotor leftShooter, rightShooter;
+    private final DcMotorEx leftShooter, rightShooter;
     private final Servo turretNeck, turretHead;
     private final CRServo transferServo;
     private int aimedTagID;
     Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
-        leftShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.leftShooter0);
-        rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter1);
+        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
+        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
         turretNeck = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretNeck);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
@@ -35,27 +36,6 @@ public class SmartShooter {
         }
         Vision = vision;
     }
-
-    private static double rightShooterVelocity(DcMotor rightShooter, int DCMotorMax, double gearRatio) {
-        try {
-            int initReading = rightShooter.getCurrentPosition();
-            Thread.sleep(10);                      // not recommended — use a longer window
-            int finalReading = rightShooter.getCurrentPosition();
-
-            double deltaTicks = finalReading - initReading;
-            double deltaTimeSec = 0.01; // 10 ms
-            double motorRevs = deltaTicks / (double) DCMotorMax;
-            double wheelRevs = motorRevs * gearRatio;          // if your gearRatio is motorRev/wheelRev
-            double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;      
-            double meters = wheelRevs * wheelCircum;
-            double velocity = meters / deltaTimeSec; // m/s
-            return velocity;
-
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
     public void shoot(double power) {
         leftShooter.setPower(power);
         rightShooter.setPower(power);
@@ -122,7 +102,7 @@ public class SmartShooter {
 
     public double getShooterVelocity(int DCMotorMax, int gearRatio) {
         if (leftShooter.getPower() != 0 && rightShooter.getPower() != 0) {
-            return (leftShooterVelocity(leftShooter, DCMotorMax, gearRatio) + rightShooterVelocity(rightShooter, DCMotorMax, gearRatio)) / 2;
+            return (leftShooter.getVelocity() * gearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax + (rightShooter.getVelocity() * gearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax) / 2);
         } else {
             return 0;
         }
@@ -130,7 +110,6 @@ public class SmartShooter {
 
     public void transfer() {
         transferServo.setPower(1);
-        //#TODO
     }
 
     private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {
@@ -165,11 +144,8 @@ public class SmartShooter {
 
         // Without knowing a motor-max-RPS, we keep your original simple scaling:
         // power ~ motorRevsPerSec (you may want to divide by maxMotorRevsPerSec if you have it)
-        double power = motorRevsPerSec / 60.0; // optional normalization: convert RPS to "per minute" scale (example).
+        double power = motorRevsPerSec / Constants.defaultDCRPS; // optional normalization: convert RPS to "per minute" scale (example).
         // NOTE: The correct normalization depends on your expected mapping of 'power' to motor revs.
-        // If you have a known max motor RPM or max rev/sec, divide motorRevsPerSec by that to get 0..1 power.
-        // For now keep it conservative by scaling down (divide by 60) — adjust when you test on hardware.
-
         shoot(power);
     }
 
@@ -204,7 +180,7 @@ public class SmartShooter {
         // velocity (m/s) current shooter wheel linear velocity (m/s)
 
         // compute height difference (target height - shooter height) in meters (use your constants)
-        double heightDiffM = (48 - 17 + 5) * Constants.inToM; // kept your original numbers and converted to meters
+        double heightDiffM = (48 - 17 + 5 + 2) * Constants.inToM; // kept your original numbers and converted to meters, the extra 2in is buffer
 
         double R = distance;
         double h = heightDiffM;
@@ -232,26 +208,5 @@ public class SmartShooter {
         double positionDelta = angleDeg / Constants.ShooterConstants.turretHeadGearRatio;
         return positionDelta;
         //#TODO: This is assuming equal levelling and no air res, fix based on the height difference
-    }
-
-
-    private double leftShooterVelocity(DcMotor leftShooter, int DCMotorMax, double gearRatio) {
-        try {
-            int initReading = leftShooter.getCurrentPosition();
-            Thread.sleep(10);                      // not recommended — use a longer window
-            int finalReading = leftShooter.getCurrentPosition();
-
-            double deltaTicks = (double) (finalReading - initReading);
-            double deltaTimeSec = 0.01;
-            double motorRevs = deltaTicks / (double) DCMotorMax;
-            double wheelRevs = motorRevs * gearRatio;          // if your gearRatio is motorRev/wheelRev
-            double wheelCircum = Math.PI * 4 * Constants.inToM;      // 4 * pi * Constants.ShooterConstants.inToM (4in diameter)
-            double meters = wheelRevs * wheelCircum;
-            double velocity = meters / deltaTimeSec;
-            return velocity;
-
-        } catch (Exception e) {
-            return 0;
-        }
     }
 }
