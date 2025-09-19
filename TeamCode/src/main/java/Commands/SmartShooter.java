@@ -4,7 +4,6 @@ package Commands;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -17,7 +16,7 @@ public class SmartShooter {
     private final DcMotorEx leftShooter, rightShooter;
     private final Servo turretNeck, turretHead;
     private final CRServo transferServo;
-    private int aimedTagID;
+    private final int aimedTagID;
     Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
@@ -41,7 +40,7 @@ public class SmartShooter {
         rightShooter.setPower(power);
     }
 
-    public void aim(double[] v, String[] colours) {
+    public void aim(double[] v) {
         double detectedX;
         double distanceMeters;
         double fv = v[0];
@@ -87,7 +86,7 @@ public class SmartShooter {
                 distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset) * Constants.inToM;
 
                 // Update turret positions with corrected unit handling and corrected math
-                turretNeck.setPosition(turretNeck.getPosition() + xTurn(detectedX - (Constants.VisionConstants.resX / 2), sideV, distanceMeters));
+                turretNeck.setPosition(turretNeck.getPosition() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters));
                 turretHead.setPosition(turretHead.getPosition() + yTurn(distanceMeters, frontV));
                 /*
                 Telemetry scanned info
@@ -100,9 +99,9 @@ public class SmartShooter {
         }
     }
 
-    public double getShooterVelocity(int DCMotorMax, int gearRatio) {
+    public double getShooterVelocity() {
         if (leftShooter.getPower() != 0 && rightShooter.getPower() != 0) {
-            return (leftShooter.getVelocity() * gearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax + (rightShooter.getVelocity() * gearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax) / 2);
+            return (leftShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax + (rightShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax) / 2);
         } else {
             return 0;
         }
@@ -133,8 +132,6 @@ public class SmartShooter {
             // already at or above required velocity
             return;
         }
-
-        // Convert required linear velocity of projectile to shooter wheel / motor units.
         // wheelCircum = circumference of 4" wheel in meters
         double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
         // wheel revs per second needed:
@@ -163,16 +160,18 @@ public class SmartShooter {
         // velocity: lateral velocity (m/s)
         // distance: target distance (m)
         // compute degrees to turn from pixel offset
-        double angleToTurnDeg = (Constants.VisionConstants.FOV / (double) Constants.VisionConstants.resX) * xOffset; // degrees
+        double angleToTurnDeg = ((double) Constants.VisionConstants.FOV /  Constants.VisionConstants.resX) * xOffset; // degrees
 
         // compute lead angle (radians) then convert to degrees:
         double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance)); // small-angle approximation: atan(velocity/distance)
         // convert degrees to servo position deltas:
-        double neckDeltaFromPixels = angleToTurnDeg / Constants.ShooterConstants.turretNeckGearRatio;
-        double neckDeltaFromLead = leadAngleDeg / Constants.ShooterConstants.turretNeckGearRatio;
 
         // final position delta (servo units)
-        return neckDeltaFromPixels - neckDeltaFromLead;
+        double finalPos = 360 / (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
+        if (finalPos > Constants.ServoMax) {
+            finalPos = Constants.ServoMax;
+        }
+        return finalPos;
     }
 
     private double yTurn(double distance, double velocity) {
@@ -182,30 +181,30 @@ public class SmartShooter {
         // compute height difference (target height - shooter height) in meters (use your constants)
         double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // kept your original numbers and converted to meters, the extra 2in is buffer
 
-        double R = distance;
-        double h = heightDiffM;
-
-        if (R <= 0) {
+        if (distance <= 0) {
             return 0;
         }
 
         // compute minimal required initial speed (and set shooter speed)
-        setShooterVelocity(R, h, velocity);
+        setShooterVelocity(distance, heightDiffM, velocity);
 
         // compute the pitch angle (radians) for the minimal-speed trajectory:
         // using t = tan(theta) = v^2 / (g * R) where v is the v_min computed earlier.
         double g = 9.8;
-        double denom = Math.sqrt(R * R + h * h) - h;
+        double denom = Math.sqrt(distance * distance + heightDiffM * heightDiffM) - heightDiffM;
         if (denom <= 0) {
             return 0;
         }
-        double vMin = Math.sqrt((g * R * R) / denom);
-        double t = (vMin * vMin) / (g * R); // tan(theta)
+        double vMin = Math.sqrt((g * distance * distance) / denom);
+        double t = (vMin * vMin) / (g * distance); // tan(theta)
         double angleRad = Math.atan(t);
         double angleDeg = Math.toDegrees(angleRad);
 
         // convert degrees to turret-head servo position delta (using same mapping as you used elsewhere)
-        double positionDelta = angleDeg / Constants.ShooterConstants.turretHeadGearRatio;
+        double positionDelta = (360 / angleDeg) / Constants.ShooterConstants.turretHeadGearRatio;
+        if (positionDelta > Constants.ServoMax) {
+            positionDelta = Constants.ServoMax;
+        }
         return positionDelta;
         //#TODO: This is assuming equal levelling and no air res, fix based on the height difference
     }

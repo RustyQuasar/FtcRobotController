@@ -40,10 +40,8 @@ public class Constants {
         public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
         public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
         public static final double turretHeadGearRatio = 2; //Gear multiplier
-        public static final double turretTransferGearRatio = 2; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
         public static final int centerOffset = 12;
-        public static final double TurretRadius = 0; //#TODO: figure out what this is
     }
 
     public static final class VisionConstants {

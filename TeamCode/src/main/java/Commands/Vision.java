@@ -1,7 +1,5 @@
 package Commands;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -27,7 +25,6 @@ public class Vision {
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0);
     private AprilTagProcessor aprilTag;
-    private VisionPortal visionPortal;
     List<AprilTagDetection> currentDetections;
     public Vision(HardwareMap hardwareMap){
         initAprilTag(hardwareMap);
@@ -71,7 +68,7 @@ public class Vision {
         builder.setCamera(hardwareMap.get(WebcamName.class, Constants.VisionConstants.camera));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(640, 480));
+        builder.setCameraResolution(new Size(Constants.VisionConstants.resX, Constants.VisionConstants.resY));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         builder.enableLiveView(true);
@@ -88,21 +85,22 @@ public class Vision {
         builder.addProcessor(aprilTag);
 
         // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
+        VisionPortal visionPortal = builder.build();
 
         // Disable or re-enable the aprilTag processor at any time.
         visionPortal.setProcessorEnabled(aprilTag, true);
 
     }
     public List<AprilTagDetection> getDetections(){
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})) {
+            Constants.VisionConstants.colours = setColours(currentDetections);
+        }
         return currentDetections;
     }
     public void updateAprilTags(){
         currentDetections = aprilTag.getDetections();
     }
-    public String[] setColours(List<AprilTagDetection> currentDetections, String[] colours) {
-        String[] blank = {"N", "N", "N"};
-        if (Arrays.equals(colours, blank)) {
+    public String[] setColours(List<AprilTagDetection> currentDetections) {
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.id == 21) {
                     return new String[]{"G", "P", "P"};
@@ -112,7 +110,6 @@ public class Vision {
                     return new String[]{"P", "P", "G"};
                 }
             }
-        }
-        return blank;
+            return new String[]{"N", "N", "N"};
     }
 }
