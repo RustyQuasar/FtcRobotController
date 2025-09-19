@@ -23,8 +23,9 @@ public class Constants {
     public static final class IntakeConstants {
         //Servo0 (Continuous Rotation - Control Hub)
         public static final String intake = "intake";
-        //Digital 0:1 (Colour Sensor - Control Hub)
-        public static final String colourSensor = "colourSensor"; //#TODO: Figure out what it's actually called and configure accordingly
+        //Control hub - I2C port/bus 1
+        public static final String colourSensor = "colourSensor";
+
     }
 
     public static final class ShooterConstants {
@@ -37,7 +38,7 @@ public class Constants {
         public static final String turretNeck = "turretNeck"; //Expansion hub Servo port 0
         public static final String turretHead = "turretHead"; //Expansion hub Servo port 1
         //CR Servo
-        public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
+        public static final String transferServo = "transferServo"; //Control hub Servo port 1
         public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
         public static final double turretHeadGearRatio = 2; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
