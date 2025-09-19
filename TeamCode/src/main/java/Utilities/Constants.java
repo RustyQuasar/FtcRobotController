@@ -38,7 +38,7 @@ public class Constants {
         public static final String turretHead = "turretHead"; //Expansion hub Servo port 1
         //CR Servo
         public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
-        public static final double turretNeckGearRatio = 2; //Gear multiplier
+        public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
         public static final double turretHeadGearRatio = 2; //Gear multiplier
         public static final double turretTransferGearRatio = 2; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;

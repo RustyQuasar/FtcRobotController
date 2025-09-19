@@ -180,7 +180,7 @@ public class SmartShooter {
         // velocity (m/s) current shooter wheel linear velocity (m/s)
 
         // compute height difference (target height - shooter height) in meters (use your constants)
-        double heightDiffM = (48 - 17 + 5 + 2) * Constants.inToM; // kept your original numbers and converted to meters, the extra 2in is buffer
+        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // kept your original numbers and converted to meters, the extra 2in is buffer
 
         double R = distance;
         double h = heightDiffM;
