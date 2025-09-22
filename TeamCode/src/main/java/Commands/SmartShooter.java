@@ -95,7 +95,7 @@ public class SmartShooter {
 
                 // Update turret positions with corrected unit handling and corrected math
                 turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters));
-                turretHead.setPosition(turretHead.getPosition() + yTurn(distanceMeters, frontV));
+                yTurn(distanceMeters, getShooterVelocity());
                 /*
                 Telemetry scanned info
                 telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
@@ -120,6 +120,7 @@ public class SmartShooter {
     }
 
     private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {
+        //ChatGPT helped write this thanks to me not knowing the formulas
         double g = 9.8;
         double t = 1.0; // desired travel time (s), adjust if you want shorter/longer arcs
 
@@ -166,39 +167,36 @@ public class SmartShooter {
         }
         return angleDiff;
     }
-
-    private double yTurn(double distance, double velocity) {
+    private double yTurn(double distance, double velocityCurrent) {
+        //ChatGPT helped write this thanks to me not knowing the formulas
         // distance (m): horizontal distance to target
-        // velocity (m/s): current shooter wheel linear velocity
+        // velocityCurrent (m/s): current shooter wheel linear velocity (m/s)
 
-        // Height difference (example: 48 - 16 + 5 + 2 in, converted to meters)
-        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM;
+        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // target - shooter height + buffer
 
         if (distance <= 0) {
-            return 0.5;
+            return 0;
         }
 
-        // Ensure shooter is spun up for ~1s trajectory
-        setShooterVelocity(distance, heightDiffM, velocity);
-
-        double g = 9.8;
-        double t = 1.0; // same travel time assumption
-
-        // Velocity components required
-        double vX = distance / t;
-        double vY = (heightDiffM + 0.5 * g * Math.pow(t, 2)) / t;
-
-        // Launch angle (radians → degrees)
-        double angleRad = Math.atan2(vY, vX);
+        // --- Step 1: compute angle based on target triangle ---
+        double angleRad = Math.atan2(heightDiffM, distance);
         double angleDeg = Math.toDegrees(angleRad);
 
-        // Convert angle to turret-head servo position delta
-        double positionDelta = (360 / angleDeg) / Constants.ShooterConstants.turretHeadGearRatio;
+        // --- Step 2: approximate arc length velocity ---
+        double straightLine = Math.sqrt(distance * distance + heightDiffM * heightDiffM);
+        double velocityTarget = 0.75 * straightLine; // 1.5*L / 2 = 0.75*L
+
+        // update shooter velocity to match new target
+        setShooterVelocity(distance, heightDiffM, velocityTarget);
+
+        // --- Step 3: convert to servo position delta ---
+        double positionDelta = (angleDeg / 360.0) * Constants.ShooterConstants.turretHeadGearRatio;
         if (positionDelta > Constants.ServoMax) {
             positionDelta = Constants.ServoMax;
         }
 
         return positionDelta;
     }
+
 
 }
