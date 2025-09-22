@@ -2,6 +2,7 @@ package Commands;
 
 import android.util.Size;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -13,6 +14,8 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
 import java.util.List;
@@ -99,6 +102,11 @@ public class Vision {
     }
     public void updateAprilTags(){
         currentDetections = aprilTag.getDetections();
+    }
+    public void updateStream(HardwareMap hardwareMap){
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        OpenCvWebcam camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, Constants.VisionConstants.camera), cameraMonitorViewId);
+        FtcDashboard.getInstance().startCameraStream(camera, 0);
     }
     public String[] setColours(List<AprilTagDetection> currentDetections) {
             for (AprilTagDetection detection : currentDetections) {

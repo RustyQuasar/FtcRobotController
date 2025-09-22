@@ -1,5 +1,3 @@
-//Original repo: https://github.com/The-Robotics-Catalyst-Foundation/FIRST-Opensource/tree/main/FTC/RTPAxon
-//Website: https://singultech.app/openftc#run-to-position-axon (Used 32343)
 package Commands;
 
 
@@ -43,6 +41,7 @@ public class SmartShooter {
         }
         Vision = vision;
     }
+
     public void shoot(double power) {
         leftShooter.setPower(power);
         rightShooter.setPower(power);
@@ -121,39 +120,33 @@ public class SmartShooter {
     }
 
     private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {
-        // Corrected physics:
-        // Compute minimum initial projectile speed v_min (m/s) required to reach horizontal distance R and vertical offset h:
-        // v_min = sqrt( g * R^2 / ( sqrt(R^2 + h^2) - h ) )
-        // (derived from discriminant of projectile equation)
         double g = 9.8;
-        if (R <= 0) {
-            return; // can't compute
-        }
-        double denom = Math.sqrt(R * R + h * h) - h;
-        if (denom <= 0) {
-            return; // invalid geometry
-        }
-        double vMin = Math.sqrt((g * R * R) / denom);
+        double t = 1.0; // desired travel time (s), adjust if you want shorter/longer arcs
 
-        // compute required additional linear velocity (m/s) to reach vMin (accounting for current wheel/projectile linear speed)
-        double neededLinearVelocity = vMin - currentVelocity;
+        // Required launch velocity components
+        double vX = R / t;
+        double vY = (h + 0.5 * g * t * t) / t;
+
+        // Magnitude of required velocity
+        double vRequired = Math.sqrt(vX * vX + vY * vY);
+
+        // Extra velocity needed (beyond current)
+        double neededLinearVelocity = vRequired - currentVelocity;
         if (neededLinearVelocity <= 0) {
-            // already at or above required velocity
-            return;
+            return; // already fast enough
         }
-        // wheelCircum = circumference of 4" wheel in meters
+
+        // Convert to wheel/motor RPS
         double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
-        // wheel revs per second needed:
         double wheelRevsPerSec = neededLinearVelocity / wheelCircum;
-        // motor revs per second needed (if shooterGearRatio is motorRev / wheelRev)
         double motorRevsPerSec = wheelRevsPerSec * Constants.ShooterConstants.shooterGearRatio;
 
-        // Without knowing a motor-max-RPS, we keep your original simple scaling:
-        // power ~ motorRevsPerSec (you may want to divide by maxMotorRevsPerSec if you have it)
-        double power = motorRevsPerSec / Constants.defaultDCRPS; // optional normalization: convert RPS to "per minute" scale (example).
-        // NOTE: The correct normalization depends on your expected mapping of 'power' to motor revs.
+        // Normalize by default motor RPS
+        double power = motorRevsPerSec / Constants.defaultDCRPS;
+
         shoot(power);
     }
+
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
@@ -165,43 +158,47 @@ public class SmartShooter {
     }
 
     private double xTurn(double xOffset, double velocity, double distance) {
-        double angleToTurnDeg = ((double) Constants.VisionConstants.FOV /  Constants.VisionConstants.resX) * xOffset; // degrees
+        double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees
         double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance));
-        return (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
+        double angleDiff =  (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
+        if (angleDiff < 0){
+            angleDiff = 360 + angleDiff;
+        }
+        return angleDiff;
     }
 
     private double yTurn(double distance, double velocity) {
-        // distance (m) horizontal distance to target
-        // velocity (m/s) current shooter wheel linear velocity (m/s)
+        // distance (m): horizontal distance to target
+        // velocity (m/s): current shooter wheel linear velocity
 
-        // compute height difference (target height - shooter height) in meters (use your constants)
-        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // kept your original numbers and converted to meters, the extra 2in is buffer
+        // Height difference (example: 48 - 16 + 5 + 2 in, converted to meters)
+        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM;
 
         if (distance <= 0) {
-            return 0;
+            return 0.5;
         }
 
-        // compute minimal required initial speed (and set shooter speed)
+        // Ensure shooter is spun up for ~1s trajectory
         setShooterVelocity(distance, heightDiffM, velocity);
 
-        // compute the pitch angle (radians) for the minimal-speed trajectory:
-        // using t = tan(theta) = v^2 / (g * R) where v is the v_min computed earlier.
         double g = 9.8;
-        double denom = Math.sqrt(distance * distance + heightDiffM * heightDiffM) - heightDiffM;
-        if (denom <= 0) {
-            return 0;
-        }
-        double vMin = Math.sqrt((g * distance * distance) / denom);
-        double t = (vMin * vMin) / (g * distance); // tan(theta)
-        double angleRad = Math.atan(t);
+        double t = 1.0; // same travel time assumption
+
+        // Velocity components required
+        double vX = distance / t;
+        double vY = (heightDiffM + 0.5 * g * Math.pow(t, 2)) / t;
+
+        // Launch angle (radians → degrees)
+        double angleRad = Math.atan2(vY, vX);
         double angleDeg = Math.toDegrees(angleRad);
 
-        // convert degrees to turret-head servo position delta (using same mapping as you used elsewhere)
+        // Convert angle to turret-head servo position delta
         double positionDelta = (360 / angleDeg) / Constants.ShooterConstants.turretHeadGearRatio;
         if (positionDelta > Constants.ServoMax) {
             positionDelta = Constants.ServoMax;
         }
+
         return positionDelta;
-        //#TODO: This is assuming equal levelling and no air res, fix based on the height difference
     }
+
 }

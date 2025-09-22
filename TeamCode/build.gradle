@@ -26,5 +26,6 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
     implementation 'org.openftc:apriltag:2.1.0'
+    implementation 'com.acmerobotics.dashboard:dashboard:0.5.0'
 
 }

@@ -26,19 +26,19 @@ public class SmartIntake {
 
     public void colorRegister() {
         double colorRedValue = colorSen.red();
-        artifactOrder[3] = artifactOrder[2];
         artifactOrder[2] = artifactOrder[1];
+        artifactOrder[1] = artifactOrder[0];
         if (colorRedValue >= 200) {
-            artifactOrder[1] = "P";
+            artifactOrder[0] = "P";
         } else {
-            artifactOrder[1] = "G";
+            artifactOrder[0] = "G";
         }
     }
 
     public void colorWipe() {
+        artifactOrder[0] = "N";
         artifactOrder[1] = "N";
         artifactOrder[2] = "N";
-        artifactOrder[3] = "N";
         ballCount = 0;
     }
 

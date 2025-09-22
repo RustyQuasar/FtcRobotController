@@ -34,6 +34,7 @@ public class Teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             Vision.updateAprilTags();
+            Vision.updateStream(hardwareMap); //Gotta remove this during comps
             activeGamepad1.copy(gamepad1);
 
                 Intake.intake(activeGamepad1.right_bumper);
