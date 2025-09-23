@@ -31,10 +31,10 @@ public class MechanumDrive {
         backLeft2 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backLeftMotor2);
         backRight3 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backRightMotor3);
 
-        frontLeft0.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRight1.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeft2.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRight3.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft2.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight3.setDirection(DcMotorSimple.Direction.FORWARD);
 
         frontLeft0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

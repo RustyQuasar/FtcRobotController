@@ -94,8 +94,8 @@ public class SmartShooter {
                 distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset) * Constants.inToM;
 
                 // Update turret positions with corrected unit handling and corrected math
-                turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters));
                 yTurn(distanceMeters, getShooterVelocity());
+                turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity()));
                 /*
                 Telemetry scanned info
                 telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
@@ -144,7 +144,9 @@ public class SmartShooter {
 
         // Normalize by default motor RPS
         double power = motorRevsPerSec / Constants.defaultDCRPS;
-
+        if (power > 1){
+            power = 1;
+        }
         shoot(power);
     }
 
@@ -158,15 +160,36 @@ public class SmartShooter {
         telemetry.update();
     }
 
-    private double xTurn(double xOffset, double velocity, double distance) {
-        double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees
-        double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance));
-        double angleDiff =  (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
-        if (angleDiff < 0){
-            angleDiff = 360 + angleDiff;
+    private double xTurn(double xOffset, double targetLateralVel, double distance, double launchVel) {
+        // xOffset: pixel offset of target from center
+        // targetLateralVel: target's sideways velocity (m/s)
+        // distance: horizontal distance to target (m)
+        // launchVel: projectile launch velocity (m/s) from yTurn
+
+        // camera offset angle (degrees per pixel * offset)
+        double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
+
+        // --- estimate projectile time of flight ---
+        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // same as yTurn
+        double angleRad = Math.atan2(heightDiffM, distance);
+        double vX = launchVel * Math.cos(angleRad);
+        double t = distance / vX;
+
+        // --- lead angle (based on how far target moves in that time) ---
+        double leadAngleRad = Math.atan2(targetLateralVel * t, distance);
+        double leadAngleDeg = Math.toDegrees(leadAngleRad);
+
+        // --- final correction ---
+        double angleDiff = (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
+        if (angleDiff < 0) {
+            angleDiff += 360;
+        }
+        if (angleDiff > 360) {
+            angleDiff -= 360;
         }
         return angleDiff;
     }
+
     private double yTurn(double distance, double velocityCurrent) {
         //ChatGPT helped write this thanks to me not knowing the formulas
         // distance (m): horizontal distance to target
