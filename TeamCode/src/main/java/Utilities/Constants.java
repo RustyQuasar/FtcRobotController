@@ -30,10 +30,9 @@ public class Constants {
 
     public static final class ShooterConstants {
         //Studica Mavericks
-        public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 0
-        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 0
+        public static final String shooter0 = "shooter"; //Expansion hub Motor port 0
         public static final double shooterGearRatio = (61 * 1); //Gear multiplier
-        //TODO: Get actual hardware for neck, head and transfer in configuration
+        public static final double shooterAngle = 45; //degrees
         //Servos
         public static final String turretHead = "turretHead"; //Expansion hub Servo port 1
         //CR Servo
@@ -42,7 +41,6 @@ public class Constants {
         //Encoders
         public static final String turretNeckEncoder = "turretNeckEncoder";
         public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
-        public static final double turretHeadGearRatio = 2; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
         public static final int centerOffset = 12;
     }

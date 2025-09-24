@@ -15,7 +15,7 @@ import Subsystems.RTPAxon;
 import Utilities.Constants;
 
 public class SmartShooter {
-    private final DcMotorEx leftShooter, rightShooter;
+    private final DcMotorEx shooter;
     private final CRServo turretNeckServo;
     private final Servo turretHead;
     private final CRServo transferServo;
@@ -25,16 +25,15 @@ public class SmartShooter {
     private final Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
-        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
-        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
+        shooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.shooter0);
         turretNeckServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretNeckServo);
         AnalogInput turretNeckEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretNeckEncoder);
         turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
-        leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setDirection(DcMotor.Direction.REVERSE);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
         } else {
@@ -44,8 +43,7 @@ public class SmartShooter {
     }
 
     public void shoot(double power) {
-        leftShooter.setPower(power);
-        rightShooter.setPower(power);
+        shooter.setPower(power);
     }
 
     public void aim(double[] v) {
@@ -99,19 +97,19 @@ public class SmartShooter {
                 double heightMeters =  (48 - 16 + 5 + 2) * Constants.inToM;
                 // Update turret positions with corrected unit handling and corrected math
                 turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity(), heightMeters));
-                setShooterVelocity(distanceMeters, heightMeters, getShooterVelocity());
+                setShooterVelocity(distanceMeters, heightMeters);
             }
         }
         if (!foundTag){
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            shoot((leftShooter.getPower() + rightShooter.getPower()) / 2);
+            shoot(shooter.getPower());
             canMake = false;
         }
     }
 
     public double getShooterVelocity() {
-        if (leftShooter.getPower() != 0 && rightShooter.getPower() != 0) {
-            return (leftShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax + (rightShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax) / 2);
+        if (shooter.getPower() != 0) {
+            return (shooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax);
         } else {
             return 0;
         }
@@ -121,59 +119,51 @@ public class SmartShooter {
         transferServo.setPower(1);
     }
 
-    private void setShooterVelocity(double d, double h, double currentVelocity) {
-        final double g = 9.8;
+    private void setShooterVelocity(double d, double h) {
+            final double g = 9.8;
+            if (d <= 0) return;
 
-        if (d <= 0) return;
+            double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
+            double cosTh = Math.cos(theta);
+            double tanTh = Math.tan(theta);
 
-        // feasibility check: denominator must be positive
-        double denom = d - h;
-        if (denom <= 0) {
-            // impossible to hit (R,h) with a 45° launch.
-            // Option: spin to max power to get as close as possible.
-            canMake = false;
-            shoot(1);
-            return;
+            // avoid near-vertical numeric trouble
+            if (Math.abs(cosTh) < 1e-6) {
+                shoot(1);
+                return;
+            }
+
+            double denom = 2.0 * cosTh * cosTh * ((d-12 * Constants.inToM) * tanTh - h);
+            if (denom <= 0.0 || Double.isNaN(denom)) {
+                // impossible geometry for this angle: best effort by spinning to max
+                shoot(1);
+                return;
+            }
+
+            double vRequired = Math.sqrt((g * Math.pow(2, d)) / denom);
+
+            // Convert linear speed -> wheel revs -> motor revs -> normalized power
+            double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
+            double wheelRPS = vRequired / wheelCircum; // wheel rev/s required
+            double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
+            double power = motorRPS / Constants.defaultDCRPS;
+
+            // clamp 0..1
+            if (Double.isNaN(power)) power = 1.0;
+            if (power > 1.0) power = 1.0;
+            if (power < 0.0) power = 0.0;
+
+            shoot(power); // always command the shooter (don't early return)
         }
 
-        //This formula kinda sketchy ngl
-        // required linear speed (m/s) for a 45° launch to pass through (R,h)
-        double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom);
 
-        // how much extra linear speed we need vs current wheel linear speed
-        double neededLinearVelocity = vRequired - currentVelocity;
-        if (neededLinearVelocity <= 0) {
-            shoot(0.1);
-            return;
-        }
 
-        // wheel circumference (meters)
-        double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
-
-        // wheel revs/sec required for the delta speed
-        double wheelRevsPerSec = neededLinearVelocity / wheelCircum;
-
-        // motor revs/sec required (motorRev = wheelRev * motorPerWheelRev)
-        double motorRevsPerSec = wheelRevsPerSec * Constants.ShooterConstants.shooterGearRatio;
-
-        // normalize to motor max RPS -> desired power (clamped 0..1)
-        double power = motorRevsPerSec / Constants.defaultDCRPS;
-        if (power > 1.0) {
-            canMake = false;
-            power = 1.0;
-        }
-        if (power < 0.0) power = 0.0;
-
-        // finally set shooter power
-        shoot(power);
-    }
 
 
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
-        telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
-        telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
+        telemetry.addData("Shooter Power: ", shooter.getPower());
         telemetry.addLine("Turret neck angle: " + turretNeck.getCurrentAngle());
         telemetry.addLine("Turret head position: " + turretHead.getPosition());
         telemetry.addData("Can make shot: ", canMake);
