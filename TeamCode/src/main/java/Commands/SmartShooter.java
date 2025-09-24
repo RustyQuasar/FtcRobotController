@@ -21,7 +21,8 @@ public class SmartShooter {
     private final CRServo transferServo;
     private final RTPAxon turretNeck;
     private final int aimedTagID;
-    Vision Vision;
+    private boolean canMake = false;
+    private final Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
@@ -54,10 +55,13 @@ public class SmartShooter {
         double fv = v[0];
         double sv = v[1];
         // Step through the list of detections and display info for each one.
+        boolean foundTag = false;
         for (AprilTagDetection detection : Vision.getDetections()) {
             int angle1, angle2;
             double frontV, sideV;
             if (detection.id == aimedTagID) {
+                foundTag = true;
+                canMake = true;
                 // convert servo position to degrees (your existing mapping)
                 double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio);
                 neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
@@ -92,18 +96,16 @@ public class SmartShooter {
                 detectedX = detection.ftcPose.x;
                 // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
                 distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset) * Constants.inToM;
-
+                double heightMeters =  (48 - 16 + 5 + 2) * Constants.inToM;
                 // Update turret positions with corrected unit handling and corrected math
-                yTurn(distanceMeters, getShooterVelocity());
-                turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity()));
-                /*
-                Telemetry scanned info
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-                 */
+                turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity(), heightMeters));
+                setShooterVelocity(distanceMeters, heightMeters, getShooterVelocity());
             }
+        }
+        if (!foundTag){
+            turretNeck.setTargetRotation(turretNeck.getTargetRotation());
+            shoot((leftShooter.getPower() + rightShooter.getPower()) / 2);
+            canMake = false;
         }
     }
 
@@ -119,36 +121,53 @@ public class SmartShooter {
         transferServo.setPower(1);
     }
 
-    private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {
-        //ChatGPT helped write this thanks to me not knowing the formulas
-        double g = 9.8;
-        double t = 1.0; // desired travel time (s), adjust if you want shorter/longer arcs
+    private void setShooterVelocity(double d, double h, double currentVelocity) {
+        final double g = 9.8;
 
-        // Required launch velocity components
-        double vX = R / t;
-        double vY = (h + 0.5 * g * t * t) / t;
+        if (d <= 0) return;
 
-        // Magnitude of required velocity
-        double vRequired = Math.sqrt(vX * vX + vY * vY);
+        // feasibility check: denominator must be positive
+        double denom = d - h;
+        if (denom <= 0) {
+            // impossible to hit (R,h) with a 45° launch.
+            // Option: spin to max power to get as close as possible.
+            canMake = false;
+            shoot(1);
+            return;
+        }
 
-        // Extra velocity needed (beyond current)
+        //This formula kinda sketchy ngl
+        // required linear speed (m/s) for a 45° launch to pass through (R,h)
+        double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom);
+
+        // how much extra linear speed we need vs current wheel linear speed
         double neededLinearVelocity = vRequired - currentVelocity;
         if (neededLinearVelocity <= 0) {
-            return; // already fast enough
+            shoot(0.1);
+            return;
         }
 
-        // Convert to wheel/motor RPS
+        // wheel circumference (meters)
         double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
+
+        // wheel revs/sec required for the delta speed
         double wheelRevsPerSec = neededLinearVelocity / wheelCircum;
+
+        // motor revs/sec required (motorRev = wheelRev * motorPerWheelRev)
         double motorRevsPerSec = wheelRevsPerSec * Constants.ShooterConstants.shooterGearRatio;
 
-        // Normalize by default motor RPS
+        // normalize to motor max RPS -> desired power (clamped 0..1)
         double power = motorRevsPerSec / Constants.defaultDCRPS;
-        if (power > 1){
-            power = 1;
+        if (power > 1.0) {
+            canMake = false;
+            power = 1.0;
         }
+        if (power < 0.0) power = 0.0;
+
+        // finally set shooter power
         shoot(power);
     }
+
 
 
     public void periodic(Telemetry telemetry) {
@@ -157,10 +176,11 @@ public class SmartShooter {
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
         telemetry.addLine("Turret neck angle: " + turretNeck.getCurrentAngle());
         telemetry.addLine("Turret head position: " + turretHead.getPosition());
+        telemetry.addData("Can make shot: ", canMake);
         telemetry.update();
     }
 
-    private double xTurn(double xOffset, double targetLateralVel, double distance, double launchVel) {
+    private double xTurn(double xOffset, double targetLateralVel, double distance, double launchVel, double height) {
         // xOffset: pixel offset of target from center
         // targetLateralVel: target's sideways velocity (m/s)
         // distance: horizontal distance to target (m)
@@ -170,8 +190,7 @@ public class SmartShooter {
         double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
 
         // --- estimate projectile time of flight ---
-        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // same as yTurn
-        double angleRad = Math.atan2(heightDiffM, distance);
+        double angleRad = Math.atan2(height, distance);
         double vX = launchVel * Math.cos(angleRad);
         double t = distance / vX;
 
@@ -189,37 +208,4 @@ public class SmartShooter {
         }
         return angleDiff;
     }
-
-    private double yTurn(double distance, double velocityCurrent) {
-        //ChatGPT helped write this thanks to me not knowing the formulas
-        // distance (m): horizontal distance to target
-        // velocityCurrent (m/s): current shooter wheel linear velocity (m/s)
-
-        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM; // target - shooter height + buffer
-
-        if (distance <= 0) {
-            return 0;
-        }
-
-        // --- Step 1: compute angle based on target triangle ---
-        double angleRad = Math.atan2(heightDiffM, distance);
-        double angleDeg = Math.toDegrees(angleRad);
-
-        // --- Step 2: approximate arc length velocity ---
-        double straightLine = Math.sqrt(distance * distance + heightDiffM * heightDiffM);
-        double velocityTarget = 0.75 * straightLine; // 1.5*L / 2 = 0.75*L
-
-        // update shooter velocity to match new target
-        setShooterVelocity(distance, heightDiffM, velocityTarget);
-
-        // --- Step 3: convert to servo position delta ---
-        double positionDelta = (angleDeg / 360.0) * Constants.ShooterConstants.turretHeadGearRatio;
-        if (positionDelta > Constants.ServoMax) {
-            positionDelta = Constants.ServoMax;
-        }
-
-        return positionDelta;
-    }
-
-
 }
