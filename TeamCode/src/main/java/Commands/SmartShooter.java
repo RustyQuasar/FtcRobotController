@@ -15,24 +15,26 @@ import Subsystems.RTPAxon;
 import Utilities.Constants;
 
 public class SmartShooter {
-    private final DcMotorEx shooter;
+    private final DcMotorEx leftShooter, rightShooter;
     private final CRServo turretNeckServo;
     private final Servo turretHead;
     private final CRServo transferServo;
     private final RTPAxon turretNeck;
     private final int aimedTagID;
-    private boolean canMake = false;
+    private static boolean canMake = false;
     private final Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
-        shooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.shooter0);
+        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
+        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
         turretNeckServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretNeckServo);
         AnalogInput turretNeckEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretNeckEncoder);
         turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        shooter.setDirection(DcMotor.Direction.REVERSE);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
@@ -43,7 +45,8 @@ public class SmartShooter {
     }
 
     public void shoot(double power) {
-        shooter.setPower(power);
+        rightShooter.setPower(power);
+        leftShooter.setPower(power);
     }
 
     public void aim(double[] v) {
@@ -102,14 +105,14 @@ public class SmartShooter {
         }
         if (!foundTag){
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            shoot(shooter.getPower());
+            shoot((leftShooter.getPower() + rightShooter.getPower()) / 2);
             canMake = false;
         }
     }
 
     public double getShooterVelocity() {
-        if (shooter.getPower() != 0) {
-            return (shooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.DCMotorMax);
+        if (rightShooter.getPower() != 0 && leftShooter.getPower() != 0) {
+            return ((rightShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax + leftShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax) / 2);
         } else {
             return 0;
         }
@@ -129,6 +132,7 @@ public class SmartShooter {
 
             // avoid near-vertical numeric trouble
             if (Math.abs(cosTh) < 1e-6) {
+                canMake = false;
                 shoot(1);
                 return;
             }
@@ -136,6 +140,7 @@ public class SmartShooter {
             double denom = 2.0 * cosTh * cosTh * ((d-12 * Constants.inToM) * tanTh - h);
             if (denom <= 0.0 || Double.isNaN(denom)) {
                 // impossible geometry for this angle: best effort by spinning to max
+                canMake = false;
                 shoot(1);
                 return;
             }
@@ -156,14 +161,10 @@ public class SmartShooter {
             shoot(power); // always command the shooter (don't early return)
         }
 
-
-
-
-
-
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
-        telemetry.addData("Shooter Power: ", shooter.getPower());
+        telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
+        telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
         telemetry.addLine("Turret neck angle: " + turretNeck.getCurrentAngle());
         telemetry.addLine("Turret head position: " + turretHead.getPosition());
         telemetry.addData("Can make shot: ", canMake);

@@ -61,6 +61,8 @@ public class Teleop extends LinearOpMode {
             Mechanum.periodic(telemetry);
             Shooter.aim(Mechanum.getDrivetrainVelocities(Constants.DriveTrainConstants.wheelDiameter , Constants.DriveTrainConstants.gearRatio));
             telemetry.addData("Manual Mode: ", manualMode);
+            Shooter.periodic(telemetry);
+            Intake.periodic(telemetry);
             telemetry.update();
         }
     }

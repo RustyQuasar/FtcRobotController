@@ -124,7 +124,7 @@ public class MechanumDrive {
         double[] vWheel = new double[4];
         for (int i = 0; i < 4; i++) {
             double distance = wheelCircumference * gearRatio;
-            vWheel[i] = distance * TicksPerSecond[i] / Constants.DCMotorMax;
+            vWheel[i] = distance * TicksPerSecond[i] / Constants.StudickaMotorMax;
         }
         double forward = (vWheel[0] + vWheel[1] + vWheel[2] + vWheel[3]) / 4.0; //Forward positive, backward negative
         double strafe = (vWheel[0] - vWheel[1] - vWheel[2] + vWheel[3]) / 4.0; //Right positive, left negative

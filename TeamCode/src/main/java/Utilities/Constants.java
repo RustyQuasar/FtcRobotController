@@ -1,7 +1,8 @@
 package Utilities;
 
 public class Constants {
-    public static final int DCMotorMax = 1464; //360 degrees
+    public static final int StudickaMotorMax = 1464; //360 degrees
+    public static final int GoBildaMotorMax = 28; //360
     public static final int ServoMax = 1; //180 degrees
     public static final double inToM = 0.0254;
     public static final int defaultDCRPS = (100/60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
@@ -29,9 +30,10 @@ public class Constants {
     }
 
     public static final class ShooterConstants {
-        //Studica Mavericks
-        public static final String shooter0 = "shooter"; //Expansion hub Motor port 0
-        public static final double shooterGearRatio = (61 * 1); //Gear multiplier
+        //GoBilda
+        public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 0
+        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 1
+        public static final double shooterGearRatio = 1; //Gear multiplier
         public static final double shooterAngle = 45; //degrees
         //Servos
         public static final String turretHead = "turretHead"; //Expansion hub Servo port 1

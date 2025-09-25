@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import Utilities.Constants;
 
 public class SmartIntake {
@@ -46,6 +48,9 @@ public class SmartIntake {
         motifState = !motifState;
     }
 
+    public void periodic(Telemetry telemetry){
+        //TODO
+    }
     public void intake(boolean buttonPressed) {
         if (buttonPressed && ballCount != 3) {
             if (motifState) {
