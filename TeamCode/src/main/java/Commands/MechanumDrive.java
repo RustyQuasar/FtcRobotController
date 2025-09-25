@@ -1,5 +1,6 @@
 package Commands;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -120,12 +121,19 @@ public class MechanumDrive {
 
     }
 
-    public void periodic(Telemetry telemetry) {
+    public void periodic(Telemetry telemetry, TelemetryPacket packet) {
         telemetry.addLine("Drive train");
         telemetry.addData("Heading: ", getHeading());
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());
         telemetry.addData("Back Right Power: ", backRight3.getPower());
+
+        packet.addLine("Drive train");
+        packet.put("Heading: ", getHeading());
+        packet.put("Front Left Power: ", frontLeft0.getPower());
+        packet.put("Front Right Power: ", frontRight1.getPower());
+        packet.put("Back Left Power: ", backLeft2.getPower());
+        packet.put("Back Right Power: ", backRight3.getPower());
     }
 }

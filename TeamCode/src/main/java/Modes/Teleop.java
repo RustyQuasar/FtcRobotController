@@ -1,5 +1,6 @@
 package Modes;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -20,6 +21,7 @@ public class Teleop extends LinearOpMode {
     SmartShooter Shooter;
     Vision Vision;
     String TEAM = "RED"; //Has to be "RED" or "BLUE"
+    TelemetryPacket telemetryPacket;
 
     @Override
     public void runOpMode() {
@@ -30,6 +32,7 @@ public class Teleop extends LinearOpMode {
         Vision = new Vision(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, TEAM, Vision);
+        telemetryPacket = new TelemetryPacket();
         waitForStart();
 
         while (opModeIsActive()) {
@@ -58,11 +61,12 @@ public class Teleop extends LinearOpMode {
 
             if (manualMode) {
             }
-            Mechanum.periodic(telemetry);
             Shooter.aim(Mechanum.getDrivetrainVelocities());
             telemetry.addData("Manual Mode: ", manualMode);
-            Shooter.periodic(telemetry);
-            Intake.periodic(telemetry);
+
+            Mechanum.periodic(telemetry, telemetryPacket);
+            Shooter.periodic(telemetry, telemetryPacket);
+            Intake.periodic(telemetry, telemetryPacket);
             telemetry.update();
         }
     }

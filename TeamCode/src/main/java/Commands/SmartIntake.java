@@ -1,5 +1,6 @@
 package Commands;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -48,8 +49,16 @@ public class SmartIntake {
         motifState = !motifState;
     }
 
-    public void periodic(Telemetry telemetry){
-        //TODO
+    public void periodic(Telemetry telemetry, TelemetryPacket packet){
+        telemetry.addLine("Intake");
+        telemetry.addData("Ball count: ", ballCount);
+        telemetry.addData("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
+        telemetry.addData("Motif state: ", motifState);
+
+        packet.addLine("Intake");
+        packet.put("Ball count: ", ballCount);
+        packet.put("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
+        packet.put("Motif state: ", motifState);
     }
     public void intake(boolean buttonPressed) {
         if (buttonPressed && ballCount != 3) {

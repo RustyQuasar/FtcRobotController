@@ -1,6 +1,7 @@
 package Commands;
 
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -33,8 +34,8 @@ public class SmartShooter {
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
         rightShooter.setDirection(DcMotor.Direction.REVERSE);
-        leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
@@ -133,7 +134,7 @@ public class SmartShooter {
             // avoid near-vertical numeric trouble
             if (Math.abs(cosTh) < 1e-6) {
                 canMake = false;
-                shoot(1);
+                shoot(0.5);
                 return;
             }
 
@@ -141,7 +142,7 @@ public class SmartShooter {
             if (denom <= 0.0 || Double.isNaN(denom)) {
                 // impossible geometry for this angle: best effort by spinning to max
                 canMake = false;
-                shoot(1);
+                shoot(0.5);
                 return;
             }
 
@@ -161,14 +162,21 @@ public class SmartShooter {
             shoot(power); // always command the shooter (don't early return)
         }
 
-    public void periodic(Telemetry telemetry) {
+    public void periodic(Telemetry telemetry, TelemetryPacket packet) {
         telemetry.addLine("Shooter");
         telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addLine("Turret neck angle: " + turretNeck.getCurrentAngle());
-        telemetry.addLine("Turret head position: " + turretHead.getPosition());
+        telemetry.addData("Turret neck angle: ", turretNeck.getCurrentAngle());
+        telemetry.addData("Turret head position: ", turretHead.getPosition());
         telemetry.addData("Can make shot: ", canMake);
         telemetry.update();
+
+        packet.addLine("Shooter");
+        packet.put("Left Shooter Power: ", leftShooter.getPower());
+        packet.put("Right Shooter Power: ", rightShooter.getPower());
+        packet.put("Turret neck angle: ", turretNeck.getCurrentAngle());
+        packet.put("Turret head position: ", turretHead.getPosition());
+        packet.put("Can make shot: ", canMake);
     }
 
     private double xTurn(double xOffset, double targetLateralVel, double distance, double launchVel, double height) {
