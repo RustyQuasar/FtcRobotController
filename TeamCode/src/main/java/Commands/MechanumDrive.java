@@ -16,21 +16,24 @@ import Utilities.Constants;
 
 public class MechanumDrive {
 
-    private final DcMotorEx frontLeft0;
-    private final DcMotorEx frontRight1;
-    private final DcMotorEx backLeft2;
-    private final DcMotorEx backRight3;
+    private final DcMotor frontLeft0;
+    private final DcMotor frontRight1;
+    private final DcMotor backLeft2;
+    private final DcMotor backRight3;
+    private final DcMotorEx frontEncoder, sideEncoder;
+
 
     private final BNO055IMU imu;
 
     private double yawOffset;
 
     public MechanumDrive(HardwareMap hardwareMap) {
-        frontLeft0 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0);
-        frontRight1 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1);
-        backLeft2 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backLeftMotor2);
-        backRight3 = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backRightMotor3);
-
+        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
+        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
+        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
+        backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
+        frontEncoder = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0);
+        sideEncoder = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1);
         frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -110,25 +113,9 @@ public class MechanumDrive {
         return heading;
     }
 
-    /**
-     * Returns {forwardVelocity, strafeVelocity} in distance units per second.
-     *
-     * @param wheelDiameter Diameter of wheel (same unit as desired velocity output)
-     * @param gearRatio     Gear ratio (wheel revs per motor rev)
-     * @return double[] with {forward, strafe} velocities
-     */
-
-    public double[] getDrivetrainVelocities(double wheelDiameter, double gearRatio) {
-        double[] TicksPerSecond = {frontLeft0.getVelocity(), frontRight1.getVelocity(), backLeft2.getVelocity(), backRight3.getVelocity()};
-        double wheelCircumference = Math.PI * wheelDiameter; // distance per rev
-        double[] vWheel = new double[4];
-        for (int i = 0; i < 4; i++) {
-            double distance = wheelCircumference * gearRatio;
-            vWheel[i] = distance * TicksPerSecond[i] / Constants.StudickaMotorMax;
-        }
-        double forward = (vWheel[0] + vWheel[1] + vWheel[2] + vWheel[3]) / 4.0; //Forward positive, backward negative
-        double strafe = (vWheel[0] - vWheel[1] - vWheel[2] + vWheel[3]) / 4.0; //Right positive, left negative
-        strafe *= Math.sqrt(2);
+    public double[] getDrivetrainVelocities() {
+        double forward = frontEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelRadius * Math.PI;
+        double strafe = sideEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelRadius * Math.PI;
         return new double[]{forward, strafe};
 
     }

@@ -25,6 +25,7 @@ import Utilities.Constants;
 public class Vision {
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, 0, 0, 0); //Idk what this is but I'm too afraid to delete it
+            //TODO: Get this shit ;-;
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0);
     private AprilTagProcessor aprilTag;
@@ -44,7 +45,7 @@ public class Vision {
                 .setDrawTagOutline(true)
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .setOutputUnits(DistanceUnit.METER, AngleUnit.DEGREES)
 
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt

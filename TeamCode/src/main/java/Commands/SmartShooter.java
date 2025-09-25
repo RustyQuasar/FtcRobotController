@@ -32,7 +32,7 @@ public class SmartShooter {
         turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -96,7 +96,7 @@ public class SmartShooter {
                 }
                 detectedX = detection.ftcPose.x;
                 // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
-                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset) * Constants.inToM;
+                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                 double heightMeters =  (48 - 16 + 5 + 2) * Constants.inToM;
                 // Update turret positions with corrected unit handling and corrected math
                 turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity(), heightMeters));
