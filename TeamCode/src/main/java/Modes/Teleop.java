@@ -39,7 +39,6 @@ public class Teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             Vision.updateAprilTags();
-            Vision.updateStream(hardwareMap); //Gotta remove this during comps
             activeGamepad1.copy(gamepad1);
 
                 Intake.intake(activeGamepad1.right_bumper);
@@ -66,9 +65,9 @@ public class Teleop extends LinearOpMode {
             Shooter.aim(Mechanum.getDrivetrainVelocities());
             telemetry.addData("Manual Mode: ", manualMode);
 
-            Mechanum.periodic(telemetry, telemetryPacket);
+            //Mechanum.periodic(telemetry, telemetryPacket);
             Shooter.periodic(telemetry, telemetryPacket);
-            Intake.periodic(telemetry, telemetryPacket);
+            // Intake.periodic(telemetry, telemetryPacket);
             telemetry.update();
             dashboard.sendTelemetryPacket(telemetryPacket);
             dashboard.updateConfig();

@@ -14,8 +14,6 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,8 +38,8 @@ public class Vision {
         aprilTag = new AprilTagProcessor.Builder()
 
                 // The following default settings are available to un-comment and edit as needed.
-                .setDrawAxes(false)
-                .setDrawCubeProjection(false)
+                .setDrawAxes(true)
+                .setDrawCubeProjection(true)
                 .setDrawTagOutline(true)
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
@@ -50,7 +48,9 @@ public class Vision {
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt
                 // to load a predefined calibration for your camera.
-                //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+                //            focalLength="822.317f, 822.317f"
+                //            principalPoint="319.495f, 242.502f"
+                .setLensIntrinsics(822.317, 822.317, 319.495, 242.502)
                 // ... these parameters are fx, fy, cx, cy.
                 //Calibrations can be found in teamwebcamcalibrations.xml under res/xml, then ctrl+f C270
                 //However idk how to use em
@@ -94,7 +94,7 @@ public class Vision {
         // Disable or re-enable the aprilTag processor at any time.
         visionPortal.setProcessorEnabled(aprilTag, true);
 
-        dashboard.startCameraStream(visionPortal, 0);
+        dashboard.startCameraStream(visionPortal, 30);
 
     }
     public List<AprilTagDetection> getDetections(){
@@ -105,8 +105,6 @@ public class Vision {
     }
     public void updateAprilTags(){
         currentDetections = aprilTag.getDetections();
-    }
-    public void updateStream(HardwareMap hardwareMap){
     }
     public String[] setColours(List<AprilTagDetection> currentDetections) {
             for (AprilTagDetection detection : currentDetections) {

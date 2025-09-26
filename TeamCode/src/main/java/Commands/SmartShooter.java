@@ -24,7 +24,9 @@ public class SmartShooter {
     private final int aimedTagID;
     private static boolean canMake = false;
     private final Vision Vision;
-
+    double detectedX = 10;
+    double distanceMeters = 10;
+    boolean poseStatus = false;
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
@@ -52,8 +54,6 @@ public class SmartShooter {
 
     public void aim(double[] v) {
         turretNeck.update();
-        double detectedX;
-        double distanceMeters;
         double fv = v[0];
         double sv = v[1];
         // Step through the list of detections and display info for each one.
@@ -62,46 +62,51 @@ public class SmartShooter {
             int angle1, angle2;
             double frontV, sideV;
             if (detection.id == aimedTagID) {
-                foundTag = true;
-                canMake = true;
-                // convert servo position to degrees (your existing mapping)
-                double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio);
-                neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
-                neckHeading += Constants.DriveTrainConstants.controlHubOffset;
-                if (fv > 0) {
-                    angle1 = 0;
-                } else {
-                    angle1 = 180;
-                }
-                if (sv > 0) {
-                    angle2 = 90;
-                } else {
-                    angle2 = 270;
-                }
-                double[] totals = {neckHeading - angle1, neckHeading - angle2};
-                for (int i = 0; i < totals.length; i++) {
-                    if (totals[i] > 360) {
-                        totals[i] -= 360;
+                if (detection.ftcPose != null) {
+                    poseStatus = true;
+                    foundTag = true;
+                    canMake = true;
+                    // convert servo position to degrees (your existing mapping)
+                    double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio);
+                    neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
+                    neckHeading += Constants.DriveTrainConstants.controlHubOffset;
+                    if (fv > 0) {
+                        angle1 = 0;
+                    } else {
+                        angle1 = 180;
                     }
-                    if (totals[i] < 0) {
-                        totals[i] *= -1;
+                    if (sv > 0) {
+                        angle2 = 90;
+                    } else {
+                        angle2 = 270;
                     }
-                }
-                double hypotenuse = Math.sqrt(Math.pow(fv, 2) + Math.pow(sv, 2));
-                if (totals[0] <= totals[1]) {
-                    frontV = hypotenuse * Math.sin(Math.toRadians(totals[0]));
-                    sideV = hypotenuse * Math.cos(Math.toRadians(totals[0]));
+                    double[] totals = {neckHeading - angle1, neckHeading - angle2};
+                    for (int i = 0; i < totals.length; i++) {
+                        if (totals[i] > 360) {
+                            totals[i] -= 360;
+                        }
+                        if (totals[i] < 0) {
+                            totals[i] *= -1;
+                        }
+                    }
+                    double hypotenuse = Math.sqrt(Math.pow(fv, 2) + Math.pow(sv, 2));
+                    if (totals[0] <= totals[1]) {
+                        frontV = hypotenuse * Math.sin(Math.toRadians(totals[0]));
+                        sideV = hypotenuse * Math.cos(Math.toRadians(totals[0]));
+                    } else {
+                        frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
+                        sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
+                    }
+                    detectedX = detection.ftcPose.x;
+                    // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
+                    distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
+                    double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
+                    // Update turret positions with corrected unit handling and corrected math
+                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity(), heightMeters));
+                    setShooterVelocity(distanceMeters, heightMeters);
                 } else {
-                    frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
-                    sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
+                    poseStatus = false;
                 }
-                detectedX = detection.ftcPose.x;
-                // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
-                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
-                double heightMeters =  (48 - 16 + 5 + 2) * Constants.inToM;
-                // Update turret positions with corrected unit handling and corrected math
-                turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity(), heightMeters));
-                setShooterVelocity(distanceMeters, heightMeters);
             }
         }
         if (!foundTag){
@@ -144,7 +149,7 @@ public class SmartShooter {
                 return;
             }
 
-            double vRequired = Math.sqrt((g * Math.pow(2, d)) / denom);
+            double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom);
 
             // Convert linear speed -> wheel revs -> motor revs -> normalized power
             double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
@@ -168,6 +173,9 @@ public class SmartShooter {
         packet.put("Right Shooter Power: ", rightShooter.getPower());
         packet.put("Turret neck angle: ", turretNeck.getCurrentAngle());
         packet.put("Turret head position: ", turretHead.getPosition());
+        packet.put("Detected X: ", detectedX);
+        packet.put("Detected Distance: ", distanceMeters);
+        packet.put("ftcPose likes us? ", poseStatus);
         packet.put("Can make shot: ", canMake);
     }
 
