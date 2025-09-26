@@ -30,11 +30,11 @@ public class Vision {
             0, -90, 0, 0);
     private AprilTagProcessor aprilTag;
     List<AprilTagDetection> currentDetections;
-    public Vision(HardwareMap hardwareMap){
-        initAprilTag(hardwareMap);
+    public Vision(HardwareMap hardwareMap, FtcDashboard dashboard){
+        initAprilTag(hardwareMap, dashboard);
     }
 
-    private void initAprilTag(HardwareMap hardwareMap) {
+    private void initAprilTag(HardwareMap hardwareMap, FtcDashboard dashboard) {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
@@ -94,6 +94,8 @@ public class Vision {
         // Disable or re-enable the aprilTag processor at any time.
         visionPortal.setProcessorEnabled(aprilTag, true);
 
+        dashboard.startCameraStream(visionPortal, 0);
+
     }
     public List<AprilTagDetection> getDetections(){
         if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})) {
@@ -105,9 +107,6 @@ public class Vision {
         currentDetections = aprilTag.getDetections();
     }
     public void updateStream(HardwareMap hardwareMap){
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        OpenCvWebcam camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, Constants.VisionConstants.camera), cameraMonitorViewId);
-        FtcDashboard.getInstance().startCameraStream(camera, 0);
     }
     public String[] setColours(List<AprilTagDetection> currentDetections) {
             for (AprilTagDetection detection : currentDetections) {

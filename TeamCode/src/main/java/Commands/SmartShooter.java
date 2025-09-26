@@ -45,9 +45,9 @@ public class SmartShooter {
         Vision = vision;
     }
 
-    public void shoot(double power) {
-        rightShooter.setPower(power);
-        leftShooter.setPower(power);
+    public void shoot(double targetVelocity) {
+        rightShooter.setVelocity(targetVelocity);
+        leftShooter.setVelocity(targetVelocity);
     }
 
     public void aim(double[] v) {
@@ -106,7 +106,7 @@ public class SmartShooter {
         }
         if (!foundTag){
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            shoot((leftShooter.getPower() + rightShooter.getPower()) / 2);
+            shoot((leftShooter.getVelocity() + rightShooter.getVelocity()) / 2);
             canMake = false;
         }
     }
@@ -134,7 +134,6 @@ public class SmartShooter {
             // avoid near-vertical numeric trouble
             if (Math.abs(cosTh) < 1e-6) {
                 canMake = false;
-                shoot(0.5);
                 return;
             }
 
@@ -142,7 +141,6 @@ public class SmartShooter {
             if (denom <= 0.0 || Double.isNaN(denom)) {
                 // impossible geometry for this angle: best effort by spinning to max
                 canMake = false;
-                shoot(0.5);
                 return;
             }
 
@@ -152,23 +150,17 @@ public class SmartShooter {
             double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
             double wheelRPS = vRequired / wheelCircum; // wheel rev/s required
             double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
-            double power = motorRPS / Constants.defaultDCRPS;
 
-            // clamp 0..1
-            if (Double.isNaN(power)) power = 1.0;
-            if (power > 1.0) power = 1.0;
-            if (power < 0.0) power = 0.0;
-
-            shoot(power); // always command the shooter (don't early return)
+            shoot(motorRPS); // always command the shooter (don't early return)
         }
 
     public void periodic(Telemetry telemetry, TelemetryPacket packet) {
         telemetry.addLine("Shooter");
-        telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
+        telemetry.addData("Left Shooter Power: " , leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addData("Turret neck angle: ", turretNeck.getCurrentAngle());
-        telemetry.addData("Turret head position: ", turretHead.getPosition());
-        telemetry.addData("Can make shot: ", canMake);
+        telemetry.addData("Turret neck angle: " , turretNeck.getCurrentAngle());
+        telemetry.addData("Turret head position: " , turretHead.getPosition());
+        telemetry.addData("Can make shot: " , canMake);
         telemetry.update();
 
         packet.addLine("Shooter");

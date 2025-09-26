@@ -123,11 +123,11 @@ public class MechanumDrive {
 
     public void periodic(Telemetry telemetry, TelemetryPacket packet) {
         telemetry.addLine("Drive train");
-        telemetry.addData("Heading: ", getHeading());
-        telemetry.addData("Front Left Power: ", frontLeft0.getPower());
-        telemetry.addData("Front Right Power: ", frontRight1.getPower());
-        telemetry.addData("Back Left Power: ", backLeft2.getPower());
-        telemetry.addData("Back Right Power: ", backRight3.getPower());
+        telemetry.addData("Heading: " , getHeading());
+        telemetry.addData("Front Left Power: " , frontLeft0.getPower());
+        telemetry.addData("Front Right Power: " , frontRight1.getPower());
+        telemetry.addData("Back Left Power: " , backLeft2.getPower());
+        telemetry.addData("Back Right Power: " , backRight3.getPower());
 
         packet.addLine("Drive train");
         packet.put("Heading: ", getHeading());

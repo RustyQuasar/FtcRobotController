@@ -51,12 +51,13 @@ public class SmartIntake {
 
     public void periodic(Telemetry telemetry, TelemetryPacket packet){
         telemetry.addLine("Intake");
-        telemetry.addData("Ball count: ", ballCount);
-        telemetry.addData("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
-        telemetry.addData("Motif state: ", motifState);
+        telemetry.addData("Ball count: " , ballCount);
+        telemetry.addData("Slots: " , artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
+        telemetry.addData("Motif state: " , motifState);
 
         packet.addLine("Intake");
         packet.put("Ball count: ", ballCount);
+        packet.put("Colours: ", Constants.VisionConstants.colours[0] + Constants.VisionConstants.colours[1] + Constants.VisionConstants.colours[2]);
         packet.put("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
         packet.put("Motif state: ", motifState);
     }

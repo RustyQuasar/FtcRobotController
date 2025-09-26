@@ -1,5 +1,6 @@
 package Modes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -25,11 +26,12 @@ public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        telemetry.update();
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+
         activeGamepad1 = new Gamepad();
         manualMode = true;
         Mechanum = new MechanumDrive(hardwareMap);
-        Vision = new Vision(hardwareMap);
+        Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, TEAM, Vision);
         telemetryPacket = new TelemetryPacket();
@@ -68,6 +70,8 @@ public class Teleop extends LinearOpMode {
             Shooter.periodic(telemetry, telemetryPacket);
             Intake.periodic(telemetry, telemetryPacket);
             telemetry.update();
+            dashboard.sendTelemetryPacket(telemetryPacket);
+            dashboard.updateConfig();
         }
     }
 }
