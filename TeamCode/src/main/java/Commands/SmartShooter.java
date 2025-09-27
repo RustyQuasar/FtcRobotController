@@ -1,31 +1,32 @@
 package Commands;
 
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import Subsystems.RTPAxon;
 import Utilities.Constants;
+import Utilities.ConfigVariables;
 
 public class SmartShooter {
     private final DcMotorEx leftShooter, rightShooter;
     private final CRServo turretNeckServo;
-    private final Servo turretHead;
     private final CRServo transferServo;
     private final RTPAxon turretNeck;
     private final int aimedTagID;
     private static boolean canMake = false;
     private final Vision Vision;
-    double detectedX = 10;
-    double distanceMeters = 10;
+    double offsetX = 0;
+    double distanceMeters = 0;
     boolean poseStatus = false;
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
@@ -33,11 +34,13 @@ public class SmartShooter {
         turretNeckServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretNeckServo);
         AnalogInput turretNeckEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretNeckEncoder);
         turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
-        turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        rightShooter.setDirection(DcMotor.Direction.REVERSE);
-        leftShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        leftShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
@@ -48,6 +51,12 @@ public class SmartShooter {
     }
 
     public void shoot(double targetVelocity) {
+        PIDFCoefficients pidCoefficients = new PIDFCoefficients();
+        pidCoefficients.p = ConfigVariables.P;
+        pidCoefficients.i = ConfigVariables.I;
+        pidCoefficients.d = ConfigVariables.D;
+        leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
+        rightShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
         rightShooter.setVelocity(targetVelocity);
         leftShooter.setVelocity(targetVelocity);
     }
@@ -97,12 +106,12 @@ public class SmartShooter {
                         frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
                         sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
                     }
-                    detectedX = detection.ftcPose.x;
+                    offsetX = detection.center.x - (double) Constants.VisionConstants.resX / 2;
                     // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
                     distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                     double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
                     // Update turret positions with corrected unit handling and corrected math
-                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(detectedX - ((double) Constants.VisionConstants.resX / 2), sideV, distanceMeters, getShooterVelocity(), heightMeters));
+                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(offsetX, sideV, distanceMeters, getShooterVelocity(), heightMeters));
                     setShooterVelocity(distanceMeters, heightMeters);
                 } else {
                     poseStatus = false;
@@ -117,12 +126,25 @@ public class SmartShooter {
     }
 
     public double getShooterVelocity() {
-        if (rightShooter.getPower() != 0 && leftShooter.getPower() != 0) {
-            return ((rightShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax + leftShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax) / 2);
-        } else {
-            return 0;
-        }
+        // if either motor has zero power, you might decide to return 0 — keep your logic if desired
+        if (rightShooter.getPower() == 0 || leftShooter.getPower() == 0) return 0;
+        double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
+
+        double leftTPS = leftShooter.getVelocity();   // ticks/sec
+        double rightTPS = rightShooter.getVelocity();
+
+        double leftMotorRPS = leftTPS / Constants.GoBildaMotorMax;
+        double rightMotorRPS = rightTPS / Constants.GoBildaMotorMax;
+
+        double leftWheelRPS = leftMotorRPS / Constants.ShooterConstants.shooterGearRatio;
+        double rightWheelRPS = rightMotorRPS / Constants.ShooterConstants.shooterGearRatio;
+
+        double leftLinear = leftWheelRPS * wheelCircum;   // m/s
+        double rightLinear = rightWheelRPS * wheelCircum; // m/s
+
+        return (leftLinear + rightLinear) / 2.0;
     }
+
 
     public void transfer() {
         transferServo.setPower(1);
@@ -155,28 +177,24 @@ public class SmartShooter {
             double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
             double wheelRPS = vRequired / wheelCircum; // wheel rev/s required
             double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
+            double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
 
-            shoot(motorRPS); // always command the shooter (don't early return)
+            shoot(motorTicksPerSecond); // always command the shooter (don't early return)
         }
 
-    public void periodic(Telemetry telemetry, TelemetryPacket packet) {
+    public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
-        telemetry.addData("Left Shooter Power: " , leftShooter.getPower());
-        telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
+        telemetry.addData("Left Shooter Velocity: " , leftShooter.getVelocity(AngleUnit.DEGREES));
+        telemetry.addData("Right Shooter Velocity: ", rightShooter.getVelocity());
+        telemetry.addData("Distance: ", distanceMeters);
+        telemetry.addData("Left PID: ", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        telemetry.addData("Right PID: ", rightShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
         telemetry.addData("Turret neck angle: " , turretNeck.getCurrentAngle());
-        telemetry.addData("Turret head position: " , turretHead.getPosition());
+        telemetry.addData("Turret neck target: ", turretNeck.getTargetRotation());
+        telemetry.addData("X pos: ", offsetX + Constants.VisionConstants.resX / 2);
+        telemetry.addData("Offset X: ", offsetX);
         telemetry.addData("Can make shot: " , canMake);
         telemetry.update();
-
-        packet.addLine("Shooter");
-        packet.put("Left Shooter Power: ", leftShooter.getPower());
-        packet.put("Right Shooter Power: ", rightShooter.getPower());
-        packet.put("Turret neck angle: ", turretNeck.getCurrentAngle());
-        packet.put("Turret head position: ", turretHead.getPosition());
-        packet.put("Detected X: ", detectedX);
-        packet.put("Detected Distance: ", distanceMeters);
-        packet.put("ftcPose likes us? ", poseStatus);
-        packet.put("Can make shot: ", canMake);
     }
 
     private double xTurn(double xOffset, double targetLateralVel, double distance, double launchVel, double height) {
@@ -184,6 +202,7 @@ public class SmartShooter {
         // targetLateralVel: target's sideways velocity (m/s)
         // distance: horizontal distance to target (m)
         // launchVel: projectile launch velocity (m/s) from yTurn
+        launchVel = 1; //TODO: REMOVE THIS
 
         // camera offset angle (degrees per pixel * offset)
         double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
@@ -199,12 +218,8 @@ public class SmartShooter {
 
         // --- final correction ---
         double angleDiff = (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
-        if (angleDiff < 0) {
-            angleDiff += 360;
-        }
-        if (angleDiff > 360) {
-            angleDiff -= 360;
-        }
+
         return angleDiff;
     }
+
 }

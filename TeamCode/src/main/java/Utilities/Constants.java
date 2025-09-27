@@ -1,8 +1,10 @@
 package Utilities;
 
+import com.acmerobotics.dashboard.config.Config;
+
 public class Constants {
     public static final int StudickaMotorMax = 1464; //360 degrees
-    public static final int GoBildaMotorMax = 28; //360
+    public static final int GoBildaMotorMax = 28; //says 2786 tho //360
     public static final int ServoMax = 1; //180 degrees
     public static final double inToM = 0.0254;
     public static final int defaultDCRPS = (100/60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
@@ -33,8 +35,8 @@ public class Constants {
 
     public static final class ShooterConstants {
         //GoBilda
-        public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 0
-        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 1
+        public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 1
+        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 3
         public static final double shooterGearRatio = 1; //Gear multiplier
         public static final double shooterAngle = 45; //degrees
         //Servos
@@ -46,7 +48,7 @@ public class Constants {
         public static final String turretNeckEncoder = "turretNeckEncoder";
         public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
-        public static final int centerOffset = 12;
+        public static final double centerOffset = 12 * inToM;
     }
 
     public static final class VisionConstants {

@@ -24,9 +24,9 @@ public class RTPAxon {
     // Last measured angle
     private double previousAngle;
     // Accumulated rotation in degrees
-    private double totalRotation;
+    private double totalRotation = 0;
     // Target rotation in degrees
-    private double targetRotation;
+    private double targetRotation = 0;
 
     // PID controller coefficients and state
     private double kP;

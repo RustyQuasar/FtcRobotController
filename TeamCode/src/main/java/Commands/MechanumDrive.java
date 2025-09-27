@@ -17,15 +17,9 @@ import Utilities.Constants;
 
 public class MechanumDrive {
 
-    private final DcMotor frontLeft0;
-    private final DcMotor frontRight1;
-    private final DcMotor backLeft2;
-    private final DcMotor backRight3;
+    private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
     private final DcMotorEx frontEncoder, sideEncoder;
-
-
     private final BNO055IMU imu;
-
     private double yawOffset;
 
     public MechanumDrive(HardwareMap hardwareMap) {
@@ -40,10 +34,10 @@ public class MechanumDrive {
         backLeft2.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight3.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        frontLeft0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -121,19 +115,12 @@ public class MechanumDrive {
 
     }
 
-    public void periodic(Telemetry telemetry, TelemetryPacket packet) {
+    public void periodic(Telemetry telemetry) {
         telemetry.addLine("Drive train");
         telemetry.addData("Heading: " , getHeading());
         telemetry.addData("Front Left Power: " , frontLeft0.getPower());
         telemetry.addData("Front Right Power: " , frontRight1.getPower());
         telemetry.addData("Back Left Power: " , backLeft2.getPower());
         telemetry.addData("Back Right Power: " , backRight3.getPower());
-
-        packet.addLine("Drive train");
-        packet.put("Heading: ", getHeading());
-        packet.put("Front Left Power: ", frontLeft0.getPower());
-        packet.put("Front Right Power: ", frontRight1.getPower());
-        packet.put("Back Left Power: ", backLeft2.getPower());
-        packet.put("Back Right Power: ", backRight3.getPower());
     }
 }

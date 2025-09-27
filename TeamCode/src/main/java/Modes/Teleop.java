@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
@@ -22,19 +24,17 @@ public class Teleop extends LinearOpMode {
     SmartShooter Shooter;
     Vision Vision;
     String TEAM = "RED"; //Has to be "RED" or "BLUE"
-    TelemetryPacket telemetryPacket;
 
     @Override
     public void runOpMode() {
         FtcDashboard dashboard = FtcDashboard.getInstance();
-
+        Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
         activeGamepad1 = new Gamepad();
         manualMode = true;
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, TEAM, Vision);
-        telemetryPacket = new TelemetryPacket();
         waitForStart();
 
         while (opModeIsActive()) {
@@ -66,10 +66,9 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("Manual Mode: ", manualMode);
 
             //Mechanum.periodic(telemetry, telemetryPacket);
-            Shooter.periodic(telemetry, telemetryPacket);
+            Shooter.periodic(telemetry);
             // Intake.periodic(telemetry, telemetryPacket);
             telemetry.update();
-            dashboard.sendTelemetryPacket(telemetryPacket);
             dashboard.updateConfig();
         }
     }
