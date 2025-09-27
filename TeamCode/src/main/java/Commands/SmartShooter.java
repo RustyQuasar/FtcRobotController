@@ -112,7 +112,7 @@ public class SmartShooter {
                     double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
                     // Update turret positions with corrected unit handling and corrected math
                     turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(offsetX, sideV, distanceMeters, getShooterVelocity(), heightMeters));
-                    setShooterVelocity(distanceMeters, heightMeters);
+                    setShooterVelocity(distanceMeters, heightMeters, frontV);
                 } else {
                     poseStatus = false;
                 }
@@ -150,7 +150,7 @@ public class SmartShooter {
         transferServo.setPower(1);
     }
 
-    private void setShooterVelocity(double d, double h) {
+    private void setShooterVelocity(double d, double h, double v) {
             final double g = 9.8;
             if (d <= 0) return;
 
@@ -171,7 +171,7 @@ public class SmartShooter {
                 return;
             }
 
-            double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom);
+            double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom) + v;
 
             // Convert linear speed -> wheel revs -> motor revs -> normalized power
             double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
@@ -202,7 +202,6 @@ public class SmartShooter {
         // targetLateralVel: target's sideways velocity (m/s)
         // distance: horizontal distance to target (m)
         // launchVel: projectile launch velocity (m/s) from yTurn
-        launchVel = 1; //TODO: REMOVE THIS
 
         // camera offset angle (degrees per pixel * offset)
         double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
