@@ -109,8 +109,8 @@ public class MechanumDrive {
     }
 
     public double[] getDrivetrainVelocities() {
-        double forward = frontEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelRadius * Math.PI;
-        double strafe = sideEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelRadius * Math.PI;
+        double forward = frontEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelRadius * Math.PI / Constants.StudickaMotorMax;
+        double strafe = sideEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelRadius * Math.PI / Constants.StudickaMotorMax;
         return new double[]{forward, strafe};
         //TODO: make sure this works
     }
