@@ -35,7 +35,7 @@ public class SmartShooter {
         AnalogInput turretNeckEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretNeckEncoder);
         turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
+        rightShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -153,7 +153,6 @@ public class SmartShooter {
     private void setShooterVelocity(double d, double h, double v) {
             final double g = 9.8;
             if (d <= 0) return;
-
             double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
             double cosTh = Math.cos(theta);
             double tanTh = Math.tan(theta);
