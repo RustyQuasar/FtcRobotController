@@ -23,7 +23,6 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter Shooter;
     Vision Vision;
-    String TEAM = "RED"; //Has to be "RED" or "BLUE"
 
     @Override
     public void runOpMode() {
@@ -34,7 +33,7 @@ public class Teleop extends LinearOpMode {
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter(hardwareMap, TEAM, Vision);
+        Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
         waitForStart();
 
         while (opModeIsActive()) {

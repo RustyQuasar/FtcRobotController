@@ -3,6 +3,7 @@ package Utilities;
 import com.acmerobotics.dashboard.config.Config;
 
 public class Constants {
+    public static final String TEAM = "RED"; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 1464; //360 degrees
     public static final int GoBildaMotorMax = 28; //says 2786 tho //360
     public static final int ServoMax = 1; //180 degrees
