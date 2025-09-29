@@ -23,12 +23,13 @@ import Utilities.Constants;
 public class Vision {
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             0, 0, 0, 0); //Idk what this is but I'm too afraid to delete it
-            //TODO: Get this shit ;-;
+    //TODO: Get this shit ;-;
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0);
     private AprilTagProcessor aprilTag;
     List<AprilTagDetection> currentDetections;
-    public Vision(HardwareMap hardwareMap, FtcDashboard dashboard){
+
+    public Vision(HardwareMap hardwareMap, FtcDashboard dashboard) {
         initAprilTag(hardwareMap, dashboard);
     }
 
@@ -97,25 +98,28 @@ public class Vision {
         dashboard.startCameraStream(visionPortal, 30);
 
     }
-    public List<AprilTagDetection> getDetections(){
-        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})) {
+
+    public List<AprilTagDetection> getDetections() {
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[]{"N", "N", "N"})) {
             Constants.VisionConstants.colours = setColours(currentDetections);
         }
         return currentDetections;
     }
-    public void updateAprilTags(){
+
+    public void updateAprilTags() {
         currentDetections = aprilTag.getDetections();
     }
+
     public String[] setColours(List<AprilTagDetection> currentDetections) {
-            for (AprilTagDetection detection : currentDetections) {
-                if (detection.id == 21) {
-                    return new String[]{"G", "P", "P"};
-                } else if (detection.id == 22) {
-                    return new String[]{"P", "G", "P"};
-                } else if (detection.id == 23) {
-                    return new String[]{"P", "P", "G"};
-                }
+        for (AprilTagDetection detection : currentDetections) {
+            if (detection.id == 21) {
+                return new String[]{"G", "P", "P"};
+            } else if (detection.id == 22) {
+                return new String[]{"P", "G", "P"};
+            } else if (detection.id == 23) {
+                return new String[]{"P", "P", "G"};
             }
-            return new String[]{"N", "N", "N"};
+        }
+        return new String[]{"N", "N", "N"};
     }
 }

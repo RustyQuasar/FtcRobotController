@@ -28,6 +28,7 @@ public class SmartShooter {
     double offsetX = 0;
     double distanceMeters = 0;
     boolean poseStatus = false;
+
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
@@ -118,7 +119,7 @@ public class SmartShooter {
                 }
             }
         }
-        if (!foundTag){
+        if (!foundTag) {
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
             shoot((leftShooter.getVelocity() + rightShooter.getVelocity()) / 2);
             canMake = false;
@@ -151,48 +152,48 @@ public class SmartShooter {
     }
 
     private void setShooterVelocity(double d, double h, double v) {
-            final double g = 9.8;
-            if (d <= 0) return;
-            double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
-            double cosTh = Math.cos(theta);
-            double tanTh = Math.tan(theta);
+        final double g = 9.8;
+        if (d <= 0) return;
+        double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
+        double cosTh = Math.cos(theta);
+        double tanTh = Math.tan(theta);
 
-            // avoid near-vertical numeric trouble
-            if (Math.abs(cosTh) < 1e-6) {
-                canMake = false;
-                return;
-            }
-
-            double denom = 2.0 * cosTh * cosTh * ((d-12 * Constants.inToM) * tanTh - h);
-            if (denom <= 0.0 || Double.isNaN(denom)) {
-                // impossible geometry for this angle: best effort by spinning to max
-                canMake = false;
-                return;
-            }
-
-            double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom) + v;
-
-            // Convert linear speed -> wheel revs -> motor revs -> normalized power
-            double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
-            double wheelRPS = vRequired / wheelCircum; // wheel rev/s required
-            double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
-            double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
-
-            shoot(motorTicksPerSecond); // always command the shooter (don't early return)
+        // avoid near-vertical numeric trouble
+        if (Math.abs(cosTh) < 1e-6) {
+            canMake = false;
+            return;
         }
+
+        double denom = 2.0 * cosTh * cosTh * ((d - 12 * Constants.inToM) * tanTh - h);
+        if (denom <= 0.0 || Double.isNaN(denom)) {
+            // impossible geometry for this angle: best effort by spinning to max
+            canMake = false;
+            return;
+        }
+
+        double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom) + v;
+
+        // Convert linear speed -> wheel revs -> motor revs -> normalized power
+        double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
+        double wheelRPS = vRequired / wheelCircum; // wheel rev/s required
+        double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
+        double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
+
+        shoot(motorTicksPerSecond); // always command the shooter (don't early return)
+    }
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
-        telemetry.addData("Left Shooter Velocity: " , leftShooter.getVelocity(AngleUnit.DEGREES));
+        telemetry.addData("Left Shooter Velocity: ", leftShooter.getVelocity(AngleUnit.DEGREES));
         telemetry.addData("Right Shooter Velocity: ", rightShooter.getVelocity());
         telemetry.addData("Distance: ", distanceMeters);
         telemetry.addData("Left PID: ", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
         telemetry.addData("Right PID: ", rightShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
-        telemetry.addData("Turret neck angle: " , turretNeck.getCurrentAngle());
+        telemetry.addData("Turret neck angle: ", turretNeck.getCurrentAngle());
         telemetry.addData("Turret neck target: ", turretNeck.getTargetRotation());
         telemetry.addData("X pos: ", offsetX + Constants.VisionConstants.resX / 2);
         telemetry.addData("Offset X: ", offsetX);
-        telemetry.addData("Can make shot: " , canMake);
+        telemetry.addData("Can make shot: ", canMake);
         telemetry.update();
     }
 
@@ -201,7 +202,9 @@ public class SmartShooter {
         // targetLateralVel: target's sideways velocity (m/s)
         // distance: horizontal distance to target (m)
         // launchVel: projectile launch velocity (m/s) from yTurn
-
+        if (launchVel == 0 || xOffset == 0 || distance == 0) {
+            return 0;
+        }
         // camera offset angle (degrees per pixel * offset)
         double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
 

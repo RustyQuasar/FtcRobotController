@@ -8,7 +8,8 @@ public class Constants {
     public static final int GoBildaMotorMax = 28; //says 2786 tho //360
     public static final int ServoMax = 1; //180 degrees
     public static final double inToM = 0.0254;
-    public static final int defaultDCRPS = (100/60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
+    public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
+
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)
@@ -17,7 +18,7 @@ public class Constants {
         public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2
         public static final String backRightMotor3 = "backRight"; //Control hub Motor port 3
         //Deadwheel info
-        public static final double deadwheelRadius = 4 * inToM;
+        public static final double deadwheelDiameter = 4 * inToM;
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
         //idk
@@ -47,7 +48,7 @@ public class Constants {
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
         //Encoders
         public static final String turretNeckEncoder = "turretNeckEncoder";
-        public static final double turretNeckGearRatio = (double) 22 /110; //Gear multiplier
+        public static final double turretNeckGearRatio = (double) 22 / 110; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
         public static final double centerOffset = 12 * inToM;
     }

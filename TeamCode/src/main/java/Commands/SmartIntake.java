@@ -16,7 +16,7 @@ public class SmartIntake {
 
     private boolean motifState = false;
     private int ballCount = 0;
-  public String[] artifactOrder = {"N", "N", "N"};
+    public String[] artifactOrder = {"N", "N", "N"};
 
     public SmartIntake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(CRServo.class, Constants.IntakeConstants.intake);
@@ -49,12 +49,13 @@ public class SmartIntake {
         motifState = !motifState;
     }
 
-    public void periodic(Telemetry telemetry){
+    public void periodic(Telemetry telemetry) {
         telemetry.addLine("Intake");
-        telemetry.addData("Ball count: " , ballCount);
-        telemetry.addData("Slots: " , artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
-        telemetry.addData("Motif state: " , motifState);
+        telemetry.addData("Ball count: ", ballCount);
+        telemetry.addData("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
+        telemetry.addData("Motif state: ", motifState);
     }
+
     public void intake(boolean buttonPressed) {
         if (buttonPressed && ballCount != 3) {
             if (motifState) {
