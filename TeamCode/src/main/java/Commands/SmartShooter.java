@@ -58,7 +58,7 @@ public class SmartShooter {
         pidCoefficients.d = ConfigVariables.D;
         leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
         rightShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
-        rightShooter.setVelocity(targetVelocity);
+        rightShooter.setVelocity(-targetVelocity);
         leftShooter.setVelocity(targetVelocity);
     }
 
@@ -184,7 +184,7 @@ public class SmartShooter {
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
-        telemetry.addData("Left Shooter Velocity: ", leftShooter.getVelocity(AngleUnit.DEGREES));
+        telemetry.addData("Left Shooter Velocity: ", leftShooter.getVelocity());
         telemetry.addData("Right Shooter Velocity: ", rightShooter.getVelocity());
         telemetry.addData("Distance: ", distanceMeters);
         telemetry.addData("Left PID: ", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
