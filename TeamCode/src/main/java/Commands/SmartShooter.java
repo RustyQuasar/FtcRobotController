@@ -19,8 +19,7 @@ import Utilities.ConfigVariables;
 
 public class SmartShooter {
     private final DcMotorEx leftShooter, rightShooter;
-    private final CRServo turretNeckServo;
-    private final CRServo transferServo;
+    private final CRServo turretNeckServo, transferServo;
     private final RTPAxon turretNeck;
     private final int aimedTagID;
     private static boolean canMake = false;
@@ -151,9 +150,13 @@ public class SmartShooter {
         transferServo.setPower(1);
     }
 
-    private void setShooterVelocity(double d, double h, double v) {
+    private void setShooterVelocity(double d, double h /* wallHeight (m) */, double v) {
         final double g = 9.8;
-        if (d <= 0) return;
+        if (d <= 0) {
+            canMake = false;
+            return;
+        }
+
         double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
         double cosTh = Math.cos(theta);
         double tanTh = Math.tan(theta);
@@ -164,23 +167,46 @@ public class SmartShooter {
             return;
         }
 
-        double denom = 2.0 * cosTh * cosTh * ((d - 12 * Constants.inToM) * tanTh - h);
-        if (denom <= 0.0 || Double.isNaN(denom)) {
-            // impossible geometry for this angle: best effort by spinning to max
+        // --- target height at x = d (use the same expression you used in aim())
+        // If you have a different target height, replace this line.
+        double targetHeight = (48 - 16 + 5 + 2) * Constants.inToM; // meters
+
+        // 1) required speed to hit (d, targetHeight)
+        double denomHit = 2.0 * cosTh * cosTh * (d * tanTh - targetHeight);
+        if (denomHit <= 0.0 || Double.isNaN(denomHit)) {
             canMake = false;
             return;
         }
+        double vHit = Math.sqrt((g * d * d) / denomHit);
 
-        double vRequired = Math.sqrt((g * Math.pow(d, 2)) / denom) + v;
+        // 2) wall clearance check (wall is 12 in behind the provided distance)
+        double xWall = d - (12.0 * Constants.inToM);    // wall x-position (meters)
+        double vFinal = vHit - v;
 
-        // Convert linear speed -> wheel revs -> motor revs -> normalized power
+        if (xWall > 1e-6) { // only check if wall is between shooter and target
+            double denomWall = 2.0 * cosTh * cosTh * (xWall * tanTh - h); // h is wallHeight
+            if (denomWall <= 0.0 || Double.isNaN(denomWall)) {
+                // impossible to clear the wall with this fixed angle
+                canMake = false;
+                return;
+            }
+            double vWall = Math.sqrt((g * xWall * xWall) / denomWall);
+            // to both hit target and clear wall we need at least the larger speed
+            vFinal = Math.max(vHit, vWall);
+        }
+
+        // 3) convert linear speed -> wheel rev/s -> motor rev/s -> motor ticks/sec
         double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
-        double wheelRPS = vRequired / wheelCircum; // wheel rev/s required
+        double wheelRPS = vFinal / wheelCircum; // wheel revs per second
         double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
         double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
 
-        shoot(motorTicksPerSecond); // always command the shooter (don't early return)
+        // 4) command the shooter
+        shoot(motorTicksPerSecond);
+        canMake = true;
     }
+
+
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");
