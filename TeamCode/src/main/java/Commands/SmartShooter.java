@@ -112,7 +112,7 @@ public class SmartShooter {
                     distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                     double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
                     // Update turret positions with corrected unit handling and corrected math
-                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(offsetX, sideV, distanceMeters, getShooterVelocity(), heightMeters));
+                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(offsetX, sideV, distanceMeters, getShooterVelocity()));
                     setShooterVelocity(distanceMeters, heightMeters, frontV);
                 } else {
                     poseStatus = false;
@@ -197,30 +197,37 @@ public class SmartShooter {
         telemetry.update();
     }
 
-    private double xTurn(double xOffset, double targetLateralVel, double distance, double launchVel, double height) {
-        // xOffset: pixel offset of target from center
-        // targetLateralVel: target's sideways velocity (m/s)
-        // distance: horizontal distance to target (m)
-        // launchVel: projectile launch velocity (m/s) from yTurn
-        if (launchVel == 0 || xOffset == 0 || distance == 0) {
+
+    private double xTurn(double xOffset, double lateralVel, double distance, double launchVel) {
+        // Guard: no valid solution if inputs are degenerate
+        if (launchVel <= 0 || distance <= 0) {
             return 0;
         }
-        // camera offset angle (degrees per pixel * offset)
+        // xOffset: pixel offset of target from image center
+        // targetLateralVel: target's sideways velocity (m/s)
+        // distance: horizontal distance to target (m)
+        // height: vertical difference from shooter to target (m)
+        // launchVel: projectile launch velocity (m/s) from yTurn
+        // --- camera offset to angle ---
+        // pixels → degrees (FOV / resX * offset)
         double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
 
-        // --- estimate projectile time of flight ---
-        double angleRad = Math.atan2(height, distance);
-        double vX = launchVel * Math.cos(angleRad);
-        double t = distance / vX;
+        // --- projectile time of flight ---
+        double vX = launchVel * Math.cos(Math.toRadians(Constants.ShooterConstants.shooterAngle));   // horizontal component of launch velocity
+        if (vX <= 1e-6) {
+            return angleToTurnDeg / Constants.ShooterConstants.turretNeckGearRatio; // avoid div/0
+        }
+        double t = distance / vX; // time of flight
 
-        // --- lead angle (based on how far target moves in that time) ---
-        double leadAngleRad = Math.atan2(targetLateralVel * t, distance);
+        // --- lead angle (lateral offset due to target motion) ---
+        double lateralOffset = lateralVel * t;
+        double leadAngleRad = Math.atan2(lateralOffset, distance);
         double leadAngleDeg = Math.toDegrees(leadAngleRad);
 
         // --- final correction ---
-        double angleDiff = (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
-
+        double angleDiff = (angleToTurnDeg + leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
         return angleDiff;
     }
+
 
 }
