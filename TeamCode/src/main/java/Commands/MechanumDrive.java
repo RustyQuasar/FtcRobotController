@@ -1,12 +1,11 @@
 package Commands;
-
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
+import Commands.Odometry;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -21,6 +20,8 @@ public class MechanumDrive {
     private final DcMotorEx frontEncoder, sideEncoder;
     private final BNO055IMU imu;
     private double yawOffset;
+
+    private double driveVY,driveVX;
 
     public MechanumDrive(HardwareMap hardwareMap) {
         frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
@@ -107,15 +108,16 @@ public class MechanumDrive {
 
         return heading;
     }
-
-    public double[] getDrivetrainVelocities() {
-        double forward = frontEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
-        double strafe = sideEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
-        return new double[]{forward, strafe};
-        //TODO: make sure this works
+    public double[] getDrivetrainVelocities(){
+        double y = frontEncoder.getVelocity()/Constants.DriveTrainConstants.odometryTickNumber* Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
+        double x  =  sideEncoder.getVelocity()/Constants.DriveTrainConstants.odometryTickNumber * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
+        double t = 1; //TODO
+        return new double[] {x, y, t};
     }
 
     public void periodic(Telemetry telemetry) {
+        driveVX=frontEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI/360;
+        driveVY= sideEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI/360;
         telemetry.addLine("Drive train");
         telemetry.addData("Heading: ", getHeading());
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());

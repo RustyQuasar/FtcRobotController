@@ -25,6 +25,9 @@ public class Constants {
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
         public static final double wheelDiameter = 5 * inToM; //in meters
+
+        public static double[] fieldPos = {0,0};
+        public static final int odometryTickNumber=100;
     }
 
     public static final class IntakeConstants {
