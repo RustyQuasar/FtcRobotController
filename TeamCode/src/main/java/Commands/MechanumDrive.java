@@ -110,8 +110,10 @@ public class MechanumDrive {
     }
     public double[] getDrivetrainVelocities(){
         double y = frontEncoder.getVelocity()/Constants.DriveTrainConstants.odometryTickNumber* Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
-        double x  =  sideEncoder.getVelocity()/Constants.DriveTrainConstants.odometryTickNumber * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
-        double t = 1; //TODO
+        double x = sideEncoder.getVelocity()/Constants.DriveTrainConstants.odometryTickNumber * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
+        double t2 = System.nanoTime();
+        double t = t2 - Constants.DriveTrainConstants.lastTime;
+        Constants.DriveTrainConstants.lastTime = t2;
         return new double[] {x, y, t};
     }
 

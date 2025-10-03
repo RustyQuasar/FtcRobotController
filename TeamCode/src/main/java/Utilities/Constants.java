@@ -9,6 +9,7 @@ public class Constants {
     public static final int ServoMax = 1; //180 degrees
     public static final double inToM = 0.0254;
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
+    public static final double nanoToSeconds = 1e-9;
 
     public static final class DriveTrainConstants {
 
@@ -25,6 +26,7 @@ public class Constants {
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
         public static final double wheelDiameter = 5 * inToM; //in meters
+        public static double lastTime = 0;
 
         public static double[] fieldPos = {0,0};
         public static final int odometryTickNumber=100;

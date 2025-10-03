@@ -15,8 +15,8 @@ public void updatePose(double[] vs){
        double x = vs[0];
        double y =vs[1];
        double t = vs[2];
-       Constants.DriveTrainConstants.fieldPos[0] += x * t;
-       Constants.DriveTrainConstants.fieldPos[1] += y * t;
+       Constants.DriveTrainConstants.fieldPos[0] += x * t * Constants.nanoToSeconds;
+       Constants.DriveTrainConstants.fieldPos[1] += y * t * Constants.nanoToSeconds;
     }
 public static double[] getFieldVelocities() {
     double[] velocities = drivetrain.getDrivetrainVelocities();
