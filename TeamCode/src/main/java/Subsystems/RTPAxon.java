@@ -45,8 +45,7 @@ public class RTPAxon {
 
     // Direction enum for servo
     public enum Direction {
-        FORWARD,
-        REVERSE
+        FORWARD, REVERSE
     }
 
     // region constructors
@@ -163,7 +162,7 @@ public class RTPAxon {
     }
 
     // Set all PID coefficients
-    public void setPidCoeffs(double kP, double kI, double kD){
+    public void setPidCoeffs(double kP, double kI, double kD) {
         setKP(kP);
         setKI(kI);
         setKD(kD);
@@ -324,22 +323,6 @@ public class RTPAxon {
     // Log current state for telemetry/debug
     @SuppressLint("DefaultLocale")
     public String log() {
-        return String.format(
-                "Current Volts: %.3f\n" +
-                        "Current Angle: %.2f\n" +
-                        "Total Rotation: %.2f\n" +
-                        "Target Rotation: %.2f\n" +
-                        "Current Power: %.3f\n" +
-                        "PID Values: P=%.3f I=%.3f D=%.3f\n" +
-                        "PID Terms: Error=%.2f Integral=%.2f",
-                servoEncoder.getVoltage(),
-                getCurrentAngle(),
-                totalRotation,
-                targetRotation,
-                power,
-                kP, kI, kD,
-                targetRotation - totalRotation,
-                integralSum
-        );
+        return String.format("Current Volts: %.3f\n" + "Current Angle: %.2f\n" + "Total Rotation: %.2f\n" + "Target Rotation: %.2f\n" + "Current Power: %.3f\n" + "PID Values: P=%.3f I=%.3f D=%.3f\n" + "PID Terms: Error=%.2f Integral=%.2f", servoEncoder.getVoltage(), getCurrentAngle(), totalRotation, targetRotation, power, kP, kI, kD, targetRotation - totalRotation, integralSum);
     }
 }

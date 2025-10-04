@@ -1,7 +1,6 @@
 package Modes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -9,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
+import Commands.Odometry;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
 import Commands.Vision;
@@ -22,16 +22,18 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter Shooter;
     Vision Vision;
-
+    Odometry Odometry;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
+
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
+        Odometry = new Odometry(Mechanum);
         waitForStart();
 
         while (opModeIsActive()) {
@@ -52,6 +54,7 @@ public class Teleop extends LinearOpMode {
                 Mechanum.resetYaw();
             }
             Shooter.aim(Mechanum.getDrivetrainVelocities());
+            Odometry.updatePose(Mechanum.getDrivetrainVelocities());
             //Mechanum.periodic(telemetry, telemetryPacket);
             Shooter.periodic(telemetry);
             // Intake.periodic(telemetry, telemetryPacket);

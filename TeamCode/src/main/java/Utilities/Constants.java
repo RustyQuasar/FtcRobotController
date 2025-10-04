@@ -1,7 +1,5 @@
 package Utilities;
 
-import com.acmerobotics.dashboard.config.Config;
-
 public class Constants {
     public static final String TEAM = "RED"; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 1464; //360 degrees
@@ -28,8 +26,8 @@ public class Constants {
         public static final double wheelDiameter = 5 * inToM; //in meters
         public static double lastTime = 0;
 
-        public static double[] fieldPos = {0,0};
-        public static final int odometryTickNumber=100;
+        public static double[] fieldPos = {0, 0};
+        public static final int odometryTickNumber = 100;
     }
 
     public static final class IntakeConstants {

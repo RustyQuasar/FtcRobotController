@@ -1,7 +1,6 @@
 package Commands;
 
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,14 +9,16 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Subsystems.RTPAxon;
 import Utilities.Constants;
 import Utilities.ConfigVariables;
 
 public class SmartShooter {
+    private static final Logger log = LoggerFactory.getLogger(SmartShooter.class);
     private final DcMotorEx leftShooter, rightShooter;
     private final CRServo turretNeckServo, transferServo;
     private final RTPAxon turretNeck;
@@ -120,7 +121,7 @@ public class SmartShooter {
         }
         if (!foundTag) {
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            shoot((leftShooter.getVelocity() + rightShooter.getVelocity()) / 2);
+            stall();
             canMake = false;
         }
     }
@@ -153,6 +154,7 @@ public class SmartShooter {
     private void setShooterVelocity(double d, double h /* wallHeight (m) */, double v) {
         final double g = 9.8;
         if (d <= 0) {
+            stall();
             canMake = false;
             return;
         }
@@ -163,6 +165,7 @@ public class SmartShooter {
 
         // avoid near-vertical numeric trouble
         if (Math.abs(cosTh) < 1e-6) {
+            stall();
             canMake = false;
             return;
         }
@@ -174,6 +177,7 @@ public class SmartShooter {
         // 1) required speed to hit (d, targetHeight)
         double denomHit = 2.0 * cosTh * cosTh * (d * tanTh - targetHeight);
         if (denomHit <= 0.0 || Double.isNaN(denomHit)) {
+            stall();
             canMake = false;
             return;
         }
@@ -181,18 +185,19 @@ public class SmartShooter {
 
         // 2) wall clearance check (wall is 12 in behind the provided distance)
         double xWall = d - (12.0 * Constants.inToM);    // wall x-position (meters)
-        double vFinal = vHit - v;
+        double vFinal = vHit;
 
         if (xWall > 1e-6) { // only check if wall is between shooter and target
             double denomWall = 2.0 * cosTh * cosTh * (xWall * tanTh - h); // h is wallHeight
             if (denomWall <= 0.0 || Double.isNaN(denomWall)) {
                 // impossible to clear the wall with this fixed angle
+                stall();
                 canMake = false;
                 return;
             }
             double vWall = Math.sqrt((g * xWall * xWall) / denomWall);
             // to both hit target and clear wall we need at least the larger speed
-            vFinal = Math.max(vHit, vWall);
+            vFinal = Math.max(vHit, vWall) - v;
         }
 
         // 3) convert linear speed -> wheel rev/s -> motor rev/s -> motor ticks/sec
@@ -202,11 +207,15 @@ public class SmartShooter {
         double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
 
         // 4) command the shooter
-        shoot(motorTicksPerSecond);
         canMake = true;
+        shoot(motorTicksPerSecond);
     }
 
-
+    public void stall() {
+        double avgVelocity = (leftShooter.getVelocity() + rightShooter.getVelocity()) / 2;
+        leftShooter.setVelocity(avgVelocity);
+        rightShooter.setVelocity(avgVelocity);
+    }
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Shooter");

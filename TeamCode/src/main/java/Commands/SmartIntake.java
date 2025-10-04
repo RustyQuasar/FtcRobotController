@@ -1,6 +1,5 @@
 package Commands;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -69,7 +68,7 @@ public class SmartIntake {
                     motorIntake.setPower(-1);
                     try {
                         Thread.sleep(500);
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
 
                     }
                 }
