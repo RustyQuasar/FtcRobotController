@@ -36,6 +36,11 @@ public class MechanumDrive {
         backLeft2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        frontLeft0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;

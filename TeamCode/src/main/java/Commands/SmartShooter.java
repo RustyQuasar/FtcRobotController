@@ -1,6 +1,7 @@
 package Commands;
 
 
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import Subsystems.RTPAxon;
 import Utilities.Constants;
 import Utilities.ConfigVariables;
+import Utilities.Odometry;
 
 public class SmartShooter {
     private static final Logger log = LoggerFactory.getLogger(SmartShooter.class);
@@ -27,7 +29,7 @@ public class SmartShooter {
     private final Vision Vision;
     double offsetX = 0;
     double distanceMeters = 0;
-    boolean poseStatus = false;
+    Vector2d targetPos;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
@@ -44,8 +46,10 @@ public class SmartShooter {
 
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
+            targetPos = Constants.OdometryConstrants.targetPosRed;
         } else {
             aimedTagID = 20;
+            targetPos = Constants.OdometryConstrants.targetPosBlue;
         }
         Vision = vision;
     }
@@ -65,63 +69,65 @@ public class SmartShooter {
         turretNeck.update();
         double fv = v[0];
         double sv = v[1];
-        // Step through the list of detections and display info for each one.
+        double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
         boolean foundTag = false;
+        double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio) + Constants.heading;
+        neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
+        neckHeading += Constants.DriveTrainConstants.controlHubOffset;
+        int angle1, angle2;
+        double frontV, sideV;
+        canMake = true;
+        if (fv > 0) {
+            angle1 = 0;
+        } else {
+            angle1 = 180;
+        }
+        if (sv > 0) {
+            angle2 = 90;
+        } else {
+            angle2 = 270;
+        }
+        double[] totals = {neckHeading - angle1, neckHeading - angle2};
+        for (int i = 0; i < totals.length; i++) {
+            if (totals[i] > 360) {
+                totals[i] -= 360;
+            }
+            if (totals[i] < 0) {
+                totals[i] *= -1;
+            }
+        }
+        double hypotenuse = Math.sqrt(Math.pow(fv, 2) + Math.pow(sv, 2));
+        if (totals[0] <= totals[1]) {
+            frontV = hypotenuse * Math.sin(Math.toRadians(totals[0]));
+            sideV = hypotenuse * Math.cos(Math.toRadians(totals[0]));
+        } else {
+            frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
+            sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
+        }
+
         for (AprilTagDetection detection : Vision.getDetections()) {
-            int angle1, angle2;
-            double frontV, sideV;
             if (detection.id == aimedTagID) {
                 if (detection.ftcPose != null) {
-                    poseStatus = true;
                     foundTag = true;
-                    canMake = true;
                     // convert servo position to degrees (your existing mapping)
-                    double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio) + Constants.heading;
-                    neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
-                    neckHeading += Constants.DriveTrainConstants.controlHubOffset;
-                    if (fv > 0) {
-                        angle1 = 0;
-                    } else {
-                        angle1 = 180;
-                    }
-                    if (sv > 0) {
-                        angle2 = 90;
-                    } else {
-                        angle2 = 270;
-                    }
-                    double[] totals = {neckHeading - angle1, neckHeading - angle2};
-                    for (int i = 0; i < totals.length; i++) {
-                        if (totals[i] > 360) {
-                            totals[i] -= 360;
-                        }
-                        if (totals[i] < 0) {
-                            totals[i] *= -1;
-                        }
-                    }
-                    double hypotenuse = Math.sqrt(Math.pow(fv, 2) + Math.pow(sv, 2));
-                    if (totals[0] <= totals[1]) {
-                        frontV = hypotenuse * Math.sin(Math.toRadians(totals[0]));
-                        sideV = hypotenuse * Math.cos(Math.toRadians(totals[0]));
-                    } else {
-                        frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
-                        sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
-                    }
                     offsetX = detection.center.x - (double) Constants.VisionConstants.resX / 2;
                     // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
                     distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
-                    double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
                     // Update turret positions with corrected unit handling and corrected math
-                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(offsetX, sideV, distanceMeters, getShooterVelocity()));
+                    double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * offsetX;
+                    turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(angleToTurnDeg, sideV, distanceMeters, getShooterVelocity()));
                     setShooterVelocity(distanceMeters, heightMeters, frontV);
-                } else {
-                    poseStatus = false;
                 }
             }
         }
+
         if (!foundTag) {
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            stall();
-            canMake = false;
+            double x = Constants.OdometryConstrants.fieldPos.position.x - targetPos.x;
+            double y = Constants.OdometryConstrants.fieldPos.position.y - targetPos.y;
+            double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) + Constants.ShooterConstants.centerOffset;
+            xTurn(Math.toDegrees(Math.atan2(y, x)), sideV, distance, getShooterVelocity());
+            setShooterVelocity(distance, heightMeters, frontV);
         }
     }
 
@@ -182,8 +188,8 @@ public class SmartShooter {
         }
         double vHit = Math.sqrt((g * d * d) / denomHit);
 
-        // 2) wall clearance check (wall is 12 in behind the provided distance)
-        double xWall = d - (12.0 * Constants.inToM);    // wall x-position (meters)
+        // 2) wall clearance check (wall is 12in behind the provided distance)
+        double xWall = d - Constants.ShooterConstants.centerOffset;    // wall x-position (meters)
         double vFinal = vHit;
 
         if (xWall > 1e-6) { // only check if wall is between shooter and target
@@ -232,19 +238,11 @@ public class SmartShooter {
     }
 
 
-    private double xTurn(double xOffset, double lateralVel, double distance, double launchVel) {
+    private double xTurn(double angleToTurnDeg, double lateralVel, double distance, double launchVel) {
         // Guard: no valid solution if inputs are degenerate
         if (launchVel <= 0 || distance <= 0) {
             return 0;
         }
-        // xOffset: pixel offset of target from image center
-        // targetLateralVel: target's sideways velocity (m/s)
-        // distance: horizontal distance to target (m)
-        // height: vertical difference from shooter to target (m)
-        // launchVel: projectile launch velocity (m/s) from yTurn
-        // --- camera offset to angle ---
-        // pixels → degrees (FOV / resX * offset)
-        double angleToTurnDeg = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
 
         // --- projectile time of flight ---
         double vX = launchVel * Math.cos(Math.toRadians(Constants.ShooterConstants.shooterAngle));   // horizontal component of launch velocity
