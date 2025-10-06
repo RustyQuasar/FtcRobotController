@@ -2,7 +2,6 @@ package Commands;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -17,7 +16,6 @@ import Utilities.Constants;
 public class MechanumDrive {
 
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
-    private final DcMotorEx frontEncoder, sideEncoder;
     private final BNO055IMU imu;
     private double yawOffset;
 
@@ -28,8 +26,6 @@ public class MechanumDrive {
         frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
         backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
         backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
-        frontEncoder = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0);
-        sideEncoder = hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1);
         frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -50,7 +46,7 @@ public class MechanumDrive {
 
     public void drive(double driveY, double driveX, double rotation) {
 
-        double botHeading = getHeading();
+        double botHeading = Constants.heading;
         double headingRadians = Math.toRadians(botHeading);
 
         // Rotate the movement direction counter to the bot's rotation
@@ -91,38 +87,15 @@ public class MechanumDrive {
         yawOffset = getRawHeading() - Constants.DriveTrainConstants.controlHubOffset;
     }
 
-    /**
-     * Returns the updated yaw after the yaw offset is applied
-     *
-     * @return adjusted heading of the robot
-     */
-    public double getHeading() {
+    public void updateHeading() {
         double heading = getRawHeading() - yawOffset;
-
-        if (heading > 180) {
-            heading -= 360;
-        }
-        if (heading < -180) {
-            heading += 360;
-        }
-
-        return heading;
-    }
-
-    public double[] getDrivetrainVelocities() {
-        double y = frontEncoder.getVelocity() / Constants.DriveTrainConstants.odometryTickNumber * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
-        double x = sideEncoder.getVelocity() / Constants.DriveTrainConstants.odometryTickNumber * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI;
-        double t2 = System.nanoTime();
-        double t = t2 - Constants.DriveTrainConstants.lastTime;
-        Constants.DriveTrainConstants.lastTime = t2;
-        return new double[]{x, y, t};
+        heading += 180;
+        Constants.heading = heading;
     }
 
     public void periodic(Telemetry telemetry) {
-        driveVX = frontEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI / 360;
-        driveVY = sideEncoder.getVelocity() * Constants.DriveTrainConstants.deadwheelDiameter * Math.PI / 360;
         telemetry.addLine("Drive train");
-        telemetry.addData("Heading: ", getHeading());
+        telemetry.addData("Heading: ", Constants.heading);
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());

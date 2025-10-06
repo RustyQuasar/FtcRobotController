@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
-import Commands.Odometry;
+import Utilities.Odometry;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
 import Commands.Vision;
@@ -33,11 +33,14 @@ public class Teleop extends LinearOpMode {
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
-        Odometry = new Odometry(Mechanum);
+        Odometry = new Odometry(hardwareMap);
         waitForStart();
 
         while (opModeIsActive()) {
+            Odometry.updatePose();
+            Mechanum.updateHeading();
             Vision.updateAprilTags();
+
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_bumper);
 
@@ -53,8 +56,7 @@ public class Teleop extends LinearOpMode {
             if (activeGamepad1.dpad_down) {
                 Mechanum.resetYaw();
             }
-            Shooter.aim(Mechanum.getDrivetrainVelocities());
-            Odometry.updatePose(Mechanum.getDrivetrainVelocities());
+            Shooter.aim(Odometry.getVelocity());
             //Mechanum.periodic(telemetry, telemetryPacket);
             Shooter.periodic(telemetry);
             // Intake.periodic(telemetry, telemetryPacket);

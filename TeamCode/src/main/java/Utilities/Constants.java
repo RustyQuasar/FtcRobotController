@@ -7,11 +7,15 @@ public class Constants {
     public static final int ServoMax = 1; //180 degrees
     public static final double inToM = 0.0254;
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
-    public static final double nanoToSeconds = 1e-9;
+    public static double heading;
+
+    public static double[] fieldPos = {0, 0}; //  [0] = x = perp ||  [1] = y = par
 
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)
+
+        public static final double externalMax = 28; //TODO
         public static final String frontLeftMotor0 = "frontLeft"; //Control hub Motor port 0, connected to front deadwheel
         public static final String frontRightMotor1 = "frontRight"; //Control hub Motor port 1, connected to sideways deadwheel
         public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2
@@ -26,7 +30,6 @@ public class Constants {
         public static final double wheelDiameter = 5 * inToM; //in meters
         public static double lastTime = 0;
 
-        public static double[] fieldPos = {0, 0};
         public static final int odometryTickNumber = 100;
     }
 

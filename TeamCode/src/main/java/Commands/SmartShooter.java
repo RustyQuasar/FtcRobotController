@@ -36,7 +36,6 @@ public class SmartShooter {
         AnalogInput turretNeckEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretNeckEncoder);
         turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        rightShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -58,7 +57,7 @@ public class SmartShooter {
         pidCoefficients.d = ConfigVariables.D;
         leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
         rightShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
-        rightShooter.setVelocity(-targetVelocity);
+        rightShooter.setVelocity(targetVelocity);
         leftShooter.setVelocity(targetVelocity);
     }
 
@@ -77,7 +76,7 @@ public class SmartShooter {
                     foundTag = true;
                     canMake = true;
                     // convert servo position to degrees (your existing mapping)
-                    double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio);
+                    double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio) + Constants.heading;
                     neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
                     neckHeading += Constants.DriveTrainConstants.controlHubOffset;
                     if (fv > 0) {
