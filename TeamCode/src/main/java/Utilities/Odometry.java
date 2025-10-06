@@ -4,6 +4,8 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
@@ -29,8 +31,11 @@ public final class Odometry{
     }
 
     public void updatePose() {
-        Constants.fieldPos[0] = (perp.getPositionAndVelocity().position - lastPerpPos) * sin(Math.toRadians(Constants.heading));
-        Constants.fieldPos[1] = (par.getPositionAndVelocity().position - lastParPos) * cos(Math.toRadians(Constants.heading));
+        double x  = (perp.getPositionAndVelocity().position - lastPerpPos) * sin(Math.toRadians(Constants.heading));
+        double y = (par.getPositionAndVelocity().position - lastParPos) * cos(Math.toRadians(Constants.heading));
+        Pose2d pose2d = new Pose2d(new Vector2d(x, y), Constants.heading);
+        Constants.fieldPos = pose2d;
+
     }
 
 }

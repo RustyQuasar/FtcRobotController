@@ -1,5 +1,7 @@
 package Utilities;
 
+import com.acmerobotics.roadrunner.Pose2d;
+
 public class Constants {
     public static final String TEAM = "RED"; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 1464; //360 degrees
@@ -9,7 +11,7 @@ public class Constants {
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
     public static double heading;
 
-    public static double[] fieldPos = {0, 0}; //  [0] = x = perp ||  [1] = y = par
+    public static Pose2d fieldPos = new Pose2d(0, 0, 0); //  [0] = x = perp ||  [1] = y = par
 
     public static final class DriveTrainConstants {
 
