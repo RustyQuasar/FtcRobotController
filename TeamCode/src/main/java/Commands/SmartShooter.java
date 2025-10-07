@@ -125,8 +125,8 @@ public class SmartShooter {
 
         if (!foundTag) {
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            double x = Constants.OdometryConstrants.fieldPos.position.x - targetPos.x;
-            double y = Constants.OdometryConstrants.fieldPos.position.y - targetPos.y;
+            double x = Constants.OdometryConstrants.fieldPos.x - targetPos.x;
+            double y = Constants.OdometryConstrants.fieldPos.y - targetPos.y;
             distanceMeters = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) + Constants.ShooterConstants.centerOffset;
             xTurn(Math.toDegrees(Math.atan2(y, x)), sideV, distanceMeters, getShooterVelocity());
             setShooterVelocity(distanceMeters, heightMeters, frontV);

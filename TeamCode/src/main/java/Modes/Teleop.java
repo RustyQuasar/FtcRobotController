@@ -27,13 +27,12 @@ public class Teleop extends LinearOpMode {
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
-
+        Odometry = new Odometry(hardwareMap);
         activeGamepad1 = new Gamepad();
-        Mechanum = new MechanumDrive(hardwareMap);
+        Mechanum = new MechanumDrive(hardwareMap, Odometry);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
-        Odometry = new Odometry(hardwareMap);
         waitForStart();
 
         while (opModeIsActive()) {

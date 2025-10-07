@@ -52,7 +52,7 @@ public final class Odometry{
     public void updatePose() {
         double x  = (perp.getPositionAndVelocity().position - lastPerpPos) * cos(Math.toRadians(Constants.heading));
         double y = (par.getPositionAndVelocity().position - lastParPos) * sin(Math.toRadians(Constants.heading));
-        Constants.OdometryConstrants.fieldPos = new Pose2d(new Vector2d(x, y), Constants.heading);
+        Constants.OdometryConstrants.fieldPos = new Vector2d(x, y);
 
     }
 

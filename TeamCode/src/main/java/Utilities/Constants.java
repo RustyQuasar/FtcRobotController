@@ -55,7 +55,7 @@ public class Constants {
     public static final class OdometryConstrants{
         public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
         public static final double deadwheelDiameter = 4 * inToM;
-        public static Pose2d fieldPos = new Pose2d(0, 0, 0);
+        public static Vector2d fieldPos = new Vector2d(0, 0);
         //0, 0 is blue square corner
         public static final Vector2d targetPosBlue = new Vector2d(0.3, 3.3576);
         public static final Vector2d targetPosRed = new Vector2d(3.3576, 3.3576);
