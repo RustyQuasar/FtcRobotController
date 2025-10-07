@@ -29,6 +29,7 @@ public class SmartShooter {
     private final Vision Vision;
     double offsetX = 0;
     double distanceMeters = 0;
+    double tVel;
     Vector2d targetPos;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
@@ -63,6 +64,7 @@ public class SmartShooter {
         rightShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidCoefficients);
         rightShooter.setVelocity(targetVelocity);
         leftShooter.setVelocity(targetVelocity);
+        tVel = targetVelocity;
     }
 
     public void aim(double[] v) {
@@ -125,9 +127,9 @@ public class SmartShooter {
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
             double x = Constants.OdometryConstrants.fieldPos.position.x - targetPos.x;
             double y = Constants.OdometryConstrants.fieldPos.position.y - targetPos.y;
-            double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) + Constants.ShooterConstants.centerOffset;
-            xTurn(Math.toDegrees(Math.atan2(y, x)), sideV, distance, getShooterVelocity());
-            setShooterVelocity(distance, heightMeters, frontV);
+            distanceMeters = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) + Constants.ShooterConstants.centerOffset;
+            xTurn(Math.toDegrees(Math.atan2(y, x)), sideV, distanceMeters, getShooterVelocity());
+            setShooterVelocity(distanceMeters, heightMeters, frontV);
         }
     }
 
@@ -155,12 +157,12 @@ public class SmartShooter {
     public void transfer() {
         transferServo.setPower(1);
     }
-
     private void setShooterVelocity(double d, double h /* wallHeight (m) */, double v) {
         final double g = 9.8;
-        if (d <= 0) {
-            stall();
+        final double inToM = Constants.inToM; // 0.0254
+        if (d <= 1.0) {
             canMake = false;
+            stall();
             return;
         }
 
@@ -170,51 +172,108 @@ public class SmartShooter {
 
         // avoid near-vertical numeric trouble
         if (Math.abs(cosTh) < 1e-6) {
-            stall();
             canMake = false;
             return;
         }
 
-        // --- target height at x = d (use the same expression you used in aim())
-        // If you have a different target height, replace this line.
-        double targetHeight = (48 - 16 + 5 + 2) * Constants.inToM; // meters
+        // --- compute vHit (velocity that intersects (d, targetHeight)) ---
+        // targetHeight: keep your existing definition if different; here we're using same as before
+        double targetHeight = (48 - 16 + 5 + 2) * Constants.inToM; // meters (adjust if needed)
 
-        // 1) required speed to hit (d, targetHeight)
-        double denomHit = 2.0 * cosTh * cosTh * (d * tanTh - targetHeight);
+        // epsilon to avoid denominator collapse (very small to preserve physics)
+        final double EPS_TERM = 1e-4;
+// Check for invalid geometry: target is too close or too high for this shooter angle
+        double critDist = h / tanTh; // distance where d*tanTh == h (apex at target)
+        if (d <= critDist) {
+            // No descending solution possible — we’d have to fire upward to hit it.
+            // Use capped velocity and mark as unreachable
+            canMake = false;
+            double safeVel = 0.8 * Constants.GoBildaMotorMax; // or whatever your nominal high speed is
+            double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
+            double wheelRPS = safeVel / wheelCircum;
+            double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
+            double motorTPS = motorRPS * Constants.GoBildaMotorMax;
+            shoot(motorTPS);
+            return;
+        }
+
+        double termHit = d * tanTh - targetHeight;
+        if (termHit < EPS_TERM) termHit = EPS_TERM;
+        double denomHit = 2.0 * cosTh * cosTh * termHit;
         if (denomHit <= 0.0 || Double.isNaN(denomHit)) {
-            stall();
             canMake = false;
             return;
         }
         double vHit = Math.sqrt((g * d * d) / denomHit);
 
-        // 2) wall clearance check (wall is 12in behind the provided distance)
-        double xWall = d - Constants.ShooterConstants.centerOffset;    // wall x-position (meters)
-        double vFinal = vHit;
-
-        if (xWall > 1e-6) { // only check if wall is between shooter and target
-            double denomWall = 2.0 * cosTh * cosTh * (xWall * tanTh - h); // h is wallHeight
-            if (denomWall <= 0.0 || Double.isNaN(denomWall)) {
-                // impossible to clear the wall with this fixed angle
-                stall();
-                canMake = false;
-                return;
+        // --- compute vWall only when wall is meaningfully in front of shooter and before target ---
+        double xWall = d - (12.0 * inToM);
+        double vWall = Double.NaN;
+        boolean wallApplicable = (xWall > 0.15) && (xWall < d - 0.05); // require wall at least 15cm away and before target
+        if (wallApplicable) {
+            double termWall = xWall * tanTh - h; // h is wall top height in meters (as you clarified)
+            if (termWall < EPS_TERM) termWall = EPS_TERM;
+            double denomWall = 2.0 * cosTh * cosTh * termWall;
+            if (!(denomWall <= 0.0 || Double.isNaN(denomWall))) {
+                vWall = Math.sqrt((g * xWall * xWall) / denomWall);
+            } else {
+                // wall impossible to clear at this angle -> mark as not applicable
+                wallApplicable = false;
             }
-            double vWall = Math.sqrt((g * xWall * xWall) / denomWall);
-            // to both hit target and clear wall we need at least the larger speed
-            vFinal = Math.max(vHit, vWall) - v;
         }
 
-        // 3) convert linear speed -> wheel rev/s -> motor rev/s -> motor ticks/sec
+        // --- pick final velocity, smoothing the transition if both vHit and vWall are valid ---
+        double vFinal;
+        if (!wallApplicable || Double.isNaN(vWall)) {
+            vFinal = vHit;
+        } else {
+            // Instead of hard max, blend over a small band (prevents discontinuities)
+            // If vWall is much bigger than vHit, we still tend toward vWall but smoothly.
+            double blendBand = 0.5; // meters over which we blend (tweakable)
+            double distToWall = d - xWall; // >= 0
+            // compute a blend factor based on how close the provided distance d is to the wall-target geometry
+            // when distToWall is small (wall close to target) bias toward vWall; when large bias to vHit
+            double t = Math.min(Math.max((blendBand - Math.abs(distToWall - (blendBand/2))) / blendBand, 0.0), 1.0);
+            // simple smooth blend (linear); you can swap to smoother curve if desired
+            vFinal = (1.0 - t) * vHit + t * Math.max(vHit, vWall);
+            // also guarantee monotonicity: never choose a vFinal smaller than vHit (we must still hit target)
+            if (vFinal < vHit) vFinal = vHit;
+        }
+
+        // --- ensure descending intersection: nudge vFinal upwards if apex is after target ---
+        // but cap loop to avoid infinite increase
+        final int MAX_ITER = 200;
+        int iter = 0;
+        double xApex = (vFinal * vFinal * Math.sin(2 * theta)) / (2 * g);
+        while ((xApex > d - 0.05) && iter < MAX_ITER && vFinal < Constants.GoBildaMotorMax) {
+            vFinal += 0.02; // small increment to move apex earlier
+            xApex = (vFinal * vFinal * Math.sin(2 * theta)) / (2 * g);
+            iter++;
+        }
+        if (iter >= MAX_ITER) {
+            // couldn't force descending branch — bail out safely
+            canMake = false;
+            return;
+        }
+
+        if (vFinal > Constants.GoBildaMotorMax) {
+            vFinal = Constants.GoBildaMotorMax;
+        }
+
+        // --- conversion to motor units (preserve your existing pipeline) ---
         double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
-        double wheelRPS = vFinal / wheelCircum; // wheel revs per second
+        double wheelRPS = vFinal / wheelCircum; // wheel rev/s
         double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
         double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
 
-        // 4) command the shooter
-        canMake = true;
+        // issue command (you use setVelocity on DcMotorEx elsewhere)
         shoot(motorTicksPerSecond);
+
+        canMake = true;
     }
+
+
+
 
     public void stall() {
         double avgVelocity = (leftShooter.getVelocity() + rightShooter.getVelocity()) / 2;
@@ -227,39 +286,52 @@ public class SmartShooter {
         telemetry.addData("Left Shooter Velocity: ", leftShooter.getVelocity());
         telemetry.addData("Right Shooter Velocity: ", rightShooter.getVelocity());
         telemetry.addData("Distance: ", distanceMeters);
-        telemetry.addData("Left PID: ", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        telemetry.addData("Target Velocity: ", tVel);
+        //telemetry.addData("Left PID: ", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
         telemetry.addData("Right PID: ", rightShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
-        telemetry.addData("Turret neck angle: ", turretNeck.getCurrentAngle());
-        telemetry.addData("Turret neck target: ", turretNeck.getTargetRotation());
-        telemetry.addData("X pos: ", offsetX + Constants.VisionConstants.resX / 2);
-        telemetry.addData("Offset X: ", offsetX);
+        //telemetry.addData("Turret neck angle: ", turretNeck.getCurrentAngle());
+        //telemetry.addData("Turret neck target: ", turretNeck.getTargetRotation());
+        //telemetry.addData("X pos: ", offsetX + Constants.VisionConstants.resX / 2);
+        //telemetry.addData("Offset X: ", offsetX);
         telemetry.addData("Can make shot: ", canMake);
         telemetry.update();
     }
+    public double xTurn(double xOffset, double targetLateralVel, double distance, double wallHeight) {
+        if (xOffset == 0 || distance <= 0.1) return 0;
 
+        double g = 9.8;
+        double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
+        double cosTh = Math.cos(theta);
+        double tanTh = Math.tan(theta);
+        double inToM = 0.0254;
+        double d = distance;
+        double h = wallHeight;
 
-    private double xTurn(double angleToTurnDeg, double lateralVel, double distance, double launchVel) {
-        // Guard: no valid solution if inputs are degenerate
-        if (launchVel <= 0 || distance <= 0) {
-            return 0;
+        double denom = 2.0 * cosTh * cosTh * (d * tanTh - h);
+        if (denom <= 0.0 || Double.isNaN(denom)) return 0;
+
+        double vRequired = Math.sqrt((g * d * d) / denom);
+
+        double xApex = (vRequired * vRequired * Math.sin(2 * theta)) / (2 * g);
+        int safetyCount = 0;
+        while (xApex > d - 0.05 && safetyCount < 100) {
+            vRequired += 0.05;
+            xApex = (vRequired * vRequired * Math.sin(2 * theta)) / (2 * g);
+            safetyCount++;
         }
 
-        // --- projectile time of flight ---
-        double vX = launchVel * Math.cos(Math.toRadians(Constants.ShooterConstants.shooterAngle));   // horizontal component of launch velocity
-        if (vX <= 1e-6) {
-            return angleToTurnDeg / Constants.ShooterConstants.turretNeckGearRatio; // avoid div/0
-        }
-        double t = distance / vX; // time of flight
+        double vX = vRequired * Math.cos(theta);
+        double t = d / vX;
 
-        // --- lead angle (lateral offset due to target motion) ---
-        double lateralOffset = lateralVel * t;
-        double leadAngleRad = Math.atan2(lateralOffset, distance);
+        double leadAngleRad = Math.atan2(targetLateralVel * t, d);
         double leadAngleDeg = Math.toDegrees(leadAngleRad);
 
-        // --- final correction ---
-        double angleDiff = (angleToTurnDeg + leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
+        double angleToTurnDeg =
+                ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset;
+
+        double angleDiff = (angleToTurnDeg - leadAngleDeg)
+                / Constants.ShooterConstants.turretNeckGearRatio;
+
         return angleDiff;
     }
-
-
 }
