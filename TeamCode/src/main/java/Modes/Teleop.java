@@ -55,6 +55,9 @@ public class Teleop extends LinearOpMode {
             if (activeGamepad1.dpad_down) {
                 Mechanum.resetYaw();
             }
+            if (activeGamepad1.left_trigger > 0.1) {
+                Shooter.shoot(activeGamepad1.left_trigger * 2040);
+            }
             Shooter.aim(Odometry.getVelocity());
             //Mechanum.periodic(telemetry, telemetryPacket);
             Shooter.periodic(telemetry);

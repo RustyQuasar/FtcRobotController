@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
@@ -43,7 +44,7 @@ public class SmartShooter {
         rightShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
@@ -157,122 +158,57 @@ public class SmartShooter {
     public void transfer() {
         transferServo.setPower(1);
     }
-    private void setShooterVelocity(double d, double h /* wallHeight (m) */, double v) {
-        final double g = 9.8;
-        final double inToM = Constants.inToM; // 0.0254
-        if (d <= 1.0) {
-            canMake = false;
+
+    private void setShooterVelocity(double d, double h /* wallHeight (m) */, double botV) {
+        final double g = 9.8; // m/s^2
+        final double wheelCircumference = 0.1016 * Math.PI; // example wheel
+        double angle = Math.toRadians(Constants.ShooterConstants.shooterAngle);
+        // sanity checks
+        if (d <= 0 || h < 0) {
             stall();
             return;
         }
 
-        double theta = Math.toRadians(Constants.ShooterConstants.shooterAngle);
-        double cosTh = Math.cos(theta);
-        double tanTh = Math.tan(theta);
+        // compute required launch speed for falling target:
+        // v = sqrt( g * d^2 / (2 * cos^2(angle) * (d*tan(angle) + hDrop)) )
+        double denom = 2 * Math.pow(Math.cos(angle), 2) * (d * Math.tan(angle) + h);
+        if (denom <= 0) {
+            stall();
+            return;
+        }
+        double v = Math.sqrt((g * d * d) / denom);
+        v += botV;
 
-        // avoid near-vertical numeric trouble
-        if (Math.abs(cosTh) < 1e-6) {
-            canMake = false;
+        // compute x of the "wall" (12in before the target)
+        double xWall = d - Constants.ShooterConstants.centerOffset;
+        if (xWall <= 0) {
+            stall();
             return;
         }
 
-        // --- compute vHit (velocity that intersects (d, targetHeight)) ---
-        // targetHeight: keep your existing definition if different; here we're using same as before
-        double targetHeight = (48 - 16 + 5 + 2) * Constants.inToM; // meters (adjust if needed)
+        // define vertical coordinates explicitly
+        double launchY = 0.0;              // choose launch reference (0 = launch height)
+        double targetY = launchY - h;  // target is below launch
 
-        // epsilon to avoid denominator collapse (very small to preserve physics)
-        final double EPS_TERM = 1e-4;
-// Check for invalid geometry: target is too close or too high for this shooter angle
-        double critDist = h / tanTh; // distance where d*tanTh == h (apex at target)
-        if (d <= critDist) {
-            // No descending solution possible — we’d have to fire upward to hit it.
-            // Use capped velocity and mark as unreachable
-            canMake = false;
-            double safeVel = 0.8 * Constants.GoBildaMotorMax; // or whatever your nominal high speed is
-            double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter;
-            double wheelRPS = safeVel / wheelCircum;
-            double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
-            double motorTPS = motorRPS * Constants.GoBildaMotorMax;
-            shoot(motorTPS);
+        // projectile height formula (relative to launchY)
+        double yWall = launchY
+                + xWall * Math.tan(angle)
+                - (g * xWall * xWall) / (2 * v * v * Math.pow(Math.cos(angle), 2));
+
+        // numeric tolerance to avoid floating-point flakiness
+        double eps = 1e-9;
+
+        // CLEAR if yWall >= targetY (i.e. projectile at wall is still at-or-above the required target height)
+        if (yWall + eps < targetY) {
+            stall();
             return;
         }
 
-        double termHit = d * tanTh - targetHeight;
-        if (termHit < EPS_TERM) termHit = EPS_TERM;
-        double denomHit = 2.0 * cosTh * cosTh * termHit;
-        if (denomHit <= 0.0 || Double.isNaN(denomHit)) {
-            canMake = false;
-            return;
-        }
-        double vHit = Math.sqrt((g * d * d) / denomHit);
-
-        // --- compute vWall only when wall is meaningfully in front of shooter and before target ---
-        double xWall = d - (12.0 * inToM);
-        double vWall = Double.NaN;
-        boolean wallApplicable = (xWall > 0.15) && (xWall < d - 0.05); // require wall at least 15cm away and before target
-        if (wallApplicable) {
-            double termWall = xWall * tanTh - h; // h is wall top height in meters (as you clarified)
-            if (termWall < EPS_TERM) termWall = EPS_TERM;
-            double denomWall = 2.0 * cosTh * cosTh * termWall;
-            if (!(denomWall <= 0.0 || Double.isNaN(denomWall))) {
-                vWall = Math.sqrt((g * xWall * xWall) / denomWall);
-            } else {
-                // wall impossible to clear at this angle -> mark as not applicable
-                wallApplicable = false;
-            }
-        }
-
-        // --- pick final velocity, smoothing the transition if both vHit and vWall are valid ---
-        double vFinal;
-        if (!wallApplicable || Double.isNaN(vWall)) {
-            vFinal = vHit;
-        } else {
-            // Instead of hard max, blend over a small band (prevents discontinuities)
-            // If vWall is much bigger than vHit, we still tend toward vWall but smoothly.
-            double blendBand = 0.5; // meters over which we blend (tweakable)
-            double distToWall = d - xWall; // >= 0
-            // compute a blend factor based on how close the provided distance d is to the wall-target geometry
-            // when distToWall is small (wall close to target) bias toward vWall; when large bias to vHit
-            double t = Math.min(Math.max((blendBand - Math.abs(distToWall - (blendBand/2))) / blendBand, 0.0), 1.0);
-            // simple smooth blend (linear); you can swap to smoother curve if desired
-            vFinal = (1.0 - t) * vHit + t * Math.max(vHit, vWall);
-            // also guarantee monotonicity: never choose a vFinal smaller than vHit (we must still hit target)
-            if (vFinal < vHit) vFinal = vHit;
-        }
-
-        // --- ensure descending intersection: nudge vFinal upwards if apex is after target ---
-        // but cap loop to avoid infinite increase
-        final int MAX_ITER = 200;
-        int iter = 0;
-        double xApex = (vFinal * vFinal * Math.sin(2 * theta)) / (2 * g);
-        while ((xApex > d - 0.05) && iter < MAX_ITER && vFinal < Constants.GoBildaMotorMax) {
-            vFinal += 0.02; // small increment to move apex earlier
-            xApex = (vFinal * vFinal * Math.sin(2 * theta)) / (2 * g);
-            iter++;
-        }
-        if (iter >= MAX_ITER) {
-            // couldn't force descending branch — bail out safely
-            canMake = false;
-            return;
-        }
-
-        if (vFinal > Constants.GoBildaMotorMax) {
-            vFinal = Constants.GoBildaMotorMax;
-        }
-
-        // --- conversion to motor units (preserve your existing pipeline) ---
-        double wheelCircum = Math.PI * Constants.ShooterConstants.flyWheelDiameter; // meters
-        double wheelRPS = vFinal / wheelCircum; // wheel rev/s
-        double motorRPS = wheelRPS * Constants.ShooterConstants.shooterGearRatio;
-        double motorTicksPerSecond = motorRPS * Constants.GoBildaMotorMax;
-
-        // issue command (you use setVelocity on DcMotorEx elsewhere)
-        shoot(motorTicksPerSecond);
-
-        canMake = true;
+        // ticks-per-second (robot wheel) if you still want it
+        double tps = v / wheelCircumference + 1;
+        tps *= 1.5; //TODO: This is added since the tps seems too low, but this will need adjusting at best
+        shoot(tps);
     }
-
-
 
 
     public void stall() {
@@ -296,6 +232,7 @@ public class SmartShooter {
         telemetry.addData("Can make shot: ", canMake);
         telemetry.update();
     }
+
     public double xTurn(double xOffset, double targetLateralVel, double distance, double wallHeight) {
         if (xOffset == 0 || distance <= 0.1) return 0;
 
