@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import Subsystems.RTPAxon;
 import Utilities.Constants;
 import Utilities.ConfigVariables;
-import Utilities.Odometry;
 
 public class SmartShooter {
     private static final Logger log = LoggerFactory.getLogger(SmartShooter.class);
@@ -161,7 +160,7 @@ public class SmartShooter {
 
     private void setShooterVelocity(double d, double h /* wallHeight (m) */, double botV) {
         final double g = 9.8; // m/s^2
-        final double wheelCircumference = 0.1016 * Math.PI; // example wheel
+        final double wheelCircumference = Constants.OdometryConstrants.deadwheelDiameter * Math.PI; // example wheel
         double angle = Math.toRadians(Constants.ShooterConstants.shooterAngle);
         // sanity checks
         if (d <= 0 || h < 0) {
@@ -197,8 +196,6 @@ public class SmartShooter {
 
         // numeric tolerance to avoid floating-point flakiness
         double eps = 1e-9;
-
-        // CLEAR if yWall >= targetY (i.e. projectile at wall is still at-or-above the required target height)
         if (yWall + eps < targetY) {
             stall();
             return;
@@ -212,6 +209,7 @@ public class SmartShooter {
 
 
     public void stall() {
+        canMake = false;
         double avgVelocity = (leftShooter.getVelocity() + rightShooter.getVelocity()) / 2;
         leftShooter.setVelocity(avgVelocity);
         rightShooter.setVelocity(avgVelocity);

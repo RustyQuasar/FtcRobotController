@@ -1,16 +1,17 @@
-package Utilities;
+package Subsystems;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import Utilities.Constants;
 
 @Config
 public final class Odometry{
@@ -53,7 +54,6 @@ public final class Odometry{
         double x  = (perp.getPositionAndVelocity().position - lastPerpPos) * cos(Math.toRadians(Constants.heading));
         double y = (par.getPositionAndVelocity().position - lastParPos) * sin(Math.toRadians(Constants.heading));
         Constants.OdometryConstrants.fieldPos = new Vector2d(x, y);
-
     }
 
 }

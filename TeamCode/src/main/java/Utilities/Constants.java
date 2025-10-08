@@ -25,6 +25,8 @@ public class Constants {
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
         public static final double wheelDiameter = 5 * inToM; //in meters
+        public static final double width = 18;
+        public static final double length = 18;
     }
 
     public static final class IntakeConstants {
