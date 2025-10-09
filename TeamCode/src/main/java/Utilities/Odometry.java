@@ -56,4 +56,13 @@ public final class Odometry{
 
     }
 
+    //IDK where to put it so it here now
+    public boolean isInTirangle() {
+        double[] pose =  {Constants.OdometryConstrants.fieldPos.x,Constants.OdometryConstrants.fieldPos.y} ;
+        boolean isInBigTriangle = pose[1] >= pose[0]&&pose[1]>=-pose[0]+12;
+        boolean isInSmallTriangle = pose[1] >= pose[0]-(2*0.3048)&&pose[1] >= -pose[0]+(4*0.3048);
+        boolean isIn = isInBigTriangle||isInSmallTriangle;
+return isIn;
+    }
+
 }

@@ -37,6 +37,8 @@ public class Constants {
 
     public static final class ShooterConstants {
         //GoBilda
+        public static final double smallTriangleDist = 0.23; /*meters*/
+        public static final double largeTriangleDist = 0.71; /*meters*/
         public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 1
         public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 3
         public static final double shooterGearRatio = 1; //Gear multiplier
