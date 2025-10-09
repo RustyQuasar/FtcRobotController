@@ -12,6 +12,12 @@ public class Constants {
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
     public static double heading;
 
+    public static final class ElevatorConstants {
+        public static final String elevatorLeft = "elevatorLeft";
+        public static final String elevatorRight = "elevatorRight";
+         public static final double motorRatio = 1/1; // 1 motor rotation to meters
+         public static final double elevator = 12/inToM;
+    }
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)

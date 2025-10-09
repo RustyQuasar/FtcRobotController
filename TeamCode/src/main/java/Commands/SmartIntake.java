@@ -2,6 +2,7 @@ package Commands;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Utilities.Constants;
 
 public class SmartIntake {
-    private final CRServo motorIntake;
+    private final DcMotor motorIntake;
 
     private final ColorSensor colorSen;
 
@@ -18,7 +19,7 @@ public class SmartIntake {
     public String[] artifactOrder = {"N", "N", "N"};
 
     public SmartIntake(HardwareMap hardwareMap) {
-        motorIntake = hardwareMap.get(CRServo.class, Constants.IntakeConstants.intake);
+        motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
     }
 
@@ -38,9 +39,8 @@ public class SmartIntake {
     }
 
     public void colorWipe() {
-        artifactOrder[0] = "N";
-        artifactOrder[1] = "N";
-        artifactOrder[2] = "N";
+        artifactOrder = new String[]{"N","N","N"};
+
         ballCount = 0;
     }
 
@@ -56,7 +56,14 @@ public class SmartIntake {
     }
 
     public void intake(boolean buttonPressed) {
-        if (buttonPressed && ballCount != 3) {
+        if (buttonPressed) {
+        motorIntake.setPower(0.8);
+        }else{
+            motorIntake.setPower(0);
+        }
+
+
+      /*  if (buttonPressed) {
             if (motifState) {
                 while (!isBall()) {
                     motorIntake.setPower(0.8);
@@ -82,7 +89,7 @@ public class SmartIntake {
             }
         }
         motorIntake.setPower(0);
-
+*/
 
     }
 
