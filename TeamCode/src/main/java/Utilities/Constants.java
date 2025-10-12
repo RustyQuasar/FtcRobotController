@@ -10,7 +10,6 @@ public class Constants {
     public static final int ServoMax = 1; //180 degrees
     public static final double inToM = 0.0254;
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
-    public static double heading;
 
     public static final class ElevatorConstants {
         public static final String elevatorLeft = "elevatorLeft";
@@ -21,9 +20,9 @@ public class Constants {
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)
-        public static final String frontLeftMotor0 = "frontLeft"; //Control hub Motor port 0, connected to parallel deadwheel
-        public static final String frontRightMotor1 = "frontRight"; //Control hub Motor port 1, connected to perpendicular deadwheel
-        public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2
+        public static final String frontLeftMotor0 = "frontLeft"; //Control hub Motor port 0, connected to perpendicular deadwheel
+        public static final String frontRightMotor1 = "frontRight"; //Control hub Motor port 1, connected to first parallel deadwheel
+        public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2, connected to second parallel deadwheel
         public static final String backRightMotor3 = "backRight"; //Control hub Motor port 3
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
@@ -60,10 +59,10 @@ public class Constants {
         public static final double flyWheelDiameter = 4 * inToM;
         public static final double centerOffset = 12 * inToM;
     }
-    public static final class OdometryConstrants{
+    public static final class OdometryConstants{
         public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
         public static final double deadwheelDiameter = 4 * inToM;
-        public static Vector2d fieldPos = new Vector2d(0, 0);
+        public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         //0, 0 is blue square corner
         public static final Vector2d targetPosBlue = new Vector2d(0.3, 3.3576);
         public static final Vector2d targetPosRed = new Vector2d(3.3576, 3.3576);

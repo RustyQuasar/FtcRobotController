@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import Subsystems.RTPAxon;
 import Utilities.Constants;
 import Utilities.ConfigVariables;
-import Utilities.Odometry;
 
 public class SmartShooter {
     private static final Logger log = LoggerFactory.getLogger(SmartShooter.class);
@@ -48,10 +47,10 @@ public class SmartShooter {
 
         if (TEAM.equals("RED")) {
             aimedTagID = 24;
-            targetPos = Constants.OdometryConstrants.targetPosRed;
+            targetPos = Constants.OdometryConstants.targetPosRed;
         } else {
             aimedTagID = 20;
-            targetPos = Constants.OdometryConstrants.targetPosBlue;
+            targetPos = Constants.OdometryConstants.targetPosBlue;
         }
         Vision = vision;
     }
@@ -74,7 +73,7 @@ public class SmartShooter {
         double sv = v[1];
         double heightMeters = (48 - 16 + 5 + 2) * Constants.inToM;
         boolean foundTag = false;
-        double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio) + Constants.heading;
+        double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio) + Constants.OdometryConstants.fieldPos.heading.toDouble();
         neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
         neckHeading += Constants.DriveTrainConstants.controlHubOffset;
         int angle1, angle2;
@@ -126,8 +125,8 @@ public class SmartShooter {
 
         if (!foundTag) {
             turretNeck.setTargetRotation(turretNeck.getTargetRotation());
-            double x = Constants.OdometryConstrants.fieldPos.x - targetPos.x;
-            double y = Constants.OdometryConstrants.fieldPos.y - targetPos.y;
+            double x = targetPos.x - Constants.OdometryConstants.fieldPos.position.x;
+            double y = targetPos.y - Constants.OdometryConstants.fieldPos.position.y;
             distanceMeters = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) + Constants.ShooterConstants.centerOffset;
             xTurn(Math.toDegrees(Math.atan2(y, x)), sideV, distanceMeters, getShooterVelocity());
             setShooterVelocity(distanceMeters, heightMeters, frontV);
@@ -161,7 +160,7 @@ public class SmartShooter {
 
     private void setShooterVelocity(double d, double h /* wallHeight (m) */, double botV) {
         final double g = 9.8; // m/s^2
-        final double wheelCircumference = 0.1016 * Math.PI; // example wheel
+        final double wheelCircumference = Constants.OdometryConstants.deadwheelDiameter * Math.PI; // example wheel
         double angle = Math.toRadians(Constants.ShooterConstants.shooterAngle);
         // sanity checks
         if (d <= 0 || h < 0) {
@@ -197,8 +196,6 @@ public class SmartShooter {
 
         // numeric tolerance to avoid floating-point flakiness
         double eps = 1e-9;
-
-        // CLEAR if yWall >= targetY (i.e. projectile at wall is still at-or-above the required target height)
         if (yWall + eps < targetY) {
             stall();
             return;
@@ -212,6 +209,7 @@ public class SmartShooter {
 
 
     public void stall() {
+        canMake = false;
         double avgVelocity = (leftShooter.getVelocity() + rightShooter.getVelocity()) / 2;
         leftShooter.setVelocity(avgVelocity);
         rightShooter.setVelocity(avgVelocity);
