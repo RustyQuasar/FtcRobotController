@@ -26,17 +26,16 @@ public class Teleop extends LinearOpMode {
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
-        Odometry = new Odometry(hardwareMap);
+        Odometry = new Odometry(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
-        Mechanum = new MechanumDrive(hardwareMap);
+        Mechanum = new MechanumDrive(hardwareMap, Odometry);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
         waitForStart();
 
         while (opModeIsActive()) {
-            Odometry.updatePose();
-            Mechanum.updateHeading();
+            Odometry.update();
             Vision.updateAprilTags();
 
             activeGamepad1.copy(gamepad1);
@@ -52,12 +51,12 @@ public class Teleop extends LinearOpMode {
                     gamepad1.right_stick_x
             );
             if (activeGamepad1.dpad_down) {
-                Mechanum.resetYaw();
+                Odometry.resetYaw();
             }
             if (activeGamepad1.left_trigger > 0.1) {
                 Shooter.shoot(activeGamepad1.left_trigger * 2040);
             }
-            Shooter.aim(Odometry.getVelocity());
+            Shooter.aim(new double[] {Constants.OdometryConstants.fieldVels.linearVel.x, Constants.OdometryConstants.fieldVels.linearVel.y});
             //Mechanum.periodic(telemetry, telemetryPacket);
             Shooter.periodic(telemetry);
             // Intake.periodic(telemetry, telemetryPacket);

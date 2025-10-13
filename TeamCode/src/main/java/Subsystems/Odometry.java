@@ -50,7 +50,7 @@ public final class Odometry {
 
         this.inPerTick = Constants.OdometryConstants.deadwheelDiameter / Constants.OdometryConstants.externalMax;
 
-        FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
+        FlightRecorder.write("TWO_DEAD_WHEEL_&_IMU_PARAMS", PARAMS);
 
         Constants.OdometryConstants.fieldPos = initialPose;
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
@@ -101,6 +101,7 @@ public final class Odometry {
         heading += 180;
         Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.fieldPos.plus(twist.value());;
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, heading);
+        Constants.OdometryConstants.fieldVels = twist.velocity().value();
     }
     //IDK where to put it so it here now
     public boolean isInTriangle() {
