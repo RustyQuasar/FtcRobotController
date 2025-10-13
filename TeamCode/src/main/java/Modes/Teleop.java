@@ -8,12 +8,11 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
-import Utilities.Odometry;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
 import Commands.Vision;
 import Utilities.Constants;
-
+import Subsystems.Odometry;
 @TeleOp
 public class Teleop extends LinearOpMode {
 

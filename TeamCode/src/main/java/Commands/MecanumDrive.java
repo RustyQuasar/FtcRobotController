@@ -1,7 +1,7 @@
 package Commands;
 
 import androidx.annotation.NonNull;
-
+import Subsystems.Odometry;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -301,7 +301,7 @@ public final class MecanumDrive {
             Pose2dDual<Time> txWorldTarget = turn.get(t);
             targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
 
-            PoseVelocity2d robotVelRobot = odometry.updatePoseEstimate();
+            PoseVelocity2d robotVelRobot = Constants.OdometryConstants.fieldVels;
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
                     PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
