@@ -1,13 +1,8 @@
 package Subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Time;
-import com.acmerobotics.roadrunner.Twist2dDual;
-import com.acmerobotics.roadrunner.Vector2dDual;
 import com.acmerobotics.roadrunner.ftc.Encoder;
-import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
@@ -25,90 +20,126 @@ import Utilities.Constants;
 @Config
 public final class Odometry {
     public static class Params {
-        public double par0YTicks = 0.0; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 1.0; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
+        // Default physical offsets (robot-centric coordinates):
+        // +x = forward, +y = left
+        // We assume encoders are mounted at the front (x = +Height/2) and left/right sides (y = ±Width/2).
+        // Adjust if your encoders are mounted somewhere else.
+        public double parallelX = Constants.DriveTrainConstants.height / 2.0;   // frontRight: forward offset
+        public double parallelY = -Constants.DriveTrainConstants.width / 2.0;  // frontRight: right side is negative y
+
+        public double perpX = Constants.DriveTrainConstants.height / 2.0;      // frontLeft: front offset
+        public double perpY = +Constants.DriveTrainConstants.width / 2.0;      // frontLeft: left side is positive y
     }
 
     public static Params PARAMS = new Params();
-    public final Encoder par0, par1, perp;
-    public final double inPerTick;
-    private double yawOffset;
-    private int lastPar0Pos, lastPar1Pos, lastPerpPos;
+
+    // Encoders: parallel = frontRight, perpendicular = frontLeft
+    private final Encoder parallel;
+    private final Encoder perp;
+    private final double inPerTick;
     private final BNO055IMU imu;
 
+    private int lastParallelPos = 0;
+    private int lastPerpPos = 0;
+    private double lastHeading = 0.0;   // radians
+    private double yawOffset = 0.0;
+
     public Odometry(HardwareMap hardwareMap, Pose2d initialPose) {
-        // TODO: make sure your config has **motors** with these names (or change them)
-        //   the encoders should be plugged into the slot matching the named motor
-        //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1)));
-        par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backLeftMotor2)));
+        // Use the same motor ports you told me earlier
+        parallel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1)));
         perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0)));
 
-        // TODO: reverse encoder directions if needed
-        //   par0.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        // inPerTick: keep your project's constant formula (match units of fieldPos)
         this.inPerTick = Constants.OdometryConstants.deadwheelDiameter / Constants.OdometryConstants.externalMax;
 
-        FlightRecorder.write("TWO_DEAD_WHEEL_&_IMU_PARAMS", PARAMS);
-
-        Constants.OdometryConstants.fieldPos = initialPose;
+        // IMU
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         imu.initialize(parameters);
 
-        yawOffset = imu.getAngularOrientation().firstAngle - Constants.DriveTrainConstants.controlHubOffset;
+        // initialize offsets and last heading
+        yawOffset = getRawHeading() - Math.toDegrees(initialPose.heading.toDouble()); // keep degrees arithmetic consistent
+        lastHeading = Math.toRadians(getRawHeading() - yawOffset);
+
+        // set initial pose
+        Constants.OdometryConstants.fieldPos = initialPose;
+
+        // read initial encoder positions
+        lastParallelPos = parallel.getPositionAndVelocity().position;
+        lastPerpPos = perp.getPositionAndVelocity().position;
     }
-    public double getRawHeading() {
+
+    private double getRawHeading() {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return angles.firstAngle;
     }
+
     public void resetYaw() {
-        yawOffset = getRawHeading() - Constants.DriveTrainConstants.controlHubOffset;
+        yawOffset = getRawHeading();
     }
 
     public void update() {
-        PositionVelocityPair par0PosVel = par0.getPositionAndVelocity();
-        PositionVelocityPair par1PosVel = par1.getPositionAndVelocity();
+        PositionVelocityPair parPosVel = parallel.getPositionAndVelocity();
         PositionVelocityPair perpPosVel = perp.getPositionAndVelocity();
 
-        int par0PosDelta = par0PosVel.position - lastPar0Pos;
-        int par1PosDelta = par1PosVel.position - lastPar1Pos;
-        int perpPosDelta = perpPosVel.position - lastPerpPos;
+        int parDeltaTicks = parPosVel.position - lastParallelPos;
+        int perpDeltaTicks = perpPosVel.position - lastPerpPos;
 
-        Twist2dDual<Time> twist = new Twist2dDual<>(
-                new Vector2dDual<>(
-                        new DualNum<Time>(new double[] {
-                                (PARAMS.par0YTicks * par1PosDelta - PARAMS.par1YTicks * par0PosDelta) / (PARAMS.par0YTicks - PARAMS.par1YTicks),
-                                (PARAMS.par0YTicks * par1PosVel.velocity - PARAMS.par1YTicks * par0PosVel.velocity) / (PARAMS.par0YTicks - PARAMS.par1YTicks),
-                        }).times(inPerTick),
-                        new DualNum<Time>(new double[] {
-                                (PARAMS.perpXTicks / (PARAMS.par0YTicks - PARAMS.par1YTicks) * (par1PosDelta - par0PosDelta) + perpPosDelta),
-                                (PARAMS.perpXTicks / (PARAMS.par0YTicks - PARAMS.par1YTicks) * (par1PosVel.velocity - par0PosVel.velocity) + perpPosVel.velocity),
-                        }).times(inPerTick)
-                ),
-                new DualNum<>(new double[] {
-                        (par0PosDelta - par1PosDelta) / (PARAMS.par0YTicks - PARAMS.par1YTicks),
-                        (par0PosVel.velocity - par1PosVel.velocity) / (PARAMS.par0YTicks - PARAMS.par1YTicks),
-                })
-        );
-
-        lastPar0Pos = par0PosVel.position;
-        lastPar1Pos = par1PosVel.position;
+        lastParallelPos = parPosVel.position;
         lastPerpPos = perpPosVel.position;
-        double heading = getRawHeading() - yawOffset;
-        heading += 180;
-        Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.fieldPos.plus(twist.value());;
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, heading);
-        Constants.OdometryConstants.fieldVels = twist.velocity().value();
+
+        // convert to distance units (same units as fieldPos)
+        double dsPar = parDeltaTicks * inPerTick;   // forward/back along robot x
+        double dsPerp = perpDeltaTicks * inPerTick; // sideways along robot y
+
+        // heading (absolute) in radians
+        double heading = Math.toRadians(getRawHeading() - yawOffset);
+
+        // change in heading since last update
+        double dTheta = heading - lastHeading;
+        // normalize dTheta to [-pi, pi]
+        while (dTheta > Math.PI) dTheta -= 2.0 * Math.PI;
+        while (dTheta < -Math.PI) dTheta += 2.0 * Math.PI;
+
+        lastHeading = heading;
+
+        // Encoder positions relative to robot center
+        double x_par = PARAMS.parallelX;
+        double y_par = PARAMS.parallelY;
+        double x_perp = PARAMS.perpX;
+        double y_perp = PARAMS.perpY;
+
+        // Robot-centric delta (correcting out rotational contribution to each encoder)
+        // Derived:
+        //   dsPar = Δx + (- y_par * dθ)  =>  Δx = dsPar + y_par * dθ
+        //   dsPerp = Δy + (  x_perp * dθ) => Δy = dsPerp - x_perp * dθ
+        double dxRobot = dsPar + y_par * dTheta;
+        double dyRobot = dsPerp - x_perp * dTheta;
+
+        // rotate robot-centric delta into field coordinates
+        double cosH = Math.cos(heading);
+        double sinH = Math.sin(heading);
+
+        double dxField = dxRobot * cosH - dyRobot * sinH;
+        double dyField = dxRobot * sinH + dyRobot * cosH;
+
+        // update global pose (heading replaced by IMU heading)
+        Pose2d prev = Constants.OdometryConstants.fieldPos;
+        Constants.OdometryConstants.fieldPos = new Pose2d(
+                prev.position.x + dxField,
+                prev.position.y + dyField,
+                heading
+        );
     }
-    //IDK where to put it so it here now
+
     public boolean isInTriangle() {
-        double[] pose =  {Constants.OdometryConstants.fieldPos.position.x,Constants.OdometryConstants.fieldPos.position.y} ;
-        boolean isInBigTriangle = pose[1] >= pose[0]&&pose[1]>=-pose[0]+12;
-        boolean isInSmallTriangle = pose[1] >= pose[0]-(2*0.3048)&&pose[1] >= -pose[0]+(4*0.3048);
-        boolean isIn = isInBigTriangle||isInSmallTriangle;
-        return isIn;
+        double[] pose = {
+                Constants.OdometryConstants.fieldPos.position.x,
+                Constants.OdometryConstants.fieldPos.position.y
+        };
+        boolean isInBigTriangle = pose[1] >= pose[0] && pose[1] >= -pose[0] + 12;
+        boolean isInSmallTriangle = pose[1] >= pose[0] - (2 * 0.3048) && pose[1] >= -pose[0] + (4 * 0.3048);
+        return isInBigTriangle || isInSmallTriangle;
     }
 }

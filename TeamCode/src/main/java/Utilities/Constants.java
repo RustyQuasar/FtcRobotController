@@ -22,8 +22,8 @@ public class Constants {
 
         //Wheel constants (Studica Mavericks)
         public static final String frontLeftMotor0 = "frontLeft"; //Control hub Motor port 0, connected to perpendicular deadwheel
-        public static final String frontRightMotor1 = "frontRight"; //Control hub Motor port 1, connected to first parallel deadwheel
-        public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2, connected to second parallel deadwheel
+        public static final String frontRightMotor1 = "frontRight"; //Control hub Motor port 1, connected to parallel deadwheel
+        public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2,
         public static final String backRightMotor3 = "backRight"; //Control hub Motor port 3
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
@@ -31,6 +31,8 @@ public class Constants {
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
         public static final double wheelDiameter = 5 * inToM; //in meters
+        public static final double width = 18;
+        public static final double height = 18;
     }
 
     public static final class IntakeConstants {
