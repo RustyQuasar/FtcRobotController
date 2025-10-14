@@ -59,7 +59,8 @@ public class SmartIntake {
 
 
         if (buttonPressed) {
-            if (motifState) {
+
+            if (false) {
                 while (!isBall()) {
                     motorIntake.setPower(0.8);
                 }
@@ -75,12 +76,19 @@ public class SmartIntake {
                     }
                 }
 
+<<<<<<< Updated upstream
             } else {
                 while (!isBall()) {
+=======
+            }
+            else {
+
+>>>>>>> Stashed changes
                     motorIntake.setPower(0.8);
-                }
-                ballCount++;
-                colorRegister();
+               if(isBall()) {
+                   ballCount++;
+                   colorRegister();
+               }
             }
         }else{
         motorIntake.setPower(0);
