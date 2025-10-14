@@ -35,47 +35,7 @@ public class MechanumDrive {
         backRight3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.odometry = odometry;
     }
-    public void goToPos(Pose2d targetPos){
-        boolean inRange = false;
-        while (!inRange) {
-            odometry.update();
-            double x = targetPos.position.x - Constants.OdometryConstants.fieldPos.position.x;
-            double y = targetPos.position.y - Constants.OdometryConstants.fieldPos.position.y;
-            double heading = targetPos.heading.toDouble() - Constants.OdometryConstants.fieldPos.heading.toDouble();
-            double max = Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(heading));
-            /*
-            //This is able to get things done, but it feels better to have PID instead
-            double threshold = 0.2;
-            double multiplier = 1/threshold;
-            if (max <= threshold){
-                drive(x * multiplier, y/max * multiplier, heading/max * multiplier);
-            } else {
-                double xPower = x/max;
-                double yPower = y/max;
-                double headingPower = heading/max;
-                drive(xPower, yPower, headingPower);
-            }
-             */
-        }
-    }
-    public void goToRoughPos(Pose2d targetPos){
-        boolean inRange = false;
-        while (!inRange) {
-            odometry.update();
-            double x = targetPos.position.x - Constants.OdometryConstants.fieldPos.position.x;
-            double y = targetPos.position.y - Constants.OdometryConstants.fieldPos.position.y;
-            double heading = targetPos.heading.toDouble() - Constants.OdometryConstants.fieldPos.heading.toDouble();
-            double max = Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(heading));
-            drive((y / max), (x / max), (heading / max));
-            if (range(targetPos.position.x, Constants.OdometryConstants.fieldPos.position.x, 0.1) && range(targetPos.position.y, Constants.OdometryConstants.fieldPos.position.y, 0.1) && range(targetPos.heading.toDouble(), Constants.OdometryConstants.fieldPos.heading.toDouble(), 0.1)) {
-                inRange = true;
-            }
-            odometry.update();
-        }
-    }
-    public boolean range(double target, double current, double range){
-        return Math.abs(current - target) <= range;
-    }
+
     public void drive(double driveY, double driveX, double rotation) {
 
         double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
@@ -115,7 +75,7 @@ public class MechanumDrive {
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Drive train");
-        telemetry.addData("Heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
+        telemetry.addData("Heading: ", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());

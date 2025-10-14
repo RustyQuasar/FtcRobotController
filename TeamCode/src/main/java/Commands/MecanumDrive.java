@@ -105,7 +105,7 @@ public final class MecanumDrive {
     private final DownsampledWriter driveCommandWriter = new DownsampledWriter("DRIVE_COMMAND", 50_000_000);
     private final DownsampledWriter mecanumCommandWriter = new DownsampledWriter("MECANUM_COMMAND", 50_000_000);
 
-    public MecanumDrive(HardwareMap hardwareMap, Pose2d pose, Odometry odometry) {
+    public MecanumDrive(HardwareMap hardwareMap, Odometry odometry) {
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {

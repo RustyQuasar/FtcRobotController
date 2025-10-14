@@ -134,7 +134,7 @@ public final class Odometry {
         Constants.OdometryConstants.fieldPos = new Pose2d(
                 prev.position.x + dxField,
                 prev.position.y + dyField,
-                heading
+                Math.toRadians(heading)
         );
     }
 
