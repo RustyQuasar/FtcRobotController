@@ -50,7 +50,6 @@ public class Constants {
         public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 1
         public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 3
         public static final double shooterGearRatio = 1; //Gear multiplier
-        public static final double shooterAngle = 45; //degrees
         //Servos
         public static final String turretHead = "turretHead"; //Expansion hub Servo port 1
         //CR Servo
@@ -59,6 +58,7 @@ public class Constants {
         //Encoders
         public static final String turretNeckEncoder = "turretNeckEncoder";
         public static final double turretNeckGearRatio = (double) 22 / 110; //Gear multiplier
+        public static final double turretHeadGearRatio = 16/120; //Gear multiplier
         public static final double flyWheelDiameter = 4 * inToM;
         public static final double centerOffset = 12 * inToM;
     }
