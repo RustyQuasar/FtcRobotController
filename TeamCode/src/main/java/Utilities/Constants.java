@@ -81,7 +81,7 @@ public class Constants {
         public static final int resX = 640;
         public static final int resY = 480;
         public static final int FOV = 55;
-        public static String[] colours = {"N", "N", "N"};
+        public static String[] colours = {"U", "U", "U"};
     }
 
 }

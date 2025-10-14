@@ -76,7 +76,7 @@ public class SmartIntake {
                 }
 
             } else {
-                while (!isBall()) {
+                while (buttonPressed) {
                     motorIntake.setPower(0.8);
                 }
                 ballCount++;
@@ -85,6 +85,7 @@ public class SmartIntake {
         }else{
         motorIntake.setPower(0);
 }
+
 
     }
 
