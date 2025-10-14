@@ -66,7 +66,7 @@ public class Constants {
         public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
         public static final double deadwheelDiameter = 4 * inToM;
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
-        public static PoseVelocity2d fieldVels;
+        public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
 
 
         //0, 0 is blue square corner
