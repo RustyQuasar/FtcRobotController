@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,14 +21,14 @@ import Utilities.Constants;
 
 @Config
 public final class Odometry {
-    public static class Params {
-        // Offsets of the encoders relative to robot center (in inches, or your chosen unit)
-        // +x = forward, +y = left
-        public double parallelX = Constants.Sizes.robotHeight / 2.0;   // distance from center to parallel wheel along X
-        public double parallelY = 0.0;                                 // typically centered
 
-        public double perpX = 0.0;                                     // perpendicular wheel sits at the robot center front/back
-        public double perpY = Constants.Sizes.robotWidth / 2.0;        // distance from center to perpendicular wheel along Y
+    public static class Params {
+        // Offsets (in inches or your chosen units) from robot center
+        // +x = forward, +y = left
+        public double parallelX = 0.0;
+        public double parallelY = Constants.Sizes.robotWidth / 2.0;
+        public double perpX = -Constants.Sizes.robotHeight / 2.0;
+        public double perpY = 0.0;
     }
 
     public static Params PARAMS = new Params();
@@ -44,7 +43,7 @@ public final class Odometry {
     private double yawOffset = 0.0;
 
     public Odometry(HardwareMap hardwareMap, Pose2d initialPose) {
-        // Encoders (actual hardware names)
+        // Assign encoders to deadwheel ports
         parallel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1)));
         perpendicular = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0)));
 
@@ -56,7 +55,6 @@ public final class Odometry {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
         imu = new LazyHardwareMapImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
                 logoFacingDirection, usbFacingDirection));
-
         yawOffset = getRawHeading() - Math.toDegrees(initialPose.heading.toDouble());
         lastHeading = Math.toRadians(getRawHeading() - yawOffset);
 
@@ -87,7 +85,8 @@ public final class Odometry {
 
         double dsPar = parDeltaTicks * inPerTick;
         double dsPerp = perpDeltaTicks * inPerTick;
-        double heading = Math.toRadians(getRawHeading() - yawOffset) + 180;
+
+        double heading = Math.toRadians(getRawHeading() - yawOffset);
         double dTheta = heading - lastHeading;
 
         // normalize heading delta
@@ -96,15 +95,13 @@ public final class Odometry {
 
         lastHeading = heading;
 
-        // Extract encoder offsets
-        double x_par = PARAMS.parallelX;
-        double y_par = PARAMS.parallelY;
-        double x_perp = PARAMS.perpX;
-        double y_perp = PARAMS.perpY;
+        // Encoder positions relative to robot center
+        double yPar = PARAMS.parallelY;
+        double xPerp = PARAMS.perpX;
 
-        // Compute robot-centric displacement
-        double dxRobot = dsPar + y_par * dTheta;
-        double dyRobot = dsPerp - x_perp * dTheta;
+        // Compute robot-centric delta
+        double dxRobot = dsPar + yPar * dTheta;
+        double dyRobot = dsPerp - xPerp * dTheta;
 
         // Rotate into field coordinates
         double cosH = Math.cos(heading);
@@ -120,7 +117,6 @@ public final class Odometry {
                 heading
         );
     }
-
     public boolean isInTriangle() {
         double[] pose = {
                 Constants.OdometryConstants.fieldPos.position.x,

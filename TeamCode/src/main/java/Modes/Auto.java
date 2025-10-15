@@ -78,8 +78,7 @@ public class Auto extends LinearOpMode {
             // You can add other side logic here (arm control, sensor reads, etc.)
             telemetry.addData("x", Constants.OdometryConstants.fieldPos.position.x);
             telemetry.addData("y", Constants.OdometryConstants.fieldPos.position.y);
-            telemetry.addData("heading (deg)",
-                    Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
+            telemetry.addData("heading (deg)", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
             telemetry.update();
         }
 
@@ -97,15 +96,7 @@ public class Auto extends LinearOpMode {
         if (Constants.TEAM.equals("RED")) {
             return Math.toRadians(angle);
         } else {
-            double h = angle;
-            while (h > 180) {
-                h -= 180;
-            }
-            angle -= Math.abs(180 - h);
-            if (angle < 0) {
-                angle = 360 + angle;
-            }
-            return Math.toRadians(angle);
+            return Math.toRadians(angle - 2 * (180 - angle));
         }
     }
 }
