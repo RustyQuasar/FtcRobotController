@@ -76,14 +76,10 @@ public class SmartIntake {
                     }
                 }
 
-<<<<<<< Updated upstream
-            } else {
-                while (!isBall()) {
-=======
+
             }
             else {
 
->>>>>>> Stashed changes
                     motorIntake.setPower(0.8);
                if(isBall()) {
                    ballCount++;
