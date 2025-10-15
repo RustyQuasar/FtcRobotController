@@ -34,7 +34,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import Subsystems.Odometry;
 import Utilities.Constants;
 import messages.DriveCommandMessage;
 import messages.MecanumCommandMessage;
@@ -47,7 +46,7 @@ import java.util.List;
 
 @Config
 public final class MecanumDrive {
-    Odometry odometry;
+
     public static class Params {
 
         // drive model parameters
@@ -105,11 +104,10 @@ public final class MecanumDrive {
     private final DownsampledWriter driveCommandWriter = new DownsampledWriter("DRIVE_COMMAND", 50_000_000);
     private final DownsampledWriter mecanumCommandWriter = new DownsampledWriter("MECANUM_COMMAND", 50_000_000);
 
-    public MecanumDrive(HardwareMap hardwareMap, Odometry odometry) {
+    public MecanumDrive(HardwareMap hardwareMap) {
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
-            odometry.update();
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
@@ -138,8 +136,6 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
-        this.odometry = odometry;
-
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
 
@@ -149,7 +145,6 @@ public final class MecanumDrive {
 
         double maxPowerMag = 1;
         for (DualNum<Time> power : wheelVels.all()) {
-            odometry.update();
             maxPowerMag = Math.max(maxPowerMag, power.value());
         }
 
@@ -174,7 +169,6 @@ public final class MecanumDrive {
             xPoints = new double[disps.size()];
             yPoints = new double[disps.size()];
             for (int i = 0; i < disps.size(); i++) {
-                odometry.update();
                 Pose2d p = t.path.get(disps.get(i), 1).value();
                 xPoints[i] = p.position.x;
                 yPoints[i] = p.position.y;
@@ -352,7 +346,6 @@ public final class MecanumDrive {
         for (Pose2d t : poseHistory) {
             xPoints[i] = t.position.x;
             yPoints[i] = t.position.y;
-            odometry.update();
             i++;
         }
 

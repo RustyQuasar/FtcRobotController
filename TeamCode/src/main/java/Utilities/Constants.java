@@ -31,8 +31,6 @@ public class Constants {
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
         public static final double wheelDiameter = 5 * inToM; //in meters
-        public static final double width = 18;
-        public static final double height = 18;
     }
 
     public static final class IntakeConstants {
@@ -72,7 +70,12 @@ public class Constants {
         //0, 0 is blue square corner
         public static final Vector2d targetPosBlue = new Vector2d(0.3, 3.3576);
         public static final Vector2d targetPosRed = new Vector2d(3.3576, 3.3576);
-
+    }
+    public static final class Sizes {
+        public static final double robotWidth = 18 * inToM; //TODO
+        public static final double robotHeight = 18 * inToM; //TODO
+        public static final double robotOffset = 18 * inToM; //TODO: Simplify it to the largest side's offset
+        public static final double field = 3.6576 - 2 * robotOffset;
     }
 
     public static final class VisionConstants {

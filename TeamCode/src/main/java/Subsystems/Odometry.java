@@ -23,39 +23,33 @@ import Utilities.Constants;
 @Config
 public final class Odometry {
     public static class Params {
-        // Default physical offsets (robot-centric coordinates):
+        // Offsets of the encoders relative to robot center (in inches, or your chosen unit)
         // +x = forward, +y = left
-        // We assume encoders are mounted at the front (x = +Height/2) and left/right sides (y = ±Width/2).
-        // Adjust if your encoders are mounted somewhere else.
-        public double parallelX = Constants.DriveTrainConstants.height / 2.0;   // frontRight: forward offset
-        public double parallelY = -Constants.DriveTrainConstants.width / 2.0;  // frontRight: right side is negative y
+        public double parallelX = Constants.Sizes.robotHeight / 2.0;   // distance from center to parallel wheel along X
+        public double parallelY = 0.0;                                 // typically centered
 
-        public double perpX = Constants.DriveTrainConstants.height / 2.0;      // frontLeft: front offset
-        public double perpY = +Constants.DriveTrainConstants.width / 2.0;      // frontLeft: left side is positive y
+        public double perpX = 0.0;                                     // perpendicular wheel sits at the robot center front/back
+        public double perpY = Constants.Sizes.robotWidth / 2.0;        // distance from center to perpendicular wheel along Y
     }
 
     public static Params PARAMS = new Params();
 
-    // Encoders: parallel = frontRight, perpendicular = frontLeft
-    private final Encoder parallel;
-    private final Encoder perp;
-    private final double inPerTick;
+    private final Encoder parallel, perpendicular;
     private final LazyImu imu;
+    private final double inPerTick;
 
     private int lastParallelPos = 0;
     private int lastPerpPos = 0;
-    private double lastHeading = 0.0;   // radians
+    private double lastHeading = 0.0;
     private double yawOffset = 0.0;
 
     public Odometry(HardwareMap hardwareMap, Pose2d initialPose) {
-        // Use the same motor ports you told me earlier
+        // Encoders (actual hardware names)
         parallel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1)));
-        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0)));
+        perpendicular = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0)));
 
-        // inPerTick: keep your project's constant formula (match units of fieldPos)
         this.inPerTick = Constants.OdometryConstants.deadwheelDiameter / Constants.OdometryConstants.externalMax;
 
-        // IMU
         RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
@@ -63,16 +57,13 @@ public final class Odometry {
         imu = new LazyHardwareMapImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
                 logoFacingDirection, usbFacingDirection));
 
-        // initialize offsets and last heading
-        yawOffset = getRawHeading() - Math.toDegrees(initialPose.heading.toDouble()); // keep degrees arithmetic consistent
+        yawOffset = getRawHeading() - Math.toDegrees(initialPose.heading.toDouble());
         lastHeading = Math.toRadians(getRawHeading() - yawOffset);
 
-        // set initial pose
         Constants.OdometryConstants.fieldPos = initialPose;
 
-        // read initial encoder positions
         lastParallelPos = parallel.getPositionAndVelocity().position;
-        lastPerpPos = perp.getPositionAndVelocity().position;
+        lastPerpPos = perpendicular.getPositionAndVelocity().position;
     }
 
     private double getRawHeading() {
@@ -85,56 +76,49 @@ public final class Odometry {
     }
 
     public void update() {
-        PositionVelocityPair parPosVel = parallel.getPositionAndVelocity();
-        PositionVelocityPair perpPosVel = perp.getPositionAndVelocity();
+        PositionVelocityPair parData = parallel.getPositionAndVelocity();
+        PositionVelocityPair perpData = perpendicular.getPositionAndVelocity();
 
-        int parDeltaTicks = parPosVel.position - lastParallelPos;
-        int perpDeltaTicks = perpPosVel.position - lastPerpPos;
+        int parDeltaTicks = parData.position - lastParallelPos;
+        int perpDeltaTicks = perpData.position - lastPerpPos;
 
-        lastParallelPos = parPosVel.position;
-        lastPerpPos = perpPosVel.position;
+        lastParallelPos = parData.position;
+        lastPerpPos = perpData.position;
 
-        // convert to distance units (same units as fieldPos)
-        double dsPar = parDeltaTicks * inPerTick;   // forward/back along robot x
-        double dsPerp = perpDeltaTicks * inPerTick; // sideways along robot y
+        double dsPar = parDeltaTicks * inPerTick;
+        double dsPerp = perpDeltaTicks * inPerTick;
 
-        // heading (absolute) in radians
         double heading = Math.toRadians(getRawHeading() - yawOffset);
-
-        // change in heading since last update
         double dTheta = heading - lastHeading;
-        // normalize dTheta to [-pi, pi]
-        while (dTheta > Math.PI) dTheta -= 2.0 * Math.PI;
-        while (dTheta < -Math.PI) dTheta += 2.0 * Math.PI;
+
+        // normalize heading delta
+        while (dTheta > Math.PI) dTheta -= 2 * Math.PI;
+        while (dTheta < -Math.PI) dTheta += 2 * Math.PI;
 
         lastHeading = heading;
 
-        // Encoder positions relative to robot center
+        // Extract encoder offsets
         double x_par = PARAMS.parallelX;
         double y_par = PARAMS.parallelY;
         double x_perp = PARAMS.perpX;
         double y_perp = PARAMS.perpY;
 
-        // Robot-centric delta (correcting out rotational contribution to each encoder)
-        // Derived:
-        //   dsPar = Δx + (- y_par * dθ)  =>  Δx = dsPar + y_par * dθ
-        //   dsPerp = Δy + (  x_perp * dθ) => Δy = dsPerp - x_perp * dθ
+        // Compute robot-centric displacement
         double dxRobot = dsPar + y_par * dTheta;
         double dyRobot = dsPerp - x_perp * dTheta;
 
-        // rotate robot-centric delta into field coordinates
+        // Rotate into field coordinates
         double cosH = Math.cos(heading);
         double sinH = Math.sin(heading);
 
         double dxField = dxRobot * cosH - dyRobot * sinH;
         double dyField = dxRobot * sinH + dyRobot * cosH;
 
-        // update global pose (heading replaced by IMU heading)
         Pose2d prev = Constants.OdometryConstants.fieldPos;
         Constants.OdometryConstants.fieldPos = new Pose2d(
                 prev.position.x + dxField,
                 prev.position.y + dyField,
-                Math.toRadians(heading)
+                heading
         );
     }
 
