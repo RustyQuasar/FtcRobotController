@@ -87,8 +87,7 @@ public final class Odometry {
 
         double dsPar = parDeltaTicks * inPerTick;
         double dsPerp = perpDeltaTicks * inPerTick;
-
-        double heading = Math.toRadians(getRawHeading() - yawOffset);
+        double heading = Math.toRadians(getRawHeading() - yawOffset) + 180;
         double dTheta = heading - lastHeading;
 
         // normalize heading delta
