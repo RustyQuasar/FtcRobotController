@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -19,8 +20,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import Utilities.Constants;
 
-@Config
-public final class Odometry {
+
+public class Odometry {
 
     public static class Params {
         // Offsets (in inches or your chosen units) from robot center
@@ -34,7 +35,7 @@ public final class Odometry {
     public static Params PARAMS = new Params();
 
     private final Encoder parallel, perpendicular;
-    private final LazyImu imu;
+    private final BNO055IMU imu;
     private final double inPerTick;
 
     private int lastParallelPos = 0;
@@ -49,12 +50,10 @@ public final class Odometry {
 
         this.inPerTick = Constants.OdometryConstants.deadwheelDiameter / Constants.OdometryConstants.externalMax;
 
-        RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-        imu = new LazyHardwareMapImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
-                logoFacingDirection, usbFacingDirection));
+        imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        imu.initialize(parameters);
         yawOffset = getRawHeading() - Math.toDegrees(initialPose.heading.toDouble());
         lastHeading = Math.toRadians(getRawHeading() - yawOffset);
 
@@ -65,7 +64,7 @@ public final class Odometry {
     }
 
     private double getRawHeading() {
-        Orientation angles = imu.get().getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return angles.firstAngle;
     }
 

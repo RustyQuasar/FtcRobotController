@@ -69,7 +69,6 @@ public class Auto extends LinearOpMode {
             if (odometry.isInTriangle()){
                 shooter.transfer();
             }
-
             // Run the Road Runner action
             boolean running = sequence.run(packet);
             if (!running) break; // trajectory finished
@@ -108,6 +107,8 @@ public class Auto extends LinearOpMode {
             return 58.604;
         } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"P", "P", "G"})){
             return 82.323;
+        } else {
+            return 0;
         }
     }
 }

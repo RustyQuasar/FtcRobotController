@@ -60,8 +60,9 @@ public class SmartIntake {
 
         if (buttonPressed) {
             if (motifState) {
-                while (!isBall()) {
+                if (!isBall()) {
                     motorIntake.setPower(0.8);
+                    return;
                 }
                 ballCount++;
                 colorRegister();
@@ -76,8 +77,9 @@ public class SmartIntake {
                 }
 
             } else {
-                while (buttonPressed) {
+                if (buttonPressed) {
                     motorIntake.setPower(0.8);
+                    return;
                 }
                 ballCount++;
                 colorRegister();

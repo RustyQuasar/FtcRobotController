@@ -28,7 +28,7 @@ public class Teleop extends LinearOpMode {
     public void runOpMode() {
         Odometry = new Odometry(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
-        Mechanum = new MechanumDrive(hardwareMap, Odometry);
+        Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);

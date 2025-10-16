@@ -6,23 +6,20 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import Utilities.Constants;
 
 public class Elevator {
-    double curentElevatorhight=0;
-    DcMotor rightElevator,leftElevator;
+    double curentElevatorheight=0;
+    DcMotor elevator;
     public Elevator(HardwareMap hardwareMap){
-        leftElevator = hardwareMap.get(DcMotor.class, Constants.ElevatorConstants.elevatorLeft);
-        rightElevator = hardwareMap.get(DcMotor.class, Constants.ElevatorConstants.elevatorRight);
+        elevator = hardwareMap.get(DcMotor.class, Constants.ElevatorConstants.elevator);
     }
     public void setHeight(double wantedHeight){
-        double error = wantedHeight-curentElevatorhight;
+        double error = wantedHeight-curentElevatorheight;
         while(Math.abs(error)>0.1){
-            error = wantedHeight-curentElevatorhight;
+            error = wantedHeight-curentElevatorheight;
             double speed=Math.max(0.1,Math.min(error/12,1));
-            leftElevator.setPower(speed);
-            rightElevator.setPower(speed);
+            elevator.setPower(speed);
         }
-        curentElevatorhight=wantedHeight;
-        leftElevator.setPower(0);
-        rightElevator.setPower(0);
+        curentElevatorheight=wantedHeight;
+        elevator.setPower(0);
 
     }
 

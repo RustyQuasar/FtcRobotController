@@ -1,10 +1,11 @@
 package Utilities;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-
-public class Constants {
+@Config
+public final class Constants {
     public static final String TEAM =
             "RED"
             //"BLUE"
@@ -15,10 +16,9 @@ public class Constants {
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
 
     public static final class ElevatorConstants {
-        public static final String elevatorLeft = "elevatorLeft";
-        public static final String elevatorRight = "elevatorRight";
+        public static final String elevator = "elevator";
          public static final double motorRatio = 1/1; // 1 motor rotation to meters
-         public static final double elevator = 12;
+         public static final double elevatorLength = 12;
     }
     public static final class DriveTrainConstants {
 

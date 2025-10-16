@@ -13,8 +13,7 @@ import Subsystems.Odometry;
 public class MechanumDrive {
 
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
-    private Odometry odometry;
-    public MechanumDrive(HardwareMap hardwareMap, Odometry odometry) {
+    public MechanumDrive(HardwareMap hardwareMap) {
         frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
         frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
         backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
@@ -33,7 +32,6 @@ public class MechanumDrive {
         frontRight1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.odometry = odometry;
     }
 
     public void drive(double driveY, double driveX, double rotation) {

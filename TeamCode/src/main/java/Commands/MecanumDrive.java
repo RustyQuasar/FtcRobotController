@@ -2,7 +2,6 @@ package Commands;
 
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.canvas.Canvas;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
@@ -44,8 +43,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-@Config
-public final class MecanumDrive {
+public class MecanumDrive {
 
     public static class Params {
 
@@ -113,10 +111,10 @@ public final class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
+        leftBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
+        rightBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
+        rightFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
