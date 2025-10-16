@@ -217,5 +217,4 @@ public class SmartShooter {
 
         return positionDelta;
     }
-
 }

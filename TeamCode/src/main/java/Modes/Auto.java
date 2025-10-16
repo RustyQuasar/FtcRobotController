@@ -7,6 +7,8 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import java.util.Arrays;
+
 import Commands.MecanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
@@ -54,9 +56,7 @@ public class Auto extends LinearOpMode {
             sequence = drive.actionBuilder(new Pose2d(0, 0, 0))
                     .build();
         }
-
-
-
+        
         TelemetryPacket packet = new TelemetryPacket();
 
         // --- Run the action with continuous odometry updates ---
@@ -97,6 +97,17 @@ public class Auto extends LinearOpMode {
             return Math.toRadians(angle);
         } else {
             return Math.toRadians(angle - 2 * (180 - angle));
+        }
+    }
+    private double targetRow(){
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"U", "U", "U"})){
+            return Constants.Sizes.field/2;
+        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"G", "P", "P"})){
+            return 35.066;
+        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"P", "G", "P"})){
+            return 58.604;
+        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"P", "P", "G"})){
+            return 82.323;
         }
     }
 }
