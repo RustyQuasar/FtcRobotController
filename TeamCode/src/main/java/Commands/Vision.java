@@ -37,7 +37,7 @@ public class Vision {
         aprilTag = new AprilTagProcessor.Builder()
 
                 // The following default settings are available to un-comment and edit as needed.
-                .setDrawAxes(true).setDrawCubeProjection(true).setDrawTagOutline(true).setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11).setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary()).setOutputUnits(DistanceUnit.METER, AngleUnit.DEGREES)
+                .setDrawAxes(true).setDrawCubeProjection(true).setDrawTagOutline(true).setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11).setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary()).setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
 
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt

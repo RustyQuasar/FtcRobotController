@@ -56,7 +56,7 @@ public class Auto extends LinearOpMode {
             sequence = drive.actionBuilder(new Pose2d(0, 0, 0))
                     .build();
         }
-        
+
         TelemetryPacket packet = new TelemetryPacket();
 
         // --- Run the action with continuous odometry updates ---
