@@ -39,7 +39,7 @@ public class Auto extends LinearOpMode {
             Pose2d startPose = new Pose2d(x(Constants.Sizes.robotOffset), Constants.Sizes.robotOffset, 0);
             //Quick sample
             Pose2d target1 = new Pose2d(x(1), 1, heading(90));
-            Pose2d target2 = new Pose2d(x(2), 2, heading(270));
+            Pose2d target2 = new Pose2d(x(60), 60, heading(270));
             odometry = new Odometry(hardwareMap, startPose);
             sequence = drive.actionBuilder(startPose)
                     .splineToLinearHeading(target1, target1.heading)
@@ -88,8 +88,9 @@ public class Auto extends LinearOpMode {
         if (Constants.TEAM.equals("BLUE")){
             offset *= -1;
         }
-        return offset + Constants.Sizes.field/2;
+        return (offset + Constants.Sizes.field/2);
     }
+
     private double heading(double angle) {
         //TODO This kinda sketchy ngl
         if (Constants.TEAM.equals("RED")) {

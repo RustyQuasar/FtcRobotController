@@ -94,7 +94,7 @@ public class SmartShooter {
                 // convert servo position to degrees (your existing mapping)
                 detectedX = detection.ftcPose.x;
                 // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
-                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset) * Constants.inToM;
+                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
                 double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
                 // Update turret positions with corrected unit handling and corrected math
@@ -186,10 +186,10 @@ public class SmartShooter {
 
     private double yTurn(double distance, double velocity) {
         // distance (m): horizontal distance to target
-        // velocity (m/s): current shooter wheel linear velocity
+        // velocity (in/s): current shooter wheel linear velocity
 
         // Height difference (example: 48 - 16 + 5 + 2 in, converted to meters)
-        double heightDiffM = (48 - 16 + 5 + 2) * Constants.inToM;
+        double heightDiffM = (48 - 16 + 5 + 2);
 
         if (distance <= 0) {
             return 0.5;

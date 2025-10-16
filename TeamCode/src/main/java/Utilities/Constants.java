@@ -5,18 +5,20 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 public class Constants {
-    public static final String TEAM = "RED"; //Has to be "RED" or "BLUE"
+    public static final String TEAM =
+            "RED"
+            //"BLUE"
+            ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 1464; //360 degrees
     public static final int GoBildaMotorMax = 28; //says 2786 tho //360
     public static final int ServoMax = 1; //180 degrees
-    public static final double inToM = 0.0254;
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
 
     public static final class ElevatorConstants {
         public static final String elevatorLeft = "elevatorLeft";
         public static final String elevatorRight = "elevatorRight";
          public static final double motorRatio = 1/1; // 1 motor rotation to meters
-         public static final double elevator = 12/inToM;
+         public static final double elevator = 12;
     }
     public static final class DriveTrainConstants {
 
@@ -30,7 +32,7 @@ public class Constants {
         //idk
         public static final double controlHubOffset = 0;
         public static final double gearRatio = (61 * 1);
-        public static final double wheelDiameter = 5 * inToM; //in meters
+        public static final double wheelDiameter = 5; //in meters
     }
 
     public static final class IntakeConstants {
@@ -57,12 +59,12 @@ public class Constants {
         public static final String turretNeckEncoder = "turretNeckEncoder";
         public static final double turretNeckGearRatio = (double) 22 / 110; //Gear multiplier
         public static final double turretHeadGearRatio = 16/120; //Gear multiplier
-        public static final double flyWheelDiameter = 4 * inToM;
-        public static final double centerOffset = 12 * inToM;
+        public static final double flyWheelDiameter = 4;
+        public static final double centerOffset = 12;
     }
     public static final class OdometryConstants{
         public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
-        public static final double deadwheelDiameter = 4 * inToM;
+        public static final double deadwheelDiameter = 4;
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
 
@@ -72,11 +74,11 @@ public class Constants {
         public static final Vector2d targetPosRed = new Vector2d(Sizes.field - 0.3, Sizes.field - 0.3);
     }
     public static final class Sizes {
-        public static final double robotWidth = 18 * inToM; //TODO
-        public static final double robotHeight = 18 * inToM; //TODO
-        public static final double robotOffset = 18 * inToM; //TODO: Simplify it to the largest side's offset
+        public static final double robotWidth = 18; //TODO
+        public static final double robotHeight = 18; //TODO
+        public static final double robotOffset = 18; //TODO: Simplify it to the largest side's offset
         public static final double field = 3.6576 - 2 * robotOffset;
-        public static final double artifactRadius = 2.50 * inToM;
+        public static final double artifactRadius = 2.50;
     }
 
     public static final class VisionConstants {
