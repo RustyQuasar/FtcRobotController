@@ -38,9 +38,9 @@ public class Auto extends LinearOpMode {
         int path = 1;
         if (path == 1) {
             //A bit off dead center x, against bottom of y
-            Pose2d startPose = new Pose2d(x(Constants.Sizes.robotOffset), Constants.Sizes.robotOffset, 0);
+            Pose2d startPose = new Pose2d(x(Constants.Sizes.robotOffset - Constants.Sizes.field/2), y(Constants.Sizes.robotOffset), 0);
             //Quick sample
-            Pose2d target1 = new Pose2d(x(1), 1, heading(90));
+            Pose2d target1 = new Pose2d(x(1), y(1), heading(90));
             Pose2d target2 = new Pose2d(x(60), 60, heading(270));
             odometry = new Odometry(hardwareMap, startPose);
             sequence = drive.actionBuilder(startPose)
@@ -83,13 +83,15 @@ public class Auto extends LinearOpMode {
         telemetry.addLine("Sequence complete!");
         telemetry.update();
     }
-    private double x(double offset){
+    private double y(double offset){
         if (Constants.TEAM.equals("BLUE")){
             offset *= -1;
         }
         return (offset + Constants.Sizes.field/2);
     }
-
+    private double x(double fromWall){
+        return fromWall - Constants.Sizes.field/2;
+    }
     private double heading(double angle) {
         //TODO This kinda sketchy ngl
         if (Constants.TEAM.equals("RED")) {
@@ -98,7 +100,7 @@ public class Auto extends LinearOpMode {
             return Math.toRadians(angle - 2 * (180 - angle));
         }
     }
-    private double targetRow(){
+    private double targetColumn(){
         if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"U", "U", "U"})){
             return Constants.Sizes.field/2;
         } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"G", "P", "P"})){

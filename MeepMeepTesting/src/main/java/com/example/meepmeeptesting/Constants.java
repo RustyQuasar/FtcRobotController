@@ -1,11 +1,9 @@
-package Utilities;
+package com.example.meepmeeptesting;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
-@Config
 public final class Constants {
     public static final String TEAM =
             "RED"
@@ -18,8 +16,8 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final String elevator = "elevator";
-        public static final double motorRatio = 1/1; // 1 motor rotation to meters
-        public static final double elevatorLength = 12;
+         public static final double motorRatio = 1/1; // 1 motor rotation to meters
+         public static final double elevatorLength = 12;
     }
     public static final class DriveTrainConstants {
 

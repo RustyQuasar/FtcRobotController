@@ -11,23 +11,19 @@ public class Main {
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
-        int wantedAuto=2;
+        int wantedAuto=1;
         switch (wantedAuto) {
-            case 1:  myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-34, -34, 0))
-                .turn(Math.toRadians(-30))
-                .lineToX(-8)
-                .lineToX(-38)
-                .turn(Math.toRadians(15))
-                .lineToX(10)
-                .lineToX(-38)
-                    .build());
-                    break;
-            case 2:
-                myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(52, -52, 0))
-                        .lineToX(32)
-                        .lineToX(52)
-                        .lineToX(10)
-                        .lineToX(52).build());
+            case 1:
+                //A bit off dead center y, against right of x
+                //The offset from the bot is auto applied (I think), so don't worry about it
+                Pose2d startPose = new Pose2d(x(0), y(0), heading(180));
+                //Quick sample
+                Pose2d target1 = new Pose2d(x(30), y(30), heading(90));
+                Pose2d target2 = new Pose2d(x(Constants.Sizes.field/2), y(-40), heading(270));
+                myBot.runAction(myBot.getDrive().actionBuilder(startPose)
+                        .splineToLinearHeading(target1, target1.heading)
+                        .splineToLinearHeading(target2, target2.heading)
+                        .build());
                 break;
         }
 
@@ -37,5 +33,21 @@ public class Main {
                 .setBackgroundAlpha(0.95f)
                 .addEntity(myBot)
                 .start();
+    }
+    private static double y(double offset){
+        if (Constants.TEAM.equals("BLUE")){
+            offset *= -1;
+        }
+        return offset;
+    }
+    private static double x(double fromWall){
+        return Constants.Sizes.field/2 - fromWall;
+    }
+    private static double heading(double angle) {
+        if (Constants.TEAM.equals("RED")) {
+            return Math.toRadians(angle);
+        } else {
+            return Math.toRadians(angle - 2 * (180 - angle));
+        }
     }
 }
