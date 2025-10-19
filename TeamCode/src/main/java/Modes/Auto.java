@@ -97,7 +97,7 @@ public class Auto extends LinearOpMode {
         if (Constants.TEAM.equals("RED")) {
             return Math.toRadians(angle);
         } else {
-            return Math.toRadians(angle - 2 * (180 - angle));
+            return Math.toRadians(180 - (angle - 180));
         }
     }
     private double targetColumn(){

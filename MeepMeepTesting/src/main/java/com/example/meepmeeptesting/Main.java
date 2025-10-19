@@ -18,8 +18,8 @@ public class Main {
                 //The offset from the bot is auto applied (I think), so don't worry about it
                 Pose2d startPose = new Pose2d(x(0), y(0), heading(180));
                 //Quick sample
-                Pose2d target1 = new Pose2d(x(30), y(30), heading(90));
-                Pose2d target2 = new Pose2d(x(Constants.Sizes.field/2), y(-40), heading(270));
+                Pose2d target1 = new Pose2d(x(30), y(30), heading(290));
+                Pose2d target2 = new Pose2d(x(Constants.Sizes.field/2), y(-40), heading(290));
                 myBot.runAction(myBot.getDrive().actionBuilder(startPose)
                         .splineToLinearHeading(target1, target1.heading)
                         .splineToLinearHeading(target2, target2.heading)
@@ -47,7 +47,7 @@ public class Main {
         if (Constants.TEAM.equals("RED")) {
             return Math.toRadians(angle);
         } else {
-            return Math.toRadians(angle - 2 * (180 - angle));
+            return Math.toRadians(180 - (angle - 180));
         }
     }
 }
