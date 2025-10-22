@@ -1,9 +1,11 @@
 package Commands;
 
-import com.qualcomm.robotcore.hardware.CRServo;
+import android.widget.Button;
+
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -11,16 +13,20 @@ import Utilities.Constants;
 
 public class SmartIntake {
     private final DcMotor motorIntake;
-
     private final ColorSensor colorSen;
-
+    private final TouchSensor pressureSensor;
     private boolean motifState = false;
     private int ballCount = 0;
     public String[] artifactOrder = {"N", "N", "N"};
+    boolean scanningBall = false;
+    boolean ballPresent = false;
+    int scans = 0;
 
     public SmartIntake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
+        pressureSensor = hardwareMap.get(TouchSensor
+                .class, Constants.IntakeConstants.pressureSensor);
     }
 
     public boolean isBall() {
@@ -29,18 +35,36 @@ public class SmartIntake {
 
     public void colorRegister() {
         double colorRedValue = colorSen.red();
-        artifactOrder[2] = artifactOrder[1];
-        artifactOrder[1] = artifactOrder[0];
-        if (colorRedValue >= 200) {
-            artifactOrder[0] = "P";
+        double colourBlueValue = colorSen.blue();
+        double colourGreenValue = colorSen.green();
+        double maxColour = Math.max(colourGreenValue, Math.max(colourBlueValue, colorRedValue));
+        ballPresent = !(colorRedValue == maxColour);
+                //pressureSensor.isPressed();
+        if (ballPresent) {
+            if (!scanningBall) {
+                if (maxColour < 300) return;
+                if (colourBlueValue == maxColour) {
+                    scans++;
+                    scanningBall = true;
+                    artifactOrder[2] = artifactOrder[1];
+                    artifactOrder[1] = artifactOrder[0];
+                    artifactOrder[0] = "P";
+                }
+                if (colourGreenValue == maxColour) {
+                    scans++;
+                    scanningBall = true;
+                    artifactOrder[2] = artifactOrder[1];
+                    artifactOrder[1] = artifactOrder[0];
+                    artifactOrder[0] = "G";
+                }
+            }
         } else {
-            artifactOrder[0] = "G";
+            scanningBall = false;
         }
     }
 
     public void colorWipe() {
         artifactOrder = new String[]{"N","N","N"};
-
         ballCount = 0;
     }
 
@@ -53,22 +77,23 @@ public class SmartIntake {
         telemetry.addData("Ball count: ", ballCount);
         telemetry.addData("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);
         telemetry.addData("Motif state: ", motifState);
+        telemetry.addData("RGB: ", colorSen.red() + " " + colorSen.green() + " " + colorSen.blue());
+        telemetry.addData("Scanning ball: ", scanningBall);
+        telemetry.addData("Scans: ", scans);
     }
 
     public void intake(boolean buttonPressed) {
-
-
+        colorRegister();
         if (buttonPressed) {
             if (motifState) {
                 if (!isBall()) {
-                    motorIntake.setPower(0.8);
+                    //motorIntake.setPower(0.8);
                     return;
                 }
                 ballCount++;
-                colorRegister();
                 if (!(artifactOrder[ballCount - 1].equals(Constants.VisionConstants.colours[3 - ballCount]))) {
                     ballCount--;
-                    motorIntake.setPower(-1);
+                    //motorIntake.setPower(-1);
                     try {
                         Thread.sleep(500);
                     } catch (Exception ignored) {
@@ -78,11 +103,10 @@ public class SmartIntake {
 
             } else {
                 if (buttonPressed) {
-                    motorIntake.setPower(0.8);
+                    //motorIntake.setPower(0.8);
                     return;
                 }
                 ballCount++;
-                colorRegister();
             }
         }else{
         motorIntake.setPower(0);

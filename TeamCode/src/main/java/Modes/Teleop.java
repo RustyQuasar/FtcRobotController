@@ -39,7 +39,7 @@ public class Teleop extends LinearOpMode {
             Vision.updateAprilTags();
 
             activeGamepad1.copy(gamepad1);
-            Intake.intake(activeGamepad1.right_bumper);
+            Intake.intake(true);
 
             if (activeGamepad1.right_trigger > 0.5) {
                 Shooter.transfer();
@@ -58,8 +58,8 @@ public class Teleop extends LinearOpMode {
             }
             Shooter.aim(new double[] {Constants.OdometryConstants.fieldVels.linearVel.x, Constants.OdometryConstants.fieldVels.linearVel.y});
             //Mechanum.periodic(telemetry, telemetryPacket);
-            Shooter.periodic(telemetry);
-            // Intake.periodic(telemetry, telemetryPacket);
+            //Shooter.periodic(telemetry);
+            Intake.periodic(telemetry);
             telemetry.update();
             dashboard.updateConfig();
         }

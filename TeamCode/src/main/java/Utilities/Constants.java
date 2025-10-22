@@ -41,6 +41,7 @@ public final class Constants {
         public static final String intake = "intake";
         //Control hub - I2C port/bus 1
         public static final String colourSensor = "colourSensor";
+        public static final String pressureSensor = "pressureSensor";
 
     }
 
