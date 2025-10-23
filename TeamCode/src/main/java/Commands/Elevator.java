@@ -1,26 +1,24 @@
 package Commands;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import Utilities.Constants;
 
 public class Elevator {
-    double curentElevatorheight=0;
-    DcMotor elevator;
+    Servo elevator;
+    boolean raised = false;
     public Elevator(HardwareMap hardwareMap){
-        elevator = hardwareMap.get(DcMotor.class, Constants.ElevatorConstants.elevator);
+        elevator = hardwareMap.get(Servo.class, Constants.ElevatorConstants.elevator);
     }
-    public void setHeight(double wantedHeight){
-        double error = wantedHeight-curentElevatorheight;
-        while(Math.abs(error)>0.1){
-            error = wantedHeight-curentElevatorheight;
-            double speed=Math.max(0.1,Math.min(error/12,1));
-            elevator.setPower(speed);
+    public void switchState(){
+        if (!raised){
+            elevator.setPosition(1);
+        } else {
+            elevator.setPosition(0);
         }
-        curentElevatorheight=wantedHeight;
-        elevator.setPower(0);
-
     }
 
 }

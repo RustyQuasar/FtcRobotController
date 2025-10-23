@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import Commands.Elevator;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
@@ -22,6 +23,7 @@ public class Teleop extends LinearOpMode {
     SmartShooter Shooter;
     Vision Vision;
     Odometry Odometry;
+    Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
@@ -32,6 +34,8 @@ public class Teleop extends LinearOpMode {
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
+        Elevator = new Elevator(hardwareMap);
+        boolean lastYInput = false;
         waitForStart();
 
         while (opModeIsActive()) {
@@ -53,9 +57,17 @@ public class Teleop extends LinearOpMode {
             if (activeGamepad1.dpad_down) {
                 Odometry.resetYaw();
             }
+            /*
             if (activeGamepad1.left_trigger > 0.1) {
                 Shooter.shoot(activeGamepad1.left_trigger * 2040);
             }
+             */
+
+            if (activeGamepad1.y && !lastYInput) {
+                Elevator.switchState();
+            }
+            lastYInput = activeGamepad1.y;
+
             Shooter.aim(new double[] {Constants.OdometryConstants.fieldVels.linearVel.x, Constants.OdometryConstants.fieldVels.linearVel.y});
             //Mechanum.periodic(telemetry, telemetryPacket);
             //Shooter.periodic(telemetry);

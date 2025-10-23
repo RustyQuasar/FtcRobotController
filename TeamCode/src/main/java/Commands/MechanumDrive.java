@@ -1,6 +1,5 @@
 package Commands;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,7 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Utilities.Constants;
-import Subsystems.Odometry;
 
 public class MechanumDrive {
 
@@ -59,17 +57,6 @@ public class MechanumDrive {
         backLeft2.setPower(backLeftPower);
         backRight3.setPower(backRightPower);
     }
-
-    /**
-     * Raw heading of the robot before yaw offset is applied
-     *
-     * @return heading of the robot
-     */
-
-    /**
-     * Updates the yaw offset to the current heading
-     */
-
 
     public void periodic(Telemetry telemetry) {
         telemetry.addLine("Drive train");

@@ -122,7 +122,7 @@ public class Odometry {
                 Constants.OdometryConstants.fieldPos.position.y
         };
         boolean isInBigTriangle = pose[1] >= pose[0] && pose[1] >= -pose[0] + 12;
-        boolean isInSmallTriangle = pose[1] >= pose[0] - (2 * 0.3048) && pose[1] >= -pose[0] + (4 * 0.3048);
+        boolean isInSmallTriangle = pose[1] >= pose[0] - (2 * 0.3048) && pose[1] >= -pose[0] + (4 * 12);
         return isInBigTriangle || isInSmallTriangle;
     }
 }

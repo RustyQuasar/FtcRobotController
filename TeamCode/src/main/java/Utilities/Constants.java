@@ -17,9 +17,7 @@ public final class Constants {
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
 
     public static final class ElevatorConstants {
-        public static final String elevator = "elevator";
-        public static final double motorRatio = 1/1; // 1 motor rotation to meters
-        public static final double elevatorLength = 12;
+        public static final String elevator = "elevator"; //Control hub Servo port 1
     }
     public static final class DriveTrainConstants {
 
@@ -32,16 +30,13 @@ public final class Constants {
         public static final String imu = "imu";
         //idk
         public static final double controlHubOffset = 0;
-        public static final double gearRatio = (61 * 1);
+        public static final double gearRatio = 61;
         public static final double wheelDiameter = 5; //in meters
     }
 
     public static final class IntakeConstants {
-        //Servo0 (Continuous Rotation - Control Hub)
-        public static final String intake = "intake";
-        //Control hub - I2C port/bus 1
-        public static final String colourSensor = "colourSensor";
-        public static final String pressureSensor = "pressureSensor";
+        public static final String intake = "intake"; //Expansion hub Motor port 0
+        public static final String colourSensor = "colourSensor"; //Control hub - I2C port/bus 1
 
     }
 
@@ -50,17 +45,15 @@ public final class Constants {
         public static final double smallTriangleDist = 0.23; /*meters*/
         public static final double largeTriangleDist = 0.71; /*meters*/
         public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 1
-        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 3
-        public static final double shooterGearRatio = 1; //Gear multiplier
-        //Servos
-        public static final String turretHead = "turretHead"; //Expansion hub Servo port 1
-        //CR Servo
-        public static final String turretNeckServo = "turretNeckServo"; //Expansion hub Servo port 0
+        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 2
+        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 3
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
         //Encoders
-        public static final String turretNeckEncoder = "turretNeckEncoder";
-        public static final double turretNeckGearRatio = (double) 22 / 110; //Gear multiplier
-        public static final double turretHeadGearRatio = 16/120; //Gear multiplier
+        public static final String turretHeadEncoder = "turretHeadEncoder"; //
+        public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
+        public static final double shooterGearRatio = 1; //Gear multiplier
+        public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier
+        public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double flyWheelDiameter = 4;
         public static final double centerOffset = 12;
     }

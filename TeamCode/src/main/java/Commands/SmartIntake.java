@@ -14,7 +14,6 @@ import Utilities.Constants;
 public class SmartIntake {
     private final DcMotor motorIntake;
     private final ColorSensor colorSen;
-    private final TouchSensor pressureSensor;
     private boolean motifState = false;
     private int ballCount = 0;
     public String[] artifactOrder = {"N", "N", "N"};
@@ -25,8 +24,6 @@ public class SmartIntake {
     public SmartIntake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
-        pressureSensor = hardwareMap.get(TouchSensor
-                .class, Constants.IntakeConstants.pressureSensor);
     }
 
     public boolean isBall() {
@@ -39,7 +36,6 @@ public class SmartIntake {
         double colourGreenValue = colorSen.green();
         double maxColour = Math.max(colourGreenValue, Math.max(colourBlueValue, colorRedValue));
         ballPresent = !(colorRedValue == maxColour);
-                //pressureSensor.isPressed();
         if (ballPresent) {
             if (!scanningBall) {
                 if (maxColour < 300) return;

@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -17,20 +16,20 @@ import Utilities.Constants;
 
 public class SmartShooter {
     private final DcMotorEx leftShooter, rightShooter;
-    private final CRServo turretNeckServo;
-    private final Servo turretHead;
     private final CRServo transferServo;
-    private final RTPAxon turretNeck;
+    private final DcMotorEx turretNeckMotor;
+    private final RTPAxon turretHead;
     private final int aimedTagID;
     Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, String TEAM, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
-        turretNeckServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretNeckServo);
-        AnalogInput turretNeckEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretNeckEncoder);
-        turretNeck = new RTPAxon(turretNeckServo, turretNeckEncoder);
-        turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHead);
+        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
+        AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
+        CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
+
+        turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
         leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -49,14 +48,15 @@ public class SmartShooter {
     }
 
     public void aim(double[] v) {
-        turretNeck.update();
+        turretHead.update();
         double detectedX;
         double distanceMeters;
         double fv = v[0];
         double sv = v[1];
         int angle1, angle2;
         double frontV, sideV;
-        double neckHeading = (turretNeck.getCurrentAngle() * Constants.ShooterConstants.turretNeckGearRatio);
+        double neckHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() - ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
+        neckHeading = (neckHeading * Constants.ShooterConstants.turretNeckGearRatio);
         neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
         neckHeading += Constants.DriveTrainConstants.controlHubOffset;
         if (fv > 0) {
@@ -98,8 +98,8 @@ public class SmartShooter {
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
                 double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
                 // Update turret positions with corrected unit handling and corrected math
-                turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(angleToTurn, sideV, distanceMeters));
-                turretHead.setPosition(turretHead.getPosition() + yTurn(distanceMeters, frontV));
+                turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distanceMeters)));
+                turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distanceMeters, frontV));
                 /*
                 Telemetry scanned info
                 telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
@@ -120,8 +120,8 @@ public class SmartShooter {
             double yChange = targetPose.y - Constants.OdometryConstants.fieldPos.position.y;
             double distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double angleToTurn = Math.tan(Math.toRadians(yChange / xChange));
-            turretHead.setPosition(turretHead.getPosition() + yTurn(distance, frontV));
-            turretNeck.setTargetRotation(turretNeck.getTargetRotation() + xTurn(angleToTurn - ((double) Constants.VisionConstants.resX / 2), sideV, distance));
+            turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distance, frontV));
+            turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn - ((double) Constants.VisionConstants.resX / 2), sideV, distance)));
         }
     }
 
@@ -170,8 +170,8 @@ public class SmartShooter {
         telemetry.addLine("Shooter");
         telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addLine("Turret neck angle: " + turretNeck.getCurrentAngle());
-        telemetry.addLine("Turret head position: " + turretHead.getPosition());
+        telemetry.addLine("Turret neck angle: " + turretNeckMotor.getCurrentPosition());
+        telemetry.addLine("Turret head position: " + turretHead.getCurrentAngle());
         telemetry.update();
     }
 
@@ -181,7 +181,8 @@ public class SmartShooter {
         if (angleDiff < 0){
             angleDiff = 360 + angleDiff;
         }
-        return angleDiff;
+        return angleDiff * Constants.StudickaMotorMax;
+
     }
 
     private double yTurn(double distance, double velocity) {
@@ -210,11 +211,6 @@ public class SmartShooter {
         double angleDeg = Math.toDegrees(angleRad);
 
         // Convert angle to turret-head servo position delta
-        double positionDelta = (360 / angleDeg) / Constants.ShooterConstants.turretHeadGearRatio;
-        if (positionDelta > Constants.ServoMax) {
-            positionDelta = Constants.ServoMax;
-        }
-
-        return positionDelta;
+        return angleDeg / Constants.ShooterConstants.turretHeadGearRatio;
     }
 }
