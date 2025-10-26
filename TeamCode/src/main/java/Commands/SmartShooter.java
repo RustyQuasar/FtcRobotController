@@ -137,8 +137,12 @@ public class SmartShooter {
         }
     }
 
-    public void transfer() {
-        transferServo.setPower(1);
+    public void transfer(boolean buttonPressed) {
+        if (buttonPressed) {
+            transferServo.setPower(1);
+        } else {
+            transferServo.setPower(0);
+        }
     }
 
     private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {

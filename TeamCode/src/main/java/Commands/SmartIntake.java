@@ -60,7 +60,7 @@ public class SmartIntake {
     }
 
     public void colorWipe() {
-        artifactOrder = new String[]{"N","N","N"};
+        artifactOrder = new String[]{"N", "N", "N"};
         ballCount = 0;
     }
 
@@ -79,38 +79,33 @@ public class SmartIntake {
     }
 
     public void intake(boolean buttonPressed) {
+        double motorPower = 0.8;
         colorRegister();
         if (buttonPressed) {
             if (motifState) {
                 if (!isBall()) {
-                    //motorIntake.setPower(0.8);
+                    motorIntake.setPower(motorPower);
                     return;
                 }
                 ballCount++;
                 if (!(artifactOrder[ballCount - 1].equals(Constants.VisionConstants.colours[3 - ballCount]))) {
                     ballCount--;
-                    //motorIntake.setPower(-1);
+                    motorIntake.setPower(-motorPower);
                     try {
                         Thread.sleep(500);
                     } catch (Exception ignored) {
 
                     }
                 }
-
             } else {
-                if (buttonPressed) {
-                    //motorIntake.setPower(0.8);
-                    return;
-                }
-                ballCount++;
+                motorIntake.setPower(motorPower);
             }
-        }else{
-        motorIntake.setPower(0);
-}
+        } else {
+            motorIntake.setPower(0);
+        }
 
 
     }
-
 }
 
 

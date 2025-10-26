@@ -46,8 +46,10 @@ public class Teleop extends LinearOpMode {
             Intake.intake(true);
 
             if (activeGamepad1.right_trigger > 0.5) {
-                Shooter.transfer();
+                Shooter.transfer(true);
                 Intake.colorWipe();
+            } else {
+                Shooter.transfer(false);
             }
             Mechanum.drive(
                     -gamepad1.left_stick_y,
