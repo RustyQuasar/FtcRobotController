@@ -55,8 +55,12 @@ public class SmartShooter {
         double sv = v[1];
         int angle1, angle2;
         double frontV, sideV;
-        double neckHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() - ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
-        neckHeading = (neckHeading * Constants.ShooterConstants.turretNeckGearRatio);
+        double neckHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
+        if (neckHeading > 180) {
+            neckHeading = 180 - Math.abs(neckHeading - 180);
+        } else if (neckHeading < -180) {
+            neckHeading = 0 + Math.abs(neckHeading - 180);
+        }
         neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
         neckHeading += Constants.DriveTrainConstants.controlHubOffset;
         if (fv > 0) {
@@ -67,7 +71,7 @@ public class SmartShooter {
         if (sv > 0) {
             angle2 = 90;
         } else {
-            angle2 = 270;
+            angle2 = -90;
         }
         double[] totals = {neckHeading - angle1, neckHeading - angle2};
         for (int i = 0; i < totals.length; i++) {

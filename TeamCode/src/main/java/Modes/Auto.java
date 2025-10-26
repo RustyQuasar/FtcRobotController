@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -37,20 +38,14 @@ public class Auto extends LinearOpMode {
         if (isStopRequested()) return;
         int path = 1;
         if (path == 1) {
-            //A bit off dead center x, against bottom of y
-            Pose2d startPose = new Pose2d(x(Constants.Sizes.robotOffset - Constants.Sizes.field/2), y(Constants.Sizes.robotOffset), 0);
-            //Quick sample
-            Pose2d target1 = new Pose2d(x(1), y(1), heading(90));
-            Pose2d target2 = new Pose2d(x(60), 60, heading(270));
-            odometry = new Odometry(hardwareMap, startPose);
-            sequence = drive.actionBuilder(startPose)
-                    .splineToLinearHeading(target1, target1.heading)
-                    .splineToLinearHeading(target2, target2.heading)
-                    .build();
+
         } else if (path == 2) {
-                Pose2d startPose = new Pose2d(0, 0, 0);
-                sequence = drive.actionBuilder(startPose)
-                        .build();
+                sequence = drive.actionBuilder(new Pose2d(-11.02, 0.39, Math.toRadians(90.00)))
+                    .splineTo(new Vector2d(29.51, y(-2.16)), heading(-3.61))
+                    .splineToSplineHeading(new Pose2d(-0.20, y(-19.48), heading(210.23)), heading(210.23))
+                    .splineToLinearHeading(new Pose2d(-36.00, y(-25.18), heading(189.05)), heading(189.05))
+                    .splineToConstantHeading(new Vector2d(-58.23, y(6.49)), heading(125.06))
+                    .build();
         } else {
             stop();
             sequence = drive.actionBuilder(new Pose2d(0, 0, 0))
@@ -87,18 +82,12 @@ public class Auto extends LinearOpMode {
         if (Constants.TEAM.equals("BLUE")){
             offset *= -1;
         }
-        return (offset + Constants.Sizes.field/2);
-    }
-    private double x(double fromWall){
-        return fromWall - Constants.Sizes.field/2;
+        return offset;
     }
     private double heading(double angle) {
-        //TODO This kinda sketchy ngl
-        if (Constants.TEAM.equals("RED")) {
-            return Math.toRadians(angle);
-        } else {
-            return Math.toRadians(180 - (angle - 180));
-        }
+        double angleR = Math.toRadians(angle);
+        if (Constants.TEAM.equals("BLUE")) angleR *= -1;
+        return angleR;
     }
     private double targetColumn(){
         if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"U", "U", "U"})){
