@@ -11,6 +11,7 @@ import Commands.Elevator;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
+import Commands.SmartShooter2;
 import Commands.Vision;
 import Utilities.Constants;
 import Subsystems.Odometry;
@@ -20,7 +21,7 @@ public class Teleop extends LinearOpMode {
     Gamepad activeGamepad1;
     MechanumDrive Mechanum;
     SmartIntake Intake;
-    SmartShooter Shooter;
+    SmartShooter2 Shooter;
     Vision Vision;
     Odometry Odometry;
     Elevator Elevator;
@@ -33,7 +34,7 @@ public class Teleop extends LinearOpMode {
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
+        Shooter = new SmartShooter2(hardwareMap, Vision);
         Elevator = new Elevator(hardwareMap);
         boolean lastYInput = false;
         waitForStart();

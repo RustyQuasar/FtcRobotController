@@ -62,15 +62,19 @@ public class Main {
                 break;
 
         }
-        allianceBot.runAction(allianceBot.getDrive().actionBuilder(new Pose2d(-50, -50, Math.toRadians(180)))
-                /*
-                .splineTo(new Vector2d(61.77, 51.34), Math.toRadians(92.57))
-                .splineToLinearHeading(new Pose2d(-58.62, 45.84, Math.toRadians(182.62)), Math.toRadians(182.62))
-                .splineToLinearHeading(new Pose2d(57.05, 57.44, Math.toRadians(5.73)), Math.toRadians(5.73))
-                .splineToLinearHeading(new Pose2d(-60.59, 43.87, Math.toRadians(186.58)), Math.toRadians(186.58))
-                .splineToLinearHeading(new Pose2d(60.00, 6.89, Math.toRadians(-17.05)), Math.toRadians(-17.05))
-                 */
+        allianceBot.runAction(allianceBot.getDrive().actionBuilder(new Pose2d(39.40, y(3.71), heading(90.00)))
+                .splineTo(new Vector2d(14.85, y(21.04)), heading(144.78))
+                .splineTo(new Vector2d(-28.47, y(-9.90)), heading(215.54))
+                .splineTo(new Vector2d(9.90, y(-27.23)), heading(-24.30))
+                .splineTo(new Vector2d(34.25, y(37.34)), heading(69.34))
+                .splineTo(new Vector2d(29.09, y(-29.71)), heading(265.60))
+                .splineTo(new Vector2d(12.79, y(-10.52)), heading(130.35))
+                .splineTo(new Vector2d(-48.48, y(27.44)), heading(148.22))
+                .splineTo(new Vector2d(-48.28, y(55.91)), heading(89.58))
+                .splineTo(new Vector2d(58.38, y(-57.97)), heading(-46.88))
+                .splineTo(new Vector2d(20.42, y(-70.14)), heading(197.78))
                 .build());
+
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_BLACK)
                 .setDarkMode(true)

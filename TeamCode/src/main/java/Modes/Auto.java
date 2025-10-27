@@ -32,7 +32,7 @@ public class Auto extends LinearOpMode {
     public void runOpMode() {
         dashboard = FtcDashboard.getInstance();
         vision = new Vision(hardwareMap, dashboard);
-        shooter = new SmartShooter(hardwareMap, Constants.TEAM, vision);
+        shooter = new SmartShooter(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
         boolean intaking = false;

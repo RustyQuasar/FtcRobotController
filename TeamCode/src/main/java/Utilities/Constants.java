@@ -71,7 +71,8 @@ public final class Constants {
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO
         public static final double robotHeight = 18; //TODO
-        public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotHeight, 2)) / 2; //TODO: Simplify it to the largest side's offset
+        public static final double robotLength = 18; //TODO
+        public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
         public static final double field = 144 - 2 * robotOffset;
         public static final double artifactRadius = 2.50;
     }

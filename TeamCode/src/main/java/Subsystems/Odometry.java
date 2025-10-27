@@ -28,7 +28,7 @@ public class Odometry {
         // +x = forward, +y = left
         public double parallelX = 0.0;
         public double parallelY = Constants.Sizes.robotWidth / 2.0;
-        public double perpX = -Constants.Sizes.robotHeight / 2.0;
+        public double perpX = -Constants.Sizes.robotLength / 2.0;
         public double perpY = 0.0;
     }
 
