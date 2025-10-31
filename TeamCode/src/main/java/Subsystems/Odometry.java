@@ -73,48 +73,52 @@ public class Odometry {
     }
 
     public void update() {
-        PositionVelocityPair parData = parallel.getPositionAndVelocity();
-        PositionVelocityPair perpData = perpendicular.getPositionAndVelocity();
+        try {
+            PositionVelocityPair parData = parallel.getPositionAndVelocity();
+            PositionVelocityPair perpData = perpendicular.getPositionAndVelocity();
 
-        int parDeltaTicks = parData.position - lastParallelPos;
-        int perpDeltaTicks = perpData.position - lastPerpPos;
+            int parDeltaTicks = parData.position - lastParallelPos;
+            int perpDeltaTicks = perpData.position - lastPerpPos;
 
-        lastParallelPos = parData.position;
-        lastPerpPos = perpData.position;
+            lastParallelPos = parData.position;
+            lastPerpPos = perpData.position;
 
-        double dsPar = parDeltaTicks * inPerTick;
-        double dsPerp = perpDeltaTicks * inPerTick;
+            double dsPar = parDeltaTicks * inPerTick;
+            double dsPerp = perpDeltaTicks * inPerTick;
 
-        double heading = Math.toRadians(getRawHeading() - yawOffset);
-        double dTheta = heading - lastHeading;
+            double heading = Math.toRadians(getRawHeading() - yawOffset);
+            double dTheta = heading - lastHeading;
 
-        // normalize heading delta
-        while (dTheta > Math.PI) dTheta -= 2 * Math.PI;
-        while (dTheta < -Math.PI) dTheta += 2 * Math.PI;
+            // normalize heading delta
+            while (dTheta > Math.PI) dTheta -= 2 * Math.PI;
+            while (dTheta < -Math.PI) dTheta += 2 * Math.PI;
 
-        lastHeading = heading;
+            lastHeading = heading;
 
-        // Encoder positions relative to robot center
-        double yPar = PARAMS.parallelY;
-        double xPerp = PARAMS.perpX;
+            // Encoder positions relative to robot center
+            double yPar = PARAMS.parallelY;
+            double xPerp = PARAMS.perpX;
 
-        // Compute robot-centric delta
-        double dxRobot = dsPar + yPar * dTheta;
-        double dyRobot = dsPerp - xPerp * dTheta;
+            // Compute robot-centric delta
+            double dxRobot = dsPar + yPar * dTheta;
+            double dyRobot = dsPerp - xPerp * dTheta;
 
-        // Rotate into field coordinates
-        double cosH = Math.cos(heading);
-        double sinH = Math.sin(heading);
+            // Rotate into field coordinates
+            double cosH = Math.cos(heading);
+            double sinH = Math.sin(heading);
 
-        double dxField = dxRobot * cosH - dyRobot * sinH;
-        double dyField = dxRobot * sinH + dyRobot * cosH;
+            double dxField = dxRobot * cosH - dyRobot * sinH;
+            double dyField = dxRobot * sinH + dyRobot * cosH;
 
-        Pose2d prev = Constants.OdometryConstants.fieldPos;
-        Constants.OdometryConstants.fieldPos = new Pose2d(
-                prev.position.x + dxField,
-                prev.position.y + dyField,
-                heading
-        );
+            Pose2d prev = Constants.OdometryConstants.fieldPos;
+            Constants.OdometryConstants.fieldPos = new Pose2d(
+                    prev.position.x + dxField,
+                    prev.position.y + dyField,
+                    heading
+            );
+        } catch (NullPointerException e) {
+
+        }
     }
     public boolean isInTriangle() {
         double[] pose = {

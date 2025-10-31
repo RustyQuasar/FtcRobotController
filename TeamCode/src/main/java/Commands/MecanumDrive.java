@@ -30,9 +30,11 @@ import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.LynxFirmware;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import Utilities.ConfigVariables;
 import Utilities.Constants;
 import messages.DriveCommandMessage;
 import messages.MecanumCommandMessage;
@@ -49,30 +51,30 @@ public class MecanumDrive {
         // drive model parameters
         public double inPerTick = 1;
         public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        public double trackWidthTicks = Constants.Sizes.robotWidth - Constants.DriveTrainConstants.wheelWidth * 2 / inPerTick;
 
         // feedforward parameters (in tick units)
         public double kS = 0;
-        public double kV = 0;
+        public double kV = ConfigVariables.kV;
         public double kA = 0;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
-        public double minProfileAccel = -30;
-        public double maxProfileAccel = 50;
+        public double maxWheelVel = ConfigVariables.maxWheelVel;
+        public double minProfileAccel = ConfigVariables.minProfileAccel;
+        public double maxProfileAccel = ConfigVariables.maxProfileAccel;
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI; // shared with path
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.0;
-        public double lateralGain = 0.0;
-        public double headingGain = 0.0; // shared with turn
+        public double axialGain = 1.0;
+        public double lateralGain = 1.0;
+        public double headingGain = 1.0; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double axialVelGain = 0.5;
+        public double lateralVelGain = 0.5;
+        public double headingVelGain = 0.5; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -115,6 +117,10 @@ public class MecanumDrive {
         leftBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
         rightBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
         rightFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -144,7 +150,6 @@ public class MecanumDrive {
 
         public FollowTrajectoryAction(TimeTrajectory t) {
             timeTrajectory = t;
-
             List<Double> disps = com.acmerobotics.roadrunner.Math.range(
                     0, t.path.length(),
                     Math.max(2, (int) Math.ceil(t.path.length() / 2)));
@@ -199,10 +204,14 @@ public class MecanumDrive {
             double leftFrontPower = feedforward.compute(wheelVels.leftFront) / voltage;
             double leftBackPower = feedforward.compute(wheelVels.leftBack) / voltage;
             double rightBackPower = feedforward.compute(wheelVels.rightBack) / voltage;
-            double rightFrontPower = feedforward.compute(wheelVels.rightFront) / voltage;
+            double rightFrontPower = feedforward.compute(wheelVels.rightFront) / voltage;;
             mecanumCommandWriter.write(new MecanumCommandMessage(
                     voltage, leftFrontPower, leftBackPower, rightBackPower, rightFrontPower
             ));
+            p.put("lfComputed", leftFrontPower);
+            p.put("lbComputed", leftBackPower);
+            p.put("rbComputed", rightBackPower);
+            p.put("rfComputed", rightFrontPower);
 
             leftFront.setPower(leftFrontPower);
             leftBack.setPower(leftBackPower);

@@ -30,23 +30,27 @@ public class Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        // --- initialize subsystems ---
         dashboard = FtcDashboard.getInstance();
         vision = new Vision(hardwareMap, dashboard);
         shooter = new SmartShooter(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
-        boolean intaking = false;
-        Action sequence;
 
-        waitForStart();
-        if (isStopRequested()) return;
-        int path = 1;
+        Action driveSequence;
+
+        int path = 1; // keep your path selection logic here
         if (path == 1) {
-            sequence = drive.actionBuilder(new Pose2d(28.92, y(2.16), heading(90.00)))
-                    .stopAndAdd(new AutoIntake(intake, true))
-                    .stopAndAdd(new AutoShooter(shooter, true))
+            Pose2d startPose = new Pose2d(28.92, y(2.16), heading(90.00));
+            odometry = new Odometry(hardwareMap, startPose);
+
+            // NOTE: Do NOT add intake/shooter one-shot toggles as the first actions here.
+            //       Toggle intake before the loop and call shooter.aim() in the loop.
+            driveSequence = drive.actionBuilder(startPose)
+                    // if you want to toggle transfer/shoot at specific times, include TransferCommand below
+                    .stopAndAdd(new TransferCommand(shooter, true)) // spin transfer on
                     .waitSeconds(3)
-                    .stopAndAdd(new AutoShooter(shooter, false))
+                    .stopAndAdd(new TransferCommand(shooter, false)) // stop transfer
                     .splineTo(new Vector2d(-4.72, y(23.21)), heading(147.96))
                     .splineTo(new Vector2d(-7.87, y(-18.69)), heading(265.70))
                     .splineTo(new Vector2d(30.69, y(-20.26)), heading(-2.34))
@@ -60,43 +64,105 @@ public class Auto extends LinearOpMode {
                     .splineTo(new Vector2d(60.39, y(-45.25)), heading(10.78))
                     .build();
 
-        } else if (path == 2) {
-                sequence = drive.actionBuilder(new Pose2d(-11.02, 0.39, Math.toRadians(90.00)))
-                    .splineTo(new Vector2d(29.51, y(-2.16)), heading(-3.61))
-                    .splineToSplineHeading(new Pose2d(-0.20, y(-19.48), heading(210.23)), heading(210.23))
-                    .splineToLinearHeading(new Pose2d(-36.00, y(-25.18), heading(189.05)), heading(189.05))
-                    .splineToConstantHeading(new Vector2d(-58.23, y(6.49)), heading(125.06))
-                    .build();
         } else {
-            stop();
-            sequence = drive.actionBuilder(new Pose2d(0, 0, 0))
-                    .build();
+            odometry = new Odometry(hardwareMap, new Pose2d(0, 0, 0));
+            driveSequence = drive.actionBuilder(new Pose2d(0, 0, 0)).build();
         }
 
-        TelemetryPacket packet = new TelemetryPacket();
+        // Wait for start - keep init logic above so dashboard/vision/odometry are ready
+        waitForStart();
+        if (isStopRequested()) return;
 
-        // --- Run the action with continuous odometry updates ---
-        while (opModeIsActive()) {
-            // Update odometry from your Constants class (if implemented there)
-            odometry.update();
-            vision.updateAprilTags();
-            intake.intake(true);
-            shooter.aim(new double[] {Constants.OdometryConstants.fieldVels.linearVel.x, Constants.OdometryConstants.fieldVels.linearVel.y});
-            shooter.transfer(odometry.isInTriangle());
-            // Run the Road Runner action
-            boolean running = sequence.run(packet);
-            if (!running) break; // trajectory finished
-
-            // You can add other side logic here (arm control, sensor reads, etc.)
-            telemetry.addData("x", Constants.OdometryConstants.fieldPos.position.x);
-            telemetry.addData("y", Constants.OdometryConstants.fieldPos.position.y);
-            telemetry.addData("heading (deg)", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
+        // HYBRID C1: enable intake once (one-shot toggle) so it runs for the whole auto
+        try {
+            intake.intake(true); // one-shot: turns intake ON
+        } catch (Exception e) {
+            telemetry.addData("Intake init err", e.getMessage());
             telemetry.update();
         }
+
+        // Main loop: update odometry, continuously call shooter.aim(), step the driveSequence
+        boolean sequenceRunning = true;
+        while (opModeIsActive() && sequenceRunning) {
+            // 1) Update odometry (must be done every loop so follower has live pose)
+            try {
+                odometry.update();
+            } catch (Exception e) {
+                telemetry.addData("Odometry update error", e.getMessage());
+            }
+
+            // 2) Update vision (non-blocking)
+            try {
+                vision.updateAprilTags();
+            } catch (Exception e) {
+                telemetry.addData("Vision err", e.getMessage());
+            }
+
+            // 3) Keep shooter aiming/revving every loop (C1)
+            try {
+                shooter.aim(); // you said this is the no-arg continuous call
+            } catch (Exception e) {
+                telemetry.addData("Shooter aim err", e.getMessage());
+            }
+
+            // 4) Step the Road Runner drive sequence once per loop; this writes motor powers
+            TelemetryPacket packet = new TelemetryPacket();
+            try {
+                // driveSequence.run returns true while it's active; false when finished
+                sequenceRunning = driveSequence.run(packet);
+            } catch (Exception e) {
+                telemetry.addData("RR Exception", e.getMessage());
+                sequenceRunning = false;
+            }
+
+            // 5) Send packet to dashboard
+            try {
+                dashboard.sendTelemetryPacket(packet);
+            } catch (Exception e) {
+                telemetry.addData("Dashboard send err", e.getMessage());
+            }
+
+            // 6) Motor telemetry so you can see if RR actually wrote powers
+            try {
+                telemetry.addData("lf power", drive.leftFront.getPower());
+                telemetry.addData("lb power", drive.leftBack.getPower());
+                telemetry.addData("rb power", drive.rightBack.getPower());
+                telemetry.addData("rf power", drive.rightFront.getPower());
+            } catch (Exception e) {
+                telemetry.addData("motor read err", e.getMessage());
+            }
+
+            // 7) Pose telemetry
+            if (Constants.OdometryConstants.fieldPos != null) {
+                telemetry.addData("x", Constants.OdometryConstants.fieldPos.position.x);
+                telemetry.addData("y", Constants.OdometryConstants.fieldPos.position.y);
+                telemetry.addData("heading (deg)", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
+            } else {
+                telemetry.addLine("fieldPos is null");
+            }
+
+            telemetry.addData("RR running", sequenceRunning);
+            telemetry.update();
+        }
+
+        // Sequence finished or opmode ending: stop drive motors & subsystems
+        try {
+            drive.leftFront.setPower(0.0);
+            drive.leftBack.setPower(0.0);
+            drive.rightBack.setPower(0.0);
+            drive.rightFront.setPower(0.0);
+        } catch (Exception e) {
+            telemetry.addData("Stop motors err", e.getMessage());
+        }
+
+        // Disable intake and shooter transfer to be safe
+        try { intake.intake(false); } catch (Exception ignored){}
+        try { shooter.transfer(false); } catch (Exception ignored){}
 
         telemetry.addLine("Sequence complete!");
         telemetry.update();
     }
+
     private double y(double offset){
         if (Constants.TEAM.equals("BLUE")){
             offset *= -1;
@@ -123,32 +189,27 @@ public class Auto extends LinearOpMode {
     }
 }
 
-class AutoIntake implements Action{
-    SmartIntake intake;
-    boolean intakeToggle;
-    public AutoIntake(SmartIntake i, boolean toggle){
-        intake = i;
-        intakeToggle = toggle;
+/**
+ * One-shot transfer action: toggles shooter.transfer(...) when the action runs, then completes immediately.
+ * Including these in the drive.builder via stopAndAdd(...) is fine — they are executed sequentially at that point.
+ */
+class TransferCommand implements Action {
+    private final SmartShooter shooter;
+    private final boolean transferOn;
+    private boolean ran = false;
+
+    public TransferCommand(SmartShooter shooter, boolean transferOn) {
+        this.shooter = shooter;
+        this.transferOn = transferOn;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        intake.intake(intakeToggle);
-        return false;
-    }
-}
-
-class AutoShooter implements Action{
-    SmartShooter shooter;
-    public boolean transferToggle;
-    public AutoShooter(SmartShooter s, boolean transfer){
-        shooter = s;
-        transferToggle = transfer;
-    }
-
-    @Override
-    public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        shooter.transfer(transferToggle);
+        if (!ran) {
+            shooter.transfer(transferOn);
+            ran = true;
+        }
+        // returning false here signals this action is finished and the drive sequence continues
         return false;
     }
 }

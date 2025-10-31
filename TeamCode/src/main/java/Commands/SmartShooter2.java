@@ -47,49 +47,19 @@ public class SmartShooter2 {
         rightShooter.setPower(power);
     }
 
-    public void aim(double[] v) {
+    public void aim() {
         turretHead.update();
         double detectedX;
         double distanceMeters;
-        double fv = v[0];
-        double sv = v[1];
-        int angle1, angle2;
-        double frontV, sideV;
-        double neckHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
-        if (neckHeading > 180) {
-            neckHeading = 180 - Math.abs(neckHeading - 180);
-        } else if (neckHeading < -180) {
-            neckHeading = 0 + Math.abs(neckHeading - 180);
+        double botHeading = Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble());
+        if (botHeading < 0) {
+            botHeading = 360 + botHeading;
         }
+        double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
         neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
         neckHeading += Constants.DriveTrainConstants.controlHubOffset;
-        if (fv > 0) {
-            angle1 = 0;
-        } else {
-            angle1 = 180;
-        }
-        if (sv > 0) {
-            angle2 = 90;
-        } else {
-            angle2 = -90;
-        }
-        double[] totals = {neckHeading - angle1, neckHeading - angle2};
-        for (int i = 0; i < totals.length; i++) {
-            if (totals[i] > 360) {
-                totals[i] -= 360;
-            }
-            if (totals[i] < 0) {
-                totals[i] *= -1;
-            }
-        }
-        double hypotenuse = Math.sqrt(Math.pow(fv, 2) + Math.pow(sv, 2));
-        if (totals[0] <= totals[1]) {
-            frontV = hypotenuse * Math.sin(Math.toRadians(totals[0]));
-            sideV = hypotenuse * Math.cos(Math.toRadians(totals[0]));
-        } else {
-            frontV = hypotenuse * Math.cos(Math.toRadians(totals[1]));
-            sideV = hypotenuse * Math.sin(Math.toRadians(totals[1]));
-        }
+        double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(Math.toDegrees(neckHeading));
+        double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(Math.toDegrees(neckHeading));
         boolean seeTarget = false;
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : Vision.getDetections()) {
@@ -99,8 +69,8 @@ public class SmartShooter2 {
                 distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
                 double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
-                turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distanceMeters)));
-                aiming(distanceMeters, frontV);
+                turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distanceMeters)));
+                aiming(distanceMeters, fv);
             }
         }
         if (!seeTarget){
@@ -114,8 +84,8 @@ public class SmartShooter2 {
             double yChange = targetPose.y - Constants.OdometryConstants.fieldPos.position.y;
             double distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double angleToTurn = Math.tan(Math.toRadians(yChange / xChange));
-            turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distance)));
-            aiming(distance, frontV);
+            turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distance)));
+            aiming(distance, fv);
         }
     }
 

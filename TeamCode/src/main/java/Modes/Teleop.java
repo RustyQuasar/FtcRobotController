@@ -21,7 +21,7 @@ public class Teleop extends LinearOpMode {
     Gamepad activeGamepad1;
     MechanumDrive Mechanum;
     SmartIntake Intake;
-    SmartShooter2 Shooter;
+    SmartShooter Shooter;
     Vision Vision;
     Odometry Odometry;
     Elevator Elevator;
@@ -34,7 +34,7 @@ public class Teleop extends LinearOpMode {
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter2(hardwareMap, Vision);
+        Shooter = new SmartShooter(hardwareMap, Vision);
         Elevator = new Elevator(hardwareMap);
         boolean lastYInput = false;
         waitForStart();
@@ -71,7 +71,7 @@ public class Teleop extends LinearOpMode {
             }
             lastYInput = activeGamepad1.y;
 
-            Shooter.aim(new double[] {Constants.OdometryConstants.fieldVels.linearVel.x, Constants.OdometryConstants.fieldVels.linearVel.y});
+            Shooter.aim();
             //Mechanum.periodic(telemetry, telemetryPacket);
             //Shooter.periodic(telemetry);
             Intake.periodic(telemetry);
