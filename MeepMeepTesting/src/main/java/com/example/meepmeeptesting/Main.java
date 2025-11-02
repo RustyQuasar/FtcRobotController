@@ -56,7 +56,6 @@ public class Main {
                         .lineToXSplineHeading(-20.46, heading(14.39)) //the real command replaces the underscore with x and y, x is -20.46 and y is 35.02, choose one to align with
                         .lineToXLinearHeading(24.39,  heading(-6.75)) //the real command replaces the underscore with x and y, x is 24.39 and y is 29.70, choose one to align with
                         .lineToXConstantHeading(61.77) //the real command replaces the underscore with x and y, x is -21.54 and y is 61.77, choose one to align with
-
                          */
                         .build());
                 break;

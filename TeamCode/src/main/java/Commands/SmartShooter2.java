@@ -136,8 +136,7 @@ public class SmartShooter2 {
         if (angleDiff < 0){
             angleDiff = 360 + angleDiff;
         }
-        return (360 / angleDiff) * Constants.StudickaMotorMax;
-
+        return angleDiff * Constants.StudickaMotorMax / Constants.ShooterConstants.turretNeckGearRatio;
     }
 
 }

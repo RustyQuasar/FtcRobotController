@@ -36,7 +36,7 @@ public class Auto extends LinearOpMode {
         shooter = new SmartShooter(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
-
+        double artifactY = y(40.133805);
         Action driveSequence;
 
         int path = 1; // keep your path selection logic here
@@ -174,15 +174,16 @@ public class Auto extends LinearOpMode {
         if (Constants.TEAM.equals("BLUE")) angleR *= -1;
         return angleR;
     }
-    private double targetColumn(){
-        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"U", "U", "U"})){
-            return Constants.Sizes.field/2;
-        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"G", "P", "P"})){
-            return 35.066;
-        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"P", "G", "P"})){
-            return 58.604;
+    private double artifactX(){
+        //These are all minimum distances, gotten from the onshape: https://cad.onshape.com/documents/c7b090d255194e764d0c133c/w/cc69d1642e39bd3ea8a1bb0c/e/29119d697678d4622a7fda34
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})){
+            return 0;
         } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"P", "P", "G"})){
-            return 82.323;
+            return -11.884447;
+        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"P", "G", "P"})){
+            return 11.617313;
+        } else if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"G", "P", "P"})){
+            return 35.579189;
         } else {
             return 0;
         }

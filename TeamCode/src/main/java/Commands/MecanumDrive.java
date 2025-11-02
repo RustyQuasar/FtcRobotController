@@ -49,14 +49,14 @@ public class MecanumDrive {
     public static class Params {
 
         // drive model parameters
-        public double inPerTick = 1;
+        public double inPerTick = Constants.DriveTrainConstants.wheelDiameter / (Constants.StudickaMotorMax * Constants.DriveTrainConstants.gearRatio);
         public double lateralInPerTick = inPerTick;
         public double trackWidthTicks = Constants.Sizes.robotWidth - Constants.DriveTrainConstants.wheelWidth * 2 / inPerTick;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
+        public double kS = ConfigVariables.kS;
         public double kV = ConfigVariables.kV;
-        public double kA = 0;
+        public double kA = ConfigVariables.kA;
 
         // path profile parameters (in inches)
         public double maxWheelVel = ConfigVariables.maxWheelVel;

@@ -11,9 +11,8 @@ public final class Constants {
             "RED"
             //"BLUE"
             ; //Has to be "RED" or "BLUE"
-    public static final int StudickaMotorMax = 1464; //360 degrees
-    public static final int GoBildaMotorMax = 28; //says 2786 tho //360
-    public static final int ServoMax = 1; //180 degrees
+    public static final int StudickaMotorMax = 24; //360 degrees
+    public static final int GoBildaMotorMax = 28; //360
     public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
 
     public static final class ElevatorConstants {
@@ -66,8 +65,8 @@ public final class Constants {
 
 
         //0, 0 is blue square corner
-        public static final Vector2d targetPosBlue = new Vector2d(0.3, Sizes.field - 0.3);
-        public static final Vector2d targetPosRed = new Vector2d(Sizes.field - 0.3, Sizes.field - 0.3);
+        public static final Vector2d targetPosBlue = new Vector2d(Sizes.field - 0.3, -1 * (Sizes.field/2 - 0.3));
+        public static final Vector2d targetPosRed = new Vector2d(Sizes.field - 0.3, Sizes.field/2 - 0.3);
     }
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO
@@ -84,7 +83,7 @@ public final class Constants {
         public static final int resX = 640;
         public static final int resY = 480;
         public static final int FOV = 55;
-        public static String[] colours = {"U", "U", "U"};
+        public static String[] colours = {"N", "N", "N"};
     }
 
 }

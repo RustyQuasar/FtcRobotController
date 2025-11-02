@@ -159,8 +159,7 @@ public class SmartShooter {
         if (angleDiff < 0){
             angleDiff = 360 + angleDiff;
         }
-        return angleDiff * Constants.StudickaMotorMax;
-
+        return angleDiff * Constants.StudickaMotorMax / Constants.ShooterConstants.turretNeckGearRatio;
     }
 
     private double yTurn(double distance, double velocity) {
