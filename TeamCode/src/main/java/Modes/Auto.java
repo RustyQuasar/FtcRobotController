@@ -17,6 +17,7 @@ import Commands.SmartIntake;
 import Commands.SmartShooter;
 import Commands.Vision;
 import Subsystems.Odometry;
+import Utilities.ConfigVariables;
 import Utilities.Constants;
 
 @Autonomous
@@ -30,23 +31,23 @@ public class Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        // --- initialize subsystems ---
+        //initialize subsystems
         dashboard = FtcDashboard.getInstance();
         vision = new Vision(hardwareMap, dashboard);
         shooter = new SmartShooter(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
         double artifactY = y(40.133805);
-        Action driveSequence;
+        Action sequence;
 
-        int path = 1; // keep your path selection logic here
+        int path = ConfigVariables.path; // keep your path selection logic here
         if (path == 1) {
             Pose2d startPose = new Pose2d(28.92, y(2.16), heading(90.00));
             odometry = new Odometry(hardwareMap, startPose);
 
             // NOTE: Do NOT add intake/shooter one-shot toggles as the first actions here.
             //       Toggle intake before the loop and call shooter.aim() in the loop.
-            driveSequence = drive.actionBuilder(startPose)
+            sequence = drive.actionBuilder(startPose)
                     // if you want to toggle transfer/shoot at specific times, include TransferCommand below
                     .stopAndAdd(new TransferCommand(shooter, true)) // spin transfer on
                     .waitSeconds(3)
@@ -64,9 +65,35 @@ public class Auto extends LinearOpMode {
                     .splineTo(new Vector2d(60.39, y(-45.25)), heading(10.78))
                     .build();
 
-        } else {
+        } else if (path == 2){
+            Pose2d startPose = new Pose2d(-65.99, y(-49.59), heading(142.82));
+            odometry = new Odometry(hardwareMap, startPose);
+            sequence = drive.actionBuilder(startPose)
+                    .splineTo(new Vector2d(-9.60, y(-10.18)), heading(34.94))
+                    .splineTo(new Vector2d(-11.94, y(-40.50)), heading(265.58))
+                    .splineTo(new Vector2d(-11.65, y(-9.30)), heading(89.46))
+                    .splineTo(new Vector2d(12.67, y(-40.80)), heading(-52.33))
+                    .splineTo(new Vector2d(-7.54, y(-2.86)), heading(118.05))
+                    .splineTo(new Vector2d(35.23, y(-40.94)), heading(-41.68))
+                    .splineTo(new Vector2d(-4.03, y(-2.42)), heading(135.54))
+                    .build();
+
+        }else if (path == 3){
             odometry = new Odometry(hardwareMap, new Pose2d(0, 0, 0));
-            driveSequence = drive.actionBuilder(new Pose2d(0, 0, 0)).build();
+            sequence = drive.actionBuilder(new Pose2d(0, 0, 0))
+                    .splineTo(new Vector2d(0, 0), Math.toRadians(90))
+                    .build();
+        }else if (path == 4){
+            Pose2d startPose = new Pose2d(63.34, y(0.39), heading(0.00));
+            odometry = new Odometry(hardwareMap, startPose);
+            sequence = drive.actionBuilder(startPose)
+                    .splineTo(new Vector2d(-50.75, y(0.98)), heading(179.70))
+                    .splineTo(new Vector2d(37.77, y(-32.46)), heading(-20.70))
+                    .build();
+
+        } else  {
+            odometry = new Odometry(hardwareMap, new Pose2d(0, 0, 0));
+            sequence = drive.actionBuilder(new Pose2d(0, 0, 0)).build();
         }
 
         // Wait for start - keep init logic above so dashboard/vision/odometry are ready
@@ -81,7 +108,7 @@ public class Auto extends LinearOpMode {
             telemetry.update();
         }
 
-        // Main loop: update odometry, continuously call shooter.aim(), step the driveSequence
+        // Main loop: update odometry, continuously call shooter.aim(), step the sequence
         boolean sequenceRunning = true;
         while (opModeIsActive() && sequenceRunning) {
             // 1) Update odometry (must be done every loop so follower has live pose)
@@ -108,8 +135,8 @@ public class Auto extends LinearOpMode {
             // 4) Step the Road Runner drive sequence once per loop; this writes motor powers
             TelemetryPacket packet = new TelemetryPacket();
             try {
-                // driveSequence.run returns true while it's active; false when finished
-                sequenceRunning = driveSequence.run(packet);
+                // sequence.run returns true while it's active; false when finished
+                sequenceRunning = sequence.run(packet);
             } catch (Exception e) {
                 telemetry.addData("RR Exception", e.getMessage());
                 sequenceRunning = false;

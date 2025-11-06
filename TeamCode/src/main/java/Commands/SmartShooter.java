@@ -90,8 +90,9 @@ public class SmartShooter {
             } else {
                 targetPose = Constants.OdometryConstants.targetPosBlue;
             }
-            double xChange = targetPose.x - Constants.OdometryConstants.fieldPos.position.x;
-            double yChange = targetPose.y - Constants.OdometryConstants.fieldPos.position.y;
+            //TODO: This needs to be updated for negative coords
+            double xChange = (targetPose.x + 72) - (Constants.OdometryConstants.fieldPos.position.x + 72);
+            double yChange = (targetPose.y + 72) - (Constants.OdometryConstants.fieldPos.position.y + 72);
             double distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double angleToTurn = Math.tan(Math.toRadians(yChange / xChange));
             turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distance, fv));
@@ -185,8 +186,12 @@ public class SmartShooter {
         // Launch angle (radians → degrees)
         double angleRad = Math.atan2(vY, vX);
         double angleDeg = Math.toDegrees(angleRad);
+        if (angleDeg < 0){
+            angleDeg = 0;
+        } else if (angleDeg > Constants.ShooterConstants.maxHeadAngle){
+            angleDeg = Constants.ShooterConstants.maxHeadAngle;
+        }
 
-        // Convert angle to turret-head servo position delta
         return angleDeg / Constants.ShooterConstants.turretHeadGearRatio;
     }
 }

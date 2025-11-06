@@ -80,8 +80,8 @@ public class SmartShooter2 {
             } else {
                 targetPose = Constants.OdometryConstants.targetPosBlue;
             }
-            double xChange = targetPose.x - Constants.OdometryConstants.fieldPos.position.x;
-            double yChange = targetPose.y - Constants.OdometryConstants.fieldPos.position.y;
+            double xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
+            double yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
             double distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double angleToTurn = Math.tan(Math.toRadians(yChange / xChange));
             turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distance)));
@@ -113,9 +113,15 @@ public class SmartShooter2 {
         double t = Math.sqrt(2 * H / g);
         double vH = z / t;
         double vV = 0.5 * g * Math.pow(t, 2);
-        double shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / Constants.ShooterConstants.shooterGearRatio / (Math.PI * Constants.ShooterConstants.flyWheelDiameter);
         double angle = Math.toDegrees(Math.atan2(vH, vV));
-        turretHead.setTargetRotation(angle);
+        if (angle < 0){
+            angle = 0;
+            vH *= 2; //TODO: Can't properly think of a way to fix this
+        } else if (angle > Constants.ShooterConstants.maxHeadAngle){
+            angle = Constants.ShooterConstants.maxHeadAngle;
+        }
+        double shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / Constants.ShooterConstants.shooterGearRatio / (Math.PI * Constants.ShooterConstants.flyWheelDiameter);
+        turretHead.setTargetRotation(angle / Constants.ShooterConstants.turretHeadGearRatio);
         shoot(shooterVel - frontV);
     }
 

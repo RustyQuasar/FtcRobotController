@@ -50,7 +50,7 @@ public class MecanumDrive {
 
         // drive model parameters
         public double inPerTick = Constants.DriveTrainConstants.wheelDiameter / (Constants.StudickaMotorMax * Constants.DriveTrainConstants.gearRatio);
-        public double lateralInPerTick = inPerTick;
+        public double lateralInPerTick = inPerTick / Math.sqrt(2);
         public double trackWidthTicks = Constants.Sizes.robotWidth - Constants.DriveTrainConstants.wheelWidth * 2 / inPerTick;
 
         // feedforward parameters (in tick units)
