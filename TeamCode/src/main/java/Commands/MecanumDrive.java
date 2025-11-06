@@ -49,9 +49,10 @@ public class MecanumDrive {
     public static class Params {
 
         // drive model parameters
-        public double inPerTick = Constants.DriveTrainConstants.wheelDiameter / (Constants.StudickaMotorMax * Constants.DriveTrainConstants.gearRatio);
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = Constants.Sizes.robotWidth - Constants.DriveTrainConstants.wheelWidth * 2 / inPerTick;
+        public double inPerTick = (Constants.DriveTrainConstants.wheelDiameter * Math.PI) / Constants.StudickaMotorMax / Constants.DriveTrainConstants.gearRatio;
+        public double lateralInPerTick = inPerTick / Math.sqrt(2);
+        public double trackWidthTicks = (144 - Constants.DriveTrainConstants.wheelWidth * 2) / inPerTick;
+                //Constants.Sizes.robotWidth - Constants.DriveTrainConstants.wheelWidth * 2 / inPerTick;
 
         // feedforward parameters (in tick units)
         public double kS = ConfigVariables.kS;
@@ -68,13 +69,13 @@ public class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 1.0;
-        public double lateralGain = 1.0;
-        public double headingGain = 1.0; // shared with turn
+        public double axialGain = 0;
+        public double lateralGain = 0;
+        public double headingGain = 0; // shared with turn
 
-        public double axialVelGain = 0.5;
-        public double lateralVelGain = 0.5;
-        public double headingVelGain = 0.5; // shared with turn
+        public double axialVelGain = 0;
+        public double lateralVelGain = 0;
+        public double headingVelGain = 0; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -190,8 +191,8 @@ public class MecanumDrive {
             PoseVelocity2d robotVelRobot = Constants.OdometryConstants.fieldVels;
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
-                    PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
-                    PARAMS.axialVelGain, PARAMS.lateralVelGain, PARAMS.headingVelGain
+                    PARAMS.axialGain, PARAMS.lateralGain, ConfigVariables.headingGain,
+                    PARAMS.axialVelGain, PARAMS.lateralVelGain, ConfigVariables.headingVelGain
             )
                     .compute(txWorldTarget, Constants.OdometryConstants.fieldPos, robotVelRobot);
             driveCommandWriter.write(new DriveCommandMessage(command));
@@ -286,8 +287,8 @@ public class MecanumDrive {
             PoseVelocity2d robotVelRobot = Constants.OdometryConstants.fieldVels;
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
-                    PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
-                    PARAMS.axialVelGain, PARAMS.lateralVelGain, PARAMS.headingVelGain
+                    PARAMS.axialGain, PARAMS.lateralGain, ConfigVariables.headingGain,
+                    PARAMS.axialVelGain, PARAMS.lateralVelGain, ConfigVariables.headingVelGain
             )
                     .compute(txWorldTarget, Constants.OdometryConstants.fieldPos, robotVelRobot);
             driveCommandWriter.write(new DriveCommandMessage(command));

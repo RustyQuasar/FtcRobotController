@@ -17,6 +17,7 @@ import Commands.SmartIntake;
 import Commands.SmartShooter;
 import Commands.Vision;
 import Subsystems.Odometry;
+import Utilities.ConfigVariables;
 import Utilities.Constants;
 
 @Autonomous
@@ -39,29 +40,12 @@ public class Auto extends LinearOpMode {
         double artifactY = y(40.133805);
         Action driveSequence;
 
-        int path = 1; // keep your path selection logic here
+        int path = ConfigVariables.path; // keep your path selection logic here
         if (path == 1) {
-            Pose2d startPose = new Pose2d(28.92, y(2.16), heading(90.00));
+            Pose2d startPose = new Pose2d(0, y(0), heading(0));
             odometry = new Odometry(hardwareMap, startPose);
-
-            // NOTE: Do NOT add intake/shooter one-shot toggles as the first actions here.
-            //       Toggle intake before the loop and call shooter.aim() in the loop.
             driveSequence = drive.actionBuilder(startPose)
-                    // if you want to toggle transfer/shoot at specific times, include TransferCommand below
-                    .stopAndAdd(new TransferCommand(shooter, true)) // spin transfer on
-                    .waitSeconds(3)
-                    .stopAndAdd(new TransferCommand(shooter, false)) // stop transfer
-                    .splineTo(new Vector2d(-4.72, y(23.21)), heading(147.96))
-                    .splineTo(new Vector2d(-7.87, y(-18.69)), heading(265.70))
-                    .splineTo(new Vector2d(30.69, y(-20.26)), heading(-2.34))
-                    .splineTo(new Vector2d(64.72, y(24.79)), heading(52.93))
-                    .splineTo(new Vector2d(15.15, y(52.52)), heading(150.77))
-                    .splineTo(new Vector2d(-41.51, y(53.11)), heading(179.40))
-                    .splineTo(new Vector2d(-48.00, y(17.70)), heading(259.61))
-                    .splineTo(new Vector2d(-37.18, y(-23.41)), heading(-75.26))
-                    .splineTo(new Vector2d(-21.64, y(-59.02)), heading(-66.42))
-                    .splineTo(new Vector2d(23.21, y(-52.33)), heading(8.48))
-                    .splineTo(new Vector2d(60.39, y(-45.25)), heading(10.78))
+                    .splineToLinearHeading(new Pose2d(100, 0, 0), 0)
                     .build();
 
         } else {

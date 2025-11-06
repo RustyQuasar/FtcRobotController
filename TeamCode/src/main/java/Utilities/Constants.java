@@ -29,14 +29,14 @@ public final class Constants {
         public static final String imu = "imu";
         //idk
         public static final double controlHubOffset = 0;
-        public static final double gearRatio = 61;
+        public static final double gearRatio = 20;
         public static final double wheelDiameter = 5; //in meters
         public static final double wheelWidth = 1; //in meters
     }
 
     public static final class IntakeConstants {
         public static final String intake = "intake"; //Expansion hub Motor port 0
-        public static final String colourSensor = "colourSensor"; //Control hub - I2C port/bus 1
+        public static final String colourSensor = "colourSensor"; //Control hub - I2C port/bus 1 - Rev Color Sensor v3
 
     }
 
@@ -49,11 +49,12 @@ public final class Constants {
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 3
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
         //Encoders
-        public static final String turretHeadEncoder = "turretHeadEncoder"; //
+        public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final double shooterGearRatio = 1; //Gear multiplier
         public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
+        public static final double maxHeadAngle = 40;
         public static final double flyWheelDiameter = 4;
         public static final double centerOffset = 12;
     }
@@ -80,11 +81,10 @@ public final class Constants {
     public static final class VisionConstants {
         //Webcam
         public static final String camera = "Webcam"; //USB port
-        public static final int resX = 640;
-        public static final int resY = 480;
+        public static final int resX = 320;
+        public static final int resY = 240;
         public static final int FOV = 55;
         public static String[] colours = {"N", "N", "N"};
     }
 
 }
-

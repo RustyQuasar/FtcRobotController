@@ -4,6 +4,7 @@ import android.widget.Button;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -23,6 +24,7 @@ public class SmartIntake {
 
     public SmartIntake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
+        motorIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
     }
 
@@ -107,5 +109,4 @@ public class SmartIntake {
 
     }
 }
-
 
