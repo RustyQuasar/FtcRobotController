@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -16,14 +15,15 @@ import Commands.MecanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
 import Commands.Vision;
-import Subsystems.Odometry;
+import Subsystems.ThreeDeadWheelLocalizer;
+import Subsystems.TwoDeadWheelIMULocalizer;
 import Utilities.ConfigVariables;
 import Utilities.Constants;
 
 @Autonomous
 public class Auto extends LinearOpMode {
     FtcDashboard dashboard;
-    Odometry odometry;
+    ThreeDeadWheelLocalizer odometry;
     SmartIntake intake;
     SmartShooter shooter;
     MecanumDrive drive;
@@ -43,13 +43,13 @@ public class Auto extends LinearOpMode {
         int path = ConfigVariables.path; // keep your path selection logic here
         if (path == 1) {
             Pose2d startPose = new Pose2d(0, y(0), heading(0));
-            odometry = new Odometry(hardwareMap, startPose);
+            odometry = new ThreeDeadWheelLocalizer(hardwareMap, startPose);
             driveSequence = drive.actionBuilder(startPose)
-                    .splineToLinearHeading(new Pose2d(100, 0, 0), 0)
+                    .splineToLinearHeading(new Pose2d(10, 0, 0), 0)
                     .build();
 
         } else {
-            odometry = new Odometry(hardwareMap, new Pose2d(0, 0, 0));
+            odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(0, 0, 0));
             driveSequence = drive.actionBuilder(new Pose2d(0, 0, 0)).build();
         }
 

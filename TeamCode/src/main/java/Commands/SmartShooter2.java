@@ -1,6 +1,7 @@
 package Commands;
 
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -23,15 +24,14 @@ public class SmartShooter2 {
     Vision Vision;
 
     public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
-        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
-        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
-        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
+        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
+        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter2);
+        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor3);
         AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
 
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         if (Constants.TEAM.equals("RED")) {
@@ -51,15 +51,15 @@ public class SmartShooter2 {
         turretHead.update();
         double detectedX;
         double distanceMeters;
-        double botHeading = Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble());
+        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
+        double max = 2 * Math.PI;
         if (botHeading < 0) {
-            botHeading = 360 + botHeading;
+            botHeading += max;
         }
-        double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
-        neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
-        neckHeading += Constants.DriveTrainConstants.controlHubOffset;
-        double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(Math.toDegrees(neckHeading));
-        double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(Math.toDegrees(neckHeading));
+        double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * max / Constants.ShooterConstants.turretNeckGearRatio;
+        neckHeading -= (Math.floor(neckHeading / max) * max);
+        double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
+        double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(neckHeading);
         boolean seeTarget = false;
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : Vision.getDetections()) {
@@ -69,6 +69,7 @@ public class SmartShooter2 {
                 distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
                 double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
+                if (Math.abs(angleToTurn + turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
                 turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distanceMeters)));
                 aiming(distanceMeters, fv);
             }
@@ -84,6 +85,10 @@ public class SmartShooter2 {
             double yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
             double distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double angleToTurn = Math.tan(Math.toRadians(yChange / xChange));
+            double botY = targetPose.y - Math.abs(distance * Math.sin(neckHeading));
+            double botX = targetPose.x - Math.signum(targetPose.x) * Math.abs(distance * Math.cos(neckHeading));
+            Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
+            if (Math.abs(angleToTurn + (double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
             turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distance)));
             aiming(distance, fv);
         }
@@ -119,6 +124,7 @@ public class SmartShooter2 {
             vH *= 2; //TODO: Can't properly think of a way to fix this
         } else if (angle > Constants.ShooterConstants.maxHeadAngle){
             angle = Constants.ShooterConstants.maxHeadAngle;
+            vV /= Math.sin(Math.toRadians(angle));
         }
         double shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / Constants.ShooterConstants.shooterGearRatio / (Math.PI * Constants.ShooterConstants.flyWheelDiameter);
         turretHead.setTargetRotation(angle / Constants.ShooterConstants.turretHeadGearRatio);
@@ -140,7 +146,7 @@ public class SmartShooter2 {
         double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance));
         double angleDiff =  (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
         if (angleDiff < 0){
-            angleDiff = 360 + angleDiff;
+            angleDiff += 360;
         }
         return angleDiff * Constants.StudickaMotorMax / Constants.ShooterConstants.turretNeckGearRatio;
     }

@@ -12,9 +12,9 @@ public class MechanumDrive {
 
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
     public MechanumDrive(HardwareMap hardwareMap) {
-        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
-        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
-        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
+        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor2);
+        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor0);
+        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor1);
         backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
         frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);

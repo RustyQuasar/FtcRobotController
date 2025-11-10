@@ -1,15 +1,11 @@
 package Subsystems;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Encoder;
-import com.acmerobotics.roadrunner.ftc.LazyHardwareMapImu;
-import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -21,13 +17,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import Utilities.Constants;
 
 
-public class Odometry {
+public class TwoDeadWheelIMULocalizer {
 
     public static class Params {
         // Offsets (in inches or your chosen units) from robot center
         // +x = forward, +y = left
-        public double parallelX = 0.0;
-        public double parallelY = Constants.Sizes.robotWidth / 2.0;
+        public double parallelX = Constants.Sizes.robotWidth / 2.0;
+        public double parallelY = 0;
         public double perpX = -Constants.Sizes.robotLength / 2.0;
         public double perpY = 0.0;
     }
@@ -43,10 +39,10 @@ public class Odometry {
     private double lastHeading = 0.0;
     private double yawOffset = 0.0;
 
-    public Odometry(HardwareMap hardwareMap, Pose2d initialPose) {
+    public TwoDeadWheelIMULocalizer(HardwareMap hardwareMap, Pose2d initialPose) {
         // Assign encoders to deadwheel ports
-        parallel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor1)));
-        perpendicular = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor0)));
+        parallel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontRightMotor0)));
+        perpendicular = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor2)));
 
         this.inPerTick = Constants.OdometryConstants.deadwheelDiameter / Constants.OdometryConstants.externalMax;
 

@@ -29,6 +29,7 @@ import com.acmerobotics.roadrunner.ftc.DownsampledWriter;
 import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.LynxFirmware;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -49,35 +50,33 @@ public class MecanumDrive {
     public static class Params {
 
         // drive model parameters
-        public double inPerTick = (Constants.DriveTrainConstants.wheelDiameter * Math.PI) / Constants.StudickaMotorMax / Constants.DriveTrainConstants.gearRatio;
+        public double inPerTick = 0.02617991666666666666666666666667;
         public double lateralInPerTick = inPerTick / Math.sqrt(2);
-        public double trackWidthTicks = (144 - Constants.DriveTrainConstants.wheelWidth * 2) / inPerTick;
-                //Constants.Sizes.robotWidth - Constants.DriveTrainConstants.wheelWidth * 2 / inPerTick;
+        public double trackWidthTicks = 144 / inPerTick;
 
         // feedforward parameters (in tick units)
-        public double kS = ConfigVariables.kS;
-        public double kV = ConfigVariables.kV;
-        public double kA = ConfigVariables.kA;
+        public double kS = 2.44727379130411;
+        public double kV = 0.00035145414863;
+        public double kA = 0.00013;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = ConfigVariables.maxWheelVel;
-        public double minProfileAccel = ConfigVariables.minProfileAccel;
-        public double maxProfileAccel = ConfigVariables.maxProfileAccel;
+        public double maxWheelVel = 50;
+        public double minProfileAccel = -30;
+        public double maxProfileAccel = 50;
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI; // shared with path
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0;
-        public double lateralGain = 0;
-        public double headingGain = 0; // shared with turn
+        public double axialGain = 7.5;
+        public double lateralGain = 8;
+        public double headingGain = 13.5; // shared with turn
 
-        public double axialVelGain = 0;
-        public double lateralVelGain = 0;
-        public double headingVelGain = 0; // shared with turn
+        public double axialVelGain = 1;
+        public double lateralVelGain = 0.5;
+        public double headingVelGain = 0.1; // shared with turn
     }
-
     public static Params PARAMS = new Params();
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
@@ -114,10 +113,10 @@ public class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor0);
-        leftBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor2);
+        leftFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor2);
+        leftBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor1);
         rightBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
-        rightFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor1);
+        rightFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor0);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -191,8 +190,8 @@ public class MecanumDrive {
             PoseVelocity2d robotVelRobot = Constants.OdometryConstants.fieldVels;
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
-                    PARAMS.axialGain, PARAMS.lateralGain, ConfigVariables.headingGain,
-                    PARAMS.axialVelGain, PARAMS.lateralVelGain, ConfigVariables.headingVelGain
+                    PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
+                    PARAMS.axialVelGain, PARAMS.lateralVelGain, PARAMS.headingVelGain
             )
                     .compute(txWorldTarget, Constants.OdometryConstants.fieldPos, robotVelRobot);
             driveCommandWriter.write(new DriveCommandMessage(command));
@@ -287,8 +286,8 @@ public class MecanumDrive {
             PoseVelocity2d robotVelRobot = Constants.OdometryConstants.fieldVels;
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
-                    PARAMS.axialGain, PARAMS.lateralGain, ConfigVariables.headingGain,
-                    PARAMS.axialVelGain, PARAMS.lateralVelGain, ConfigVariables.headingVelGain
+                    PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
+                    PARAMS.axialVelGain, PARAMS.lateralVelGain, PARAMS.headingVelGain
             )
                     .compute(txWorldTarget, Constants.OdometryConstants.fieldPos, robotVelRobot);
             driveCommandWriter.write(new DriveCommandMessage(command));

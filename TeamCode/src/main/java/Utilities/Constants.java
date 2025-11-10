@@ -1,11 +1,9 @@
 package Utilities;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
-@Config
 public final class Constants {
     public static final String TEAM =
             "RED"
@@ -21,16 +19,16 @@ public final class Constants {
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)
-        public static final String frontLeftMotor0 = "frontLeft"; //Control hub Motor port 0, connected to perpendicular deadwheel
-        public static final String frontRightMotor1 = "frontRight"; //Control hub Motor port 1, connected to parallel deadwheel
-        public static final String backLeftMotor2 = "backLeft"; //Control hub Motor port 2,
+        public static final String frontLeftMotor2 = "frontLeft"; //Control hub Motor port 2, connected to perpendicular deadwheel
+        public static final String frontRightMotor0 = "frontRight"; //Control hub Motor port 0, connected to parallel (1) deadwheel
+        public static final String backLeftMotor1 = "backLeft"; //Control hub Motor port 1, connected to parallel (2) deadwheel
         public static final String backRightMotor3 = "backRight"; //Control hub Motor port 3
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
         //idk
         public static final double controlHubOffset = 0;
         public static final double gearRatio = 20;
-        public static final double wheelDiameter = 5; //in meters
+        public static final double wheelDiameter = 4; //in meters
         public static final double wheelWidth = 1; //in meters
     }
 
@@ -44,9 +42,9 @@ public final class Constants {
         //GoBilda
         public static final double smallTriangleDist = 0.23; /*meters*/
         public static final double largeTriangleDist = 0.71; /*meters*/
-        public static final String leftShooter0 = "leftShooter"; //Expansion hub Motor port 1
-        public static final String rightShooter1 = "rightShooter"; //Expansion hub Motor port 2
-        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 3
+        public static final String leftShooter1 = "leftShooter"; //Expansion hub Motor port 1, rr parallel deadwheel 1
+        public static final String rightShooter2 = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
+        public static final String turretNeckMotor3 = "turretNeck"; //Expansion hub Motor port 3, rr perpendicular deadwheel
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
         //Encoders
         public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
@@ -55,6 +53,7 @@ public final class Constants {
         public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 40;
+        public static final double maxNeckAngle = 90;
         public static final double flyWheelDiameter = 4;
         public static final double centerOffset = 12;
     }
@@ -66,8 +65,8 @@ public final class Constants {
 
 
         //0, 0 is blue square corner
-        public static final Vector2d targetPosBlue = new Vector2d(Sizes.field - 0.3, -1 * (Sizes.field/2 - 0.3));
-        public static final Vector2d targetPosRed = new Vector2d(Sizes.field - 0.3, Sizes.field/2 - 0.3);
+        public static final Vector2d targetPosBlue = new Vector2d(Sizes.field - 12, -1 * (Sizes.field/2 - 12));
+        public static final Vector2d targetPosRed = new Vector2d(Sizes.field - 12, Sizes.field/2 - 12);
     }
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO

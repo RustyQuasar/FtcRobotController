@@ -1,6 +1,7 @@
 package Commands;
 
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -23,15 +24,14 @@ public class SmartShooter {
     Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, Vision vision) {
-        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter0);
-        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter1);
-        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
+        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
+        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter2);
+        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor3);
         AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
 
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
-        leftShooter.setDirection(DcMotor.Direction.REVERSE);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         if (Constants.TEAM.equals("RED")) {
@@ -49,6 +49,12 @@ public class SmartShooter {
 
     public void aim() {
         turretHead.update();
+        Vector2d targetPose;
+        if (Constants.TEAM.equals("RED")){
+            targetPose = Constants.OdometryConstants.targetPosRed;
+        } else {
+            targetPose = Constants.OdometryConstants.targetPosBlue;
+        }
         double detectedX;
         double distanceMeters;
         double botHeading = Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -58,8 +64,8 @@ public class SmartShooter {
         double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * 360 / Constants.ShooterConstants.turretNeckGearRatio;
         neckHeading -= (Math.round((neckHeading / 360) - 0.5)) * 360;
         neckHeading += Constants.DriveTrainConstants.controlHubOffset;
-        double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(Math.toDegrees(neckHeading));
-        double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(Math.toDegrees(neckHeading));
+        double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(Math.toRadians(neckHeading));
+        double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(Math.toRadians(neckHeading));
         boolean seeTarget = false;
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : Vision.getDetections()) {
@@ -71,30 +77,21 @@ public class SmartShooter {
                 distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
                 double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
+                if (Math.abs(angleToTurn + (double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
                 // Update turret positions with corrected unit handling and corrected math
                 turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distanceMeters)));
                 turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distanceMeters, fv));
-                /*
-                Telemetry scanned info
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-                 */
+                double botY = targetPose.y - Math.abs(distanceMeters * Math.sin(Math.toRadians(neckHeading)));
+                double botX = targetPose.x - Math.signum(targetPose.x) * Math.abs(distanceMeters * Math.cos(Math.toRadians(neckHeading)));
+                Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
             }
         }
         if (!seeTarget){
-            Vector2d targetPose;
-            if (Constants.TEAM.equals("RED")){
-                targetPose = Constants.OdometryConstants.targetPosRed;
-            } else {
-                targetPose = Constants.OdometryConstants.targetPosBlue;
-            }
-            //TODO: This needs to be updated for negative coords
             double xChange = (targetPose.x + 72) - (Constants.OdometryConstants.fieldPos.position.x + 72);
             double yChange = (targetPose.y + 72) - (Constants.OdometryConstants.fieldPos.position.y + 72);
             double distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double angleToTurn = Math.tan(Math.toRadians(yChange / xChange));
+            if (Math.abs(angleToTurn + turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
             turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distance, fv));
             turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn - ((double) Constants.VisionConstants.resX / 2), sv, distance)));
         }
