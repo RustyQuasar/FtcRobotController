@@ -54,7 +54,7 @@ public class Teleop extends LinearOpMode {
             }
             Mechanum.drive(
                     -gamepad1.left_stick_y,
-                    gamepad1.left_stick_x,,
+                    gamepad1.left_stick_x,
                     gamepad1.right_stick_x
             );
             if (activeGamepad1.dpad_down) {
