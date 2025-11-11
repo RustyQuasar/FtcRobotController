@@ -81,8 +81,8 @@ public class SmartShooter {
                 // Update turret positions with corrected unit handling and corrected math
                 turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distanceMeters)));
                 turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distanceMeters, fv));
-                double botY = targetPose.y - Math.abs(distanceMeters * Math.sin(Math.toRadians(neckHeading)));
-                double botX = targetPose.x - Math.signum(targetPose.x) * Math.abs(distanceMeters * Math.cos(Math.toRadians(neckHeading)));
+                double botX = targetPose.y - Math.abs(distanceMeters * Math.sin(Math.toRadians(neckHeading)));
+                double botY = targetPose.x - Math.signum(targetPose.x) * Math.abs(distanceMeters * Math.cos(Math.toRadians(neckHeading)));
                 Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
             }
         }
@@ -142,7 +142,7 @@ public class SmartShooter {
     }
 
 
-    public void periodic(Telemetry telemetry) {
+    public void telemetry(Telemetry telemetry) {
         telemetry.addLine("Shooter");
         telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());

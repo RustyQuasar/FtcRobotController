@@ -62,11 +62,8 @@ public final class Constants {
         public static final double deadwheelDiameter = 4;
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-
-
-        //0, 0 is blue square corner
-        public static final Vector2d targetPosBlue = new Vector2d(Sizes.field - 12, -1 * (Sizes.field/2 - 12));
-        public static final Vector2d targetPosRed = new Vector2d(Sizes.field - 12, Sizes.field/2 - 12);
+        public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
+        public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
     }
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO

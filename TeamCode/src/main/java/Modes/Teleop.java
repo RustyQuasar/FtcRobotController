@@ -74,7 +74,7 @@ public class Teleop extends LinearOpMode {
             Shooter.aim();
             //Mechanum.periodic(telemetry);
             //Shooter.periodic(telemetry);
-            Intake.periodic(telemetry);
+            Intake.telemetry(telemetry);
             telemetry.update();
             dashboard.updateConfig();
         }

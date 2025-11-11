@@ -70,7 +70,7 @@ public class SmartIntake {
         motifState = !motifState;
     }
 
-    public void periodic(Telemetry telemetry) {
+    public void telemetry(Telemetry telemetry) {
         telemetry.addLine("Intake");
         telemetry.addData("Ball count: ", ballCount);
         telemetry.addData("Slots: ", artifactOrder[0] + artifactOrder[1] + artifactOrder[2]);

@@ -58,7 +58,7 @@ public class MechanumDrive {
         backRight3.setPower(backRightPower);
     }
 
-    public void periodic(Telemetry telemetry) {
+    public void telemetry(Telemetry telemetry) {
         telemetry.addLine("Drive train");
         telemetry.addData("Heading: ", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
