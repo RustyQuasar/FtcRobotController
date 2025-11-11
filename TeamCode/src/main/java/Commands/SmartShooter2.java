@@ -33,7 +33,7 @@ public class SmartShooter2 {
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
         transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         if (Constants.TEAM.equals("RED")) {
             aimedTagID = 24;
         } else {
@@ -43,8 +43,8 @@ public class SmartShooter2 {
     }
 
     public void shoot(double power) {
-        leftShooter.setPower(power);
-        rightShooter.setPower(power);
+        leftShooter.setVelocity(power);
+        rightShooter.setPower(leftShooter.getPower());
     }
 
     public void aim() {
@@ -99,8 +99,8 @@ public class SmartShooter2 {
 
     public double getShooterVelocity() {
         //learn to read names, they mean stuff y'know
-        if (leftShooter.getPower() != 0 && rightShooter.getPower() != 0) {
-            return (leftShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax + (rightShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax) / 2);
+        if (leftShooter.getPower() != 0 ) {
+            return (leftShooter.getVelocity() * Constants.ShooterConstants.shooterGearRatio * Math.PI * Constants.ShooterConstants.flyWheelDiameter / Constants.GoBildaMotorMax);
         } else {
             return 0;
         }
