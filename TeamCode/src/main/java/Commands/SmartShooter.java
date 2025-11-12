@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
+import java.util.Arrays;
+
 import Subsystems.RTPAxon;
 import Utilities.Constants;
 
@@ -24,9 +26,9 @@ public class SmartShooter {
     Vision Vision;
 
     public SmartShooter(HardwareMap hardwareMap, Vision vision) {
-        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
-        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter2);
-        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor3);
+        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
+        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
+        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
         AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
 
@@ -44,14 +46,16 @@ public class SmartShooter {
     }
 
     public void shoot(double power) {
-        leftShooter.setPower(power);
-        rightShooter.setPower(power);
+        leftShooter.setVelocity(power);
+        rightShooter.setPower(leftShooter.getPower());
     }
 
     public void aim() {
         turretHead.update();
         Vector2d targetPose;
-        if (Constants.TEAM.equals("RED")){
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})){
+            targetPose = Constants.OdometryConstants.targetPosMotif;
+        } else if (Constants.TEAM.equals("RED")){
             targetPose = Constants.OdometryConstants.targetPosRed;
         } else {
             targetPose = Constants.OdometryConstants.targetPosBlue;
@@ -69,22 +73,25 @@ public class SmartShooter {
         double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(Math.toRadians(neckHeading));
         boolean seeTarget = false;
         // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : Vision.getDetections()) {
-            if (detection.id == aimedTagID) {
-                seeTarget = true;
-                // convert servo position to degrees (your existing mapping)
-                detectedX = detection.ftcPose.x;
-                // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
-                distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
-                double xOffset = detectedX - Constants.VisionConstants.resX / 2;
-                double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
-                if (Math.abs(angleToTurn + (double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
-                // Update turret positions with corrected unit handling and corrected math
-                turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distanceMeters)));
-                turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distanceMeters, fv));
-                double botX = targetPose.y - Math.abs(distanceMeters * Math.sin(Math.toRadians(neckHeading)));
-                double botY = targetPose.x - Math.signum(targetPose.x) * Math.abs(distanceMeters * Math.cos(Math.toRadians(neckHeading)));
-                Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
+        if (!Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})) {
+            for (AprilTagDetection detection : Vision.getDetections()) {
+                if (detection.id == aimedTagID) {
+                    seeTarget = true;
+                    // convert servo position to degrees (your existing mapping)
+                    detectedX = detection.ftcPose.x;
+                    // Convert range (inch) to meters consistently, and add centerOffset (inches) then convert:
+                    distanceMeters = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
+                    double xOffset = detectedX - Constants.VisionConstants.resX / 2;
+                    double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
+                    if (Math.abs(angleToTurn + (double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle)
+                        angleToTurn = 0;
+                    // Update turret positions with corrected unit handling and corrected math
+                    turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sv, distanceMeters)));
+                    turretHead.setTargetRotation(turretHead.getTargetRotation() + yTurn(distanceMeters, fv));
+                    double botX = targetPose.y - Math.abs(distanceMeters * Math.sin(Math.toRadians(neckHeading)));
+                    double botY = targetPose.x - Math.signum(targetPose.x) * Math.abs(distanceMeters * Math.cos(Math.toRadians(neckHeading)));
+                    Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
+                }
             }
         }
         if (!seeTarget){

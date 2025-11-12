@@ -113,10 +113,10 @@ public class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor2);
-        leftBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor1);
-        rightBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
-        rightFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor0);
+        leftFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
+        leftBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor);
+        rightBack = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor);
+        rightFront = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);

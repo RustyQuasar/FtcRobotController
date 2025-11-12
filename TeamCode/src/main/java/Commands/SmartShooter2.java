@@ -24,9 +24,9 @@ public class SmartShooter2 {
     Vision Vision;
 
     public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
-        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
-        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter2);
-        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor3);
+        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
+        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
+        turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
         AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
 
@@ -123,9 +123,9 @@ public class SmartShooter2 {
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
         double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.abs(Math.sqrt(2 * H / g));
-        double vH = z / t;
-        double vV = 0.5 * g * Math.pow(t, 2);
-        double angle = Math.toDegrees(Math.atan2(vH, vV));
+        double vH = 2 * z / t;
+        double vV = t * g;
+        double angle = Math.toDegrees(Math.atan2(vV, vH));
         if (angle < 0){
             angle = 0;
             //Idk why this would be needed but, eh
@@ -151,7 +151,7 @@ public class SmartShooter2 {
     }
 
     private double xTurn(double angleToTurnDeg, double velocity, double distance, double time) {
-        double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance));
+        double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance / time));
         double angleDiff =  (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
         if (angleDiff < 0){
             angleDiff += 360;

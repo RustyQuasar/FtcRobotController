@@ -19,10 +19,10 @@ public final class Constants {
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)
-        public static final String frontLeftMotor2 = "frontLeft"; //Control hub Motor port 2, connected to perpendicular deadwheel
-        public static final String frontRightMotor0 = "frontRight"; //Control hub Motor port 0, connected to parallel (1) deadwheel
-        public static final String backLeftMotor1 = "backLeft"; //Control hub Motor port 1, connected to parallel (2) deadwheel
-        public static final String backRightMotor3 = "backRight"; //Control hub Motor port 3
+        public static final String frontLeftMotor = "frontLeft"; //Control hub Motor port 0, connected to perpendicular deadwheel
+        public static final String frontRightMotor = "frontRight"; //Control hub Motor port 1, connected to parallel (1) deadwheel
+        public static final String backLeftMotor = "backLeft"; //Control hub Motor port 2 connected to parallel (2) deadwheel
+        public static final String backRightMotor = "backRight"; //Control hub Motor port 3
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
         //idk
@@ -42,9 +42,9 @@ public final class Constants {
         //GoBilda
         public static final double smallTriangleDist = 0.23; /*meters*/
         public static final double largeTriangleDist = 0.71; /*meters*/
-        public static final String leftShooter1 = "leftShooter"; //Expansion hub Motor port 1, rr parallel deadwheel 1
-        public static final String rightShooter2 = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
-        public static final String turretNeckMotor3 = "turretNeck"; //Expansion hub Motor port 3, rr perpendicular deadwheel
+        public static final String leftShooter = "leftShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
+        public static final String rightShooter = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
+        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 0, rr perpendicular deadwheel
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
         //Encoders
         public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
@@ -64,6 +64,7 @@ public final class Constants {
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
         public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
         public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
+        public static final Vector2d targetPosMotif = new Vector2d(Sizes.field/2, 0);
     }
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO
