@@ -59,7 +59,7 @@ public final class Constants {
     }
     public static final class OdometryConstants{
         public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
-        public static final double deadwheelDiameter = 4;
+        public static final double deadwheelDiameter = 1;
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
         public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
@@ -81,6 +81,7 @@ public final class Constants {
         public static final int resX = 320;
         public static final int resY = 240;
         public static final int FOV = 55;
+        public static final double inOffset = 4.798 + 0.5;
         public static String[] colours = {"N", "N", "N"};
     }
 

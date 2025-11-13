@@ -73,8 +73,9 @@ public class SmartShooter2 {
                 seeTarget = true;
                 detectedX = detection.ftcPose.x;
                 distance = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
+                double angleOffset = Math.toDegrees(Math.acos(Constants.VisionConstants.inOffset / distance));
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
-                double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset; // degrees;
+                double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset + angleOffset; // degrees;
                 if (Math.abs(angleToTurn + turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
                 aiming(distance, fv, sv, angleToTurn);
                 //x and y gotta be swapped cuz roadrunner swaps em
@@ -116,7 +117,7 @@ public class SmartShooter2 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        double h = (48 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius + 2); //2 is some buffer :P
+        double h = (48 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2); //2 is some buffer :P
         double g = -386.08858267717; //9.8m/s in inches
         double z = Math.abs(h / (g * distance) - distance);
         double AOS = z / 2;
@@ -133,7 +134,7 @@ public class SmartShooter2 {
             angle = Constants.ShooterConstants.maxHeadAngle;
             vV /= Math.sin(Math.toRadians(angle));
         }
-        double shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / Constants.ShooterConstants.shooterGearRatio / (Math.PI * Constants.ShooterConstants.flyWheelDiameter);
+        double shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / Constants.ShooterConstants.shooterGearRatio;
         turretHead.setTargetRotation(angle / Constants.ShooterConstants.turretHeadGearRatio);
         turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distance, t)));
         shoot(shooterVel - frontV);
