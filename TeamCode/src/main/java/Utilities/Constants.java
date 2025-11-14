@@ -1,8 +1,8 @@
 package Utilities;
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
+//import com.acmerobotics.roadrunner.Pose2d;
+//import com.acmerobotics.roadrunner.PoseVelocity2d;
+//import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -35,6 +35,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
+        public  static final String blocker = "blocker";
         public static final String intake = "intake"; //Expansion hub Motor port 0
         public static final String colourSensor = "colourSensor"; //Control hub - I2C port/bus 1 - Rev Color Sensor v3
 
@@ -60,12 +61,12 @@ public final class Constants {
         public static final double centerOffset = 12;
     }
     public static final class OdometryConstants{
-        public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
-        public static final double deadwheelDiameter = 4;
-        public static Pose2d fieldPos = new Pose2d(0, 0, 0);
-        public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
-        public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
+//        public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
+//        public static final double deadwheelDiameter = 4;
+//        public static Pose2d fieldPos = new Pose2d(0, 0, 0);
+//        public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
+//        public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
+//        public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
     }
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO

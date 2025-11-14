@@ -9,10 +9,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
+//import Subsystems.RTPAxon;
 import Utilities.Constants;
 
 public class SmartIntake {
+    //private final
     private final DcMotor motorIntake;
     private final ColorSensor colorSen;
     private boolean motifState = false;
@@ -80,7 +81,7 @@ public class SmartIntake {
         telemetry.addData("Scanning ball: ", scanningBall);
         telemetry.addData("Scans: ", scans);
     }
-
+public void block(){}
     public void intake(boolean buttonPressed, double power) {
         double motorPower = power;
         colorRegister();

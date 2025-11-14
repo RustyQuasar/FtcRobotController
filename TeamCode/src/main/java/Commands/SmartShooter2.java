@@ -1,8 +1,8 @@
 package Commands;
 
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
+//import com.acmerobotics.roadrunner.Pose2d;
+//import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-import Subsystems.RTPAxon;
+//import Subsystems.RTPAxon;
 import Utilities.Constants;
 
 public class SmartShooter2 {
@@ -22,9 +22,9 @@ public class SmartShooter2 {
     private final DcMotorEx turretNeckMotor;
     //private final RTPAxon turretHead;
     private final int aimedTagID;
-    Vision Vision;
+    //Vision Vision;
 
-    public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
+    public SmartShooter2(HardwareMap hardwareMap) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
         rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter2);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor3);
@@ -40,11 +40,11 @@ public class SmartShooter2 {
         } else {
             aimedTagID = 20;
         }
-        Vision = vision;
+      //  Vision = vision;
     }
-public void manualTurn(double power){
-        turretNeckMotor.setPower(power);
-}
+//public void manualTurn(double power){
+//        turretNeckMotor.setPower(power);
+//}
     public void shoot(double power) {
         leftShooter.setPower(power);
         rightShooter.setPower(power);

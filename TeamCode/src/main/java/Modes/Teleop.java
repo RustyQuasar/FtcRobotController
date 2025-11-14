@@ -2,7 +2,7 @@ package Modes;
 
 import static Utilities.Constants.DriveTrainConstants.imu;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+//import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -16,8 +16,8 @@ import Commands.MechanumDrive;
 
 import Commands.SmartIntake;
 import Commands.SmartShooter2;
-import Commands.Vision;
-import Subsystems.ThreeDeadWheelLocalizer;
+//import Commands.Vision;
+//import Subsystems.ThreeDeadWheelLocalizer;
 import Utilities.Constants;
 
 @TeleOp
@@ -27,22 +27,21 @@ public class Teleop extends LinearOpMode {
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter2 Shooter;
-    Vision Vision;
-    ThreeDeadWheelLocalizer odometry;
+   // Vision Vision;
+   // ThreeDeadWheelLocalizer odometry;
    // Elevator Elevator;
-    FtcDashboard dashboard = FtcDashboard.getInstance();
+ //   FtcDashboard dashboard = FtcDashboard.getInstance();
 
-    Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
+   // Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
 
 
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
+      //  odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
-        Vision = new Vision(hardwareMap, dashboard);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter2(hardwareMap, Vision);
+        Shooter = new SmartShooter2(hardwareMap);
         // Elevator = new Elevator(hardwareMap);
         boolean lastYInput = false;
         waitForStart();
@@ -50,19 +49,23 @@ public class Teleop extends LinearOpMode {
         while (opModeIsActive()) {
 
         activeGamepad1.copy(gamepad1);
-        
+        if(activeGamepad1.right_trigger>0.1){Shooter.shoot(0.8);}
+        else{Shooter.shoot(0);}
         if ((activeGamepad1.right_trigger > 0.1)) {
             Intake.intake((true), 0.8);
         } else if (activeGamepad1.right_bumper) {
             Intake.intake((true), -0.8);
-        } else {
+        } else if (activeGamepad1.y){
+
+
+        }else {
             Intake.intake((false), -0.8);
         }
 
-        if(activeGamepad1.a){
-            Shooter.manualTurn(0.1);
-        }else if (activeGamepad1.b){  Shooter.manualTurn(-0.1);}
-        else{ Shooter.manualTurn(0);}
+//        if(activeGamepad1.a){
+//            Shooter.manualTurn(0.1);
+//        }else if (activeGamepad1.b){  Shooter.manualTurn(-0.1);}
+//        else{ Shooter.manualTurn(0);}
 
         Mechanum.drive(
                 -gamepad1.left_stick_y,
