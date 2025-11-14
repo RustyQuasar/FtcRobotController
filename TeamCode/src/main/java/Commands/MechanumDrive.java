@@ -1,0 +1,74 @@
+package Commands;
+
+import static Utilities.Constants.DriveTrainConstants.imu;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import Utilities.Constants;
+
+public class MechanumDrive {
+
+    private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
+    private final IMU imu;
+    public MechanumDrive(HardwareMap hardwareMap) {
+        imu = hardwareMap.get(IMU.class,Constants.DriveTrainConstants.imu);
+        frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor2);
+        frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor0);
+        backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor1);
+        backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor3);
+        frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft2.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight3.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        frontLeft0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void drive(double driveY, double driveX, double rotation) {
+
+        double botHeading = imu.getRobotYawPitchRollAngles().getYaw();
+        double headingRadians = Math.toRadians(botHeading);
+
+        // Rotate the movement direction counter to the bot's rotation
+
+        double sin = Math.sin(-headingRadians);
+        double cos = Math.cos(-headingRadians);
+
+        double fieldOrientedX = driveX * cos - driveY * sin;
+        double fieldOrientedY = driveX * sin + driveY * cos;
+
+        double denominator = Math.max(Math.abs(fieldOrientedY) + Math.abs(fieldOrientedX) + Math.abs(rotation), 1);
+
+        double frontLeftPower = (fieldOrientedY + fieldOrientedX + rotation) / denominator;
+        double backLeftPower = (fieldOrientedY - fieldOrientedX + rotation) / denominator;
+        double frontRightPower = (fieldOrientedY - fieldOrientedX - rotation) / denominator;
+        double backRightPower = (fieldOrientedY + fieldOrientedX - rotation) / denominator;
+
+        frontLeft0.setPower(frontLeftPower);
+        frontRight1.setPower(frontRightPower);
+        backLeft2.setPower(backLeftPower);
+        backRight3.setPower(backRightPower);
+    }
+
+    public void telemetry(Telemetry telemetry) {
+        telemetry.addLine("Drive train");
+        telemetry.addData("Heading: ", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
+        telemetry.addData("Front Left Power: ", frontLeft0.getPower());
+        telemetry.addData("Front Right Power: ", frontRight1.getPower());
+        telemetry.addData("Back Left Power: ", backLeft2.getPower());
+        telemetry.addData("Back Right Power: ", backRight3.getPower());
+    }
+}
