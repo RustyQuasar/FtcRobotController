@@ -20,6 +20,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.apache.commons.math3.exception.NotANumberException;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -128,7 +129,10 @@ public final class ThreeDeadWheelLocalizer {
         lastPerpPos = perpPosVel.position;
 
         Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.fieldPos.plus(twist.value());
+        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.x)) Constants.OdometryConstants.fieldPos = new Pose2d(0, Constants.OdometryConstants.fieldPos.position.y, 0);
+        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.y)) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, 0, 0);
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, getRawHeading() - yawOffset);
+        if (Double.isNaN(Constants.OdometryConstants.fieldPos.heading.toDouble())) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, 0);
         Constants.OdometryConstants.fieldVels = twist.velocity().value();
     }
 }

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -19,7 +20,7 @@ import Utilities.Constants;
 
 public class SmartShooter {
     private final DcMotorEx leftShooter, rightShooter;
-    private final CRServo transferServo;
+    private final Servo flipServo;
     private final DcMotorEx turretNeckMotor;
     private final RTPAxon turretHead;
     private final int aimedTagID;
@@ -33,7 +34,7 @@ public class SmartShooter {
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
 
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
-        transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
+        flipServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.flipServo);
         leftShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -115,9 +116,9 @@ public class SmartShooter {
 
     public void transfer(boolean buttonPressed) {
         if (buttonPressed) {
-            transferServo.setPower(1);
+            flipServo.setPosition(1);
         } else {
-            transferServo.setPower(0);
+            flipServo.setPosition(0);
         }
     }
 

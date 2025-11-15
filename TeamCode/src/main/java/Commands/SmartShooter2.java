@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -17,11 +18,16 @@ import Utilities.Constants;
 
 public class SmartShooter2 {
     private final DcMotorEx leftShooter, rightShooter;
-    private final CRServo transferServo;
+    private final Servo flipServo;
     private final DcMotorEx turretNeckMotor;
     private final RTPAxon turretHead;
     private final int aimedTagID;
     Vision Vision;
+    double distance = 0;
+    double xChange;
+    double yChange;
+    boolean aimed = false;
+    boolean seeTarget = true;
 
     public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
@@ -31,7 +37,7 @@ public class SmartShooter2 {
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
 
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
-        transferServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.transferServo);
+        flipServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.flipServo);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         if (Constants.TEAM.equals("RED")) {
@@ -56,7 +62,6 @@ public class SmartShooter2 {
             targetPose = Constants.OdometryConstants.targetPosBlue;
         }
         double detectedX;
-        double distance;
         double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
         double max = 2 * Math.PI;
         if (botHeading < 0) {
@@ -66,7 +71,7 @@ public class SmartShooter2 {
         neckHeading -= (Math.floor(neckHeading / max) * max);
         double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
         double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(neckHeading);
-        boolean seeTarget = false;
+        seeTarget = false;
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : Vision.getDetections()) {
             if (detection.id == aimedTagID) {
@@ -87,8 +92,8 @@ public class SmartShooter2 {
         }
         if (!seeTarget){
             //+72 because negatives suck
-            double xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
-            double yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
+             xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
+             yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             //TOA in the indian princess' name
@@ -96,6 +101,7 @@ public class SmartShooter2 {
             if (Math.abs(angleToTurn + (double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax * 360 * Constants.ShooterConstants.turretNeckGearRatio) > Constants.ShooterConstants.maxNeckAngle) angleToTurn = 0;
             aiming(distance, fv, sv, angleToTurn);
         }
+        aimed = true;
     }
 
     public double getShooterVelocity() {
@@ -110,15 +116,16 @@ public class SmartShooter2 {
     public void transfer(boolean buttonPressed) {
         //Fuckin transfers the balls what do you expect
         if (buttonPressed) {
-            transferServo.setPower(1);
+            flipServo.setPosition(1);
         } else {
-            transferServo.setPower(0);
+            flipServo.setPosition(0);
         }
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        double h = (48 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2); //2 is some buffer :P
-        double g = -386.08858267717; //9.8m/s in inches
+        double h = (48 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
+        double g = -9.8; //9.8m/s in inches
+        distance /= 39.37;
         double z = Math.abs(h / (g * distance) - distance);
         double AOS = z / 2;
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
@@ -146,8 +153,14 @@ public class SmartShooter2 {
         telemetry.addLine("Shooter");
         telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addLine("Turret neck angle: " + turretNeckMotor.getCurrentPosition());
-        telemetry.addLine("Turret head position: " + turretHead.getCurrentAngle());
+        telemetry.addData("Turret neck angle: ", turretNeckMotor.getCurrentPosition());
+        telemetry.addData("Turret head position: ", turretHead.getCurrentAngle());
+        telemetry.addData("Distance: ", distance);
+        telemetry.addData("xChange: ", xChange);
+        telemetry.addData("yChange: ", yChange);
+        telemetry.addData("aimed: ", aimed);
+        telemetry.addData("sees april tag:", seeTarget);
+        telemetry.addData("Current pos:", Constants.OdometryConstants.fieldPos.position);
         telemetry.update();
     }
 
