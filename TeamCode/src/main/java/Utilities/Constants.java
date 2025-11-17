@@ -48,11 +48,17 @@ public final class Constants {
         public static final String leftShooter1 = "leftShooter"; //Expansion hub Motor port 1, rr parallel deadwheel 1
         public static final String rightShooter2 = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretNeckMotor3 = "turretNeck"; //Expansion hub Motor port 3, rr perpendicular deadwheel
-       // public static final String transferServo = "transferServo"; //Control hub Servo port 1
+        public static final String transferServo = "transferServo"; //Control hub Servo port 1
+        public static final String blockServo = "blockServo";
+
+        public static final String hoodServo = "hoodServo";
         //Encoders
+
        // public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
       //  public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final double shooterGearRatio = 1; //Gear multiplier
+        public static final double hoodGearRatio = 16/165;
+        public static final int hoodOffset = 0;
         public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 40;

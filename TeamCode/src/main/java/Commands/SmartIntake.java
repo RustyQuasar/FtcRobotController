@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-//import Subsystems.RTPAxon;
+import Utilities.RTPAxon;
 import Utilities.Constants;
 
-public class SmartIntake {
+public class  SmartIntake {
     //private final
     private final DcMotor motorIntake;
     private final ColorSensor colorSen;
@@ -23,8 +23,10 @@ public class SmartIntake {
     boolean ballPresent = false;
     int scans = 0;
 
+    public RTPAxon  feed,block;
     public SmartIntake(HardwareMap hardwareMap) {
-
+//        feed = hardwareMap.get(RTPAxon.class,Constants.ShooterConstants.transferServo);
+//        block = hardwareMap.get(RTPAxon.class,Constants.ShooterConstants.blockServo);
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         motorIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
@@ -81,7 +83,14 @@ public class SmartIntake {
         telemetry.addData("Scanning ball: ", scanningBall);
         telemetry.addData("Scans: ", scans);
     }
-public void block(){}
+public void block(boolean pos){
+     if(pos) {
+//block.setTargetRotation(1);
+//         feed.setTargetRotation(1);
+
+     }
+
+}
     public void intake(boolean buttonPressed, double power) {
         double motorPower = power;
         colorRegister();

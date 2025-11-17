@@ -14,6 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 //import Subsystems.RTPAxon;
 import Utilities.Constants;
+import Utilities.RTPAxon;
 
 public class SmartShooter2 {
     private final DcMotorEx leftShooter;
@@ -22,9 +23,11 @@ public class SmartShooter2 {
     private final DcMotorEx turretNeckMotor;
     //private final RTPAxon turretHead;
     private final int aimedTagID;
+    private final RTPAxon hoodServo;
     //Vision Vision;
 
     public SmartShooter2(HardwareMap hardwareMap) {
+        hoodServo = hardwareMap.get(RTPAxon.class, Constants.ShooterConstants.hoodServo);
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
         rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter2);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor3);
@@ -40,11 +43,16 @@ public class SmartShooter2 {
         } else {
             aimedTagID = 20;
         }
+
+
       //  Vision = vision;
     }
-//public void manualTurn(double power){
-//        turretNeckMotor.setPower(power);
-//}
+public void manualTurn(double power){
+        turretNeckMotor.setPower(power);
+}
+    public void Hood(double pos){
+hoodServo.setTargetRotation(pos);
+    }
     public void shoot(double power) {
         leftShooter.setPower(power);
         rightShooter.setPower(power);
