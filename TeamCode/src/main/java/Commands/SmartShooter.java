@@ -16,12 +16,14 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import java.util.Arrays;
 
 import Subsystems.RTPAxon;
+import Subsystems.Vision;
 import Utilities.Constants;
 
 public class SmartShooter {
     private final DcMotorEx leftShooter, rightShooter;
     private final Servo flipServo;
     private final DcMotorEx turretNeckMotor;
+    private final CRServo transferServo, transferServo2;
     private final RTPAxon turretHead;
     private final int aimedTagID;
     Vision Vision;
@@ -37,6 +39,9 @@ public class SmartShooter {
         flipServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.flipServo);
         leftShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
+        transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
 
         if (Constants.TEAM.equals("RED")) {
             aimedTagID = 24;
@@ -117,9 +122,12 @@ public class SmartShooter {
     public void transfer(boolean buttonPressed) {
         if (buttonPressed) {
             flipServo.setPosition(1);
+            transferServo.setPower(0);
         } else {
             flipServo.setPosition(0);
+            transferServo.setPower(1);
         }
+        transferServo2.setPower(-transferServo.getPower());
     }
 
     private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {

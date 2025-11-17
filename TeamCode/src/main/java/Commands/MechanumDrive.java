@@ -35,12 +35,11 @@ public class MechanumDrive {
     public void drive(double driveY, double driveX, double rotation) {
 
         double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
-        double headingRadians = Math.toRadians(botHeading);
 
         // Rotate the movement direction counter to the bot's rotation
 
-        double sin = Math.sin(-headingRadians);
-        double cos = Math.cos(-headingRadians);
+        double sin = Math.sin(-botHeading);
+        double cos = Math.cos(-botHeading);
 
         double fieldOrientedX = driveX * cos - driveY * sin;
         double fieldOrientedY = driveX * sin + driveY * cos;

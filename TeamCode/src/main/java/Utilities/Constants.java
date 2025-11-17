@@ -50,7 +50,7 @@ public final class Constants {
         //Encoders
         public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
-        public static final double shooterGearRatio = 1; //Gear multiplier
+        public static final double shooterGearRatio = 21/15; //Gear multiplier
         public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 40;
@@ -66,6 +66,7 @@ public final class Constants {
         public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
         public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field/2, 0);
+        public static Pose2d startPos = new Pose2d(0, 0, 0);
     }
     public static final class Sizes {
         public static final double robotWidth = 18; //TODO

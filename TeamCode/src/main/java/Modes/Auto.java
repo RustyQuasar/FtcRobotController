@@ -14,7 +14,7 @@ import java.util.Arrays;
 import Commands.MecanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter;
-import Commands.Vision;
+import Subsystems.Vision;
 import Subsystems.ThreeDeadWheelLocalizer;
 import Utilities.ConfigVariables;
 import Utilities.Constants;
@@ -41,24 +41,23 @@ public class Auto extends LinearOpMode {
 
         int path = ConfigVariables.path; // keep your path selection logic here
         if (path == 1) {
-            Pose2d startPose = new Pose2d(0, y(0), heading(0));
-            odometry = new ThreeDeadWheelLocalizer(hardwareMap, startPose);
-            driveSequence = drive.actionBuilder(startPose)
+            Constants.OdometryConstants.startPos = new Pose2d(0, y(0), heading(0));
+            driveSequence = drive.actionBuilder(Constants.OdometryConstants.startPos)
                     .splineToLinearHeading(new Pose2d(10, 0, 0), 0)
                     .build();
 
         } else {
-            odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(0, 0, 0));
             driveSequence = drive.actionBuilder(new Pose2d(0, 0, 0)).build();
         }
 
         // Wait for start - keep init logic above so dashboard/vision/odometry are ready
+        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.startPos);
         waitForStart();
         if (isStopRequested()) return;
 
         // HYBRID C1: enable intake once (one-shot toggle) so it runs for the whole auto
         try {
-            intake.intake(true); // one-shot: turns intake ON
+            intake.intake(true, false); // one-shot: turns intake ON
         } catch (Exception e) {
             telemetry.addData("Intake init err", e.getMessage());
             telemetry.update();
@@ -139,7 +138,7 @@ public class Auto extends LinearOpMode {
         }
 
         // Disable intake and shooter transfer to be safe
-        try { intake.intake(false); } catch (Exception ignored){}
+        try { intake.intake(false, false); } catch (Exception ignored){}
         try { shooter.transfer(false); } catch (Exception ignored){}
 
         telemetry.addLine("Sequence complete!");

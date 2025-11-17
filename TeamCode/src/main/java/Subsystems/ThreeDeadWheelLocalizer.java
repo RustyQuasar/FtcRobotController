@@ -18,9 +18,11 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.apache.commons.math3.exception.NotANumberException;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -68,8 +70,8 @@ public final class ThreeDeadWheelLocalizer {
         par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backLeftMotor)));
         perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor)));
 
-        // TODO: reverse encoder directions if needed
-        //   par0.setDirection(DcMotorSimple.Direction.REVERSE);
+        par1.setDirection(DcMotorSimple.Direction.REVERSE);
+        perp.setDirection(DcMotorSimple.Direction.REVERSE);
 
         FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
 
@@ -78,8 +80,12 @@ public final class ThreeDeadWheelLocalizer {
     }
 
     private double getRawHeading() {
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        return angles.firstAngle;
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+        double rad =  angles.firstAngle;
+        if (rad < 0){
+            rad += Math.PI * 2;
+        }
+        return rad;
     }
 
     public void resetYaw() {
@@ -129,10 +135,15 @@ public final class ThreeDeadWheelLocalizer {
         lastPerpPos = perpPosVel.position;
 
         Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.fieldPos.plus(twist.value());
-        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.x)) Constants.OdometryConstants.fieldPos = new Pose2d(0, Constants.OdometryConstants.fieldPos.position.y, 0);
-        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.y)) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, 0, 0);
+        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.x)) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.startPos.position.x, Constants.OdometryConstants.fieldPos.position.y, 0);
+        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.y)) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.startPos.position.y, 0);
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, getRawHeading() - yawOffset);
         if (Double.isNaN(Constants.OdometryConstants.fieldPos.heading.toDouble())) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, 0);
         Constants.OdometryConstants.fieldVels = twist.velocity().value();
     }
+
+    public void telemetry(Telemetry telemetry){
+        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos);
+    }
+
 }

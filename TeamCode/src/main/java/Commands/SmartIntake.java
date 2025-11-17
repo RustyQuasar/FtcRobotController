@@ -16,7 +16,6 @@ import Utilities.Constants;
 
 public class SmartIntake {
     private final DcMotor motorIntake;
-    private final CRServo transferServo, transferServo2;
     private final ColorSensor colorSen;
     private boolean motifState = false;
     private int ballCount = 0;
@@ -29,8 +28,6 @@ public class SmartIntake {
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         motorIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
-        transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
-        transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
     }
 
     public boolean isBall() {
@@ -85,21 +82,21 @@ public class SmartIntake {
         telemetry.addData("Scans: ", scans);
     }
 
-    public void intake(boolean buttonPressed) {
+    public void intake(boolean trigger, boolean a) {
         double motorPower = 0.8;
+        if (!trigger && a) motorPower *= -1;
         colorRegister();
+        boolean buttonPressed = trigger || a;
         if (buttonPressed) {
             if (motifState) {
                 if (!isBall()) {
                     motorIntake.setPower(motorPower);
-                    transferServo.setPower(1);
                     return;
                 }
                 ballCount++;
                 if (!(artifactOrder[ballCount - 1].equals(Constants.VisionConstants.colours[3 - ballCount]))) {
                     ballCount--;
                     motorIntake.setPower(-motorPower);
-                    transferServo.setPower(-1);
                     try {
                         Thread.sleep(500);
                     } catch (Exception ignored) {
@@ -107,14 +104,11 @@ public class SmartIntake {
                     }
                 }
             } else {
-                transferServo.setPower(-1);
                 motorIntake.setPower(motorPower);
             }
         } else {
-            transferServo.setPower(0);
             motorIntake.setPower(0);
         }
-        transferServo2.setPower(-transferServo.getPower());
     }
 }
 

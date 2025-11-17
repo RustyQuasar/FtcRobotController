@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import Subsystems.RTPAxon;
+import Subsystems.Vision;
 import Utilities.Constants;
 
 public class SmartShooter2 {
@@ -21,6 +22,7 @@ public class SmartShooter2 {
     private final Servo flipServo;
     private final DcMotorEx turretNeckMotor;
     private final RTPAxon turretHead;
+    private final CRServo transferServo, transferServo2;
     private final int aimedTagID;
     Vision Vision;
     double distance = 0;
@@ -28,6 +30,10 @@ public class SmartShooter2 {
     double yChange;
     boolean aimed = false;
     boolean seeTarget = true;
+    double shooterVel = 0;
+    double t;
+    double z;
+    double fv;
 
     public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
@@ -46,6 +52,10 @@ public class SmartShooter2 {
             aimedTagID = 20;
         }
         Vision = vision;
+
+        transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
+        transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
+
     }
 
     public void shoot(double power) {
@@ -69,8 +79,10 @@ public class SmartShooter2 {
         }
         double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * max / Constants.ShooterConstants.turretNeckGearRatio;
         neckHeading -= (Math.floor(neckHeading / max) * max);
-        double fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
+        fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
+        if (Double.isNaN(fv)) fv = 0;
         double sv = Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(neckHeading);
+        if (Double.isNaN(sv)) sv = 0;
         seeTarget = false;
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : Vision.getDetections()) {
@@ -114,23 +126,25 @@ public class SmartShooter2 {
     }
 
     public void transfer(boolean buttonPressed) {
-        //Fuckin transfers the balls what do you expect
-        if (buttonPressed) {
+        if (!buttonPressed && Math.abs(getShooterVelocity() - shooterVel - fv) < 20 ) {
             flipServo.setPosition(1);
+            transferServo.setPower(0);
         } else {
             flipServo.setPosition(0);
+            transferServo.setPower(-1);
         }
+        transferServo2.setPower(-transferServo.getPower());
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         double h = (48 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8; //9.8m/s in inches
         distance /= 39.37;
-        double z = Math.abs(h / (g * distance) - distance);
+        z = Math.abs(h / (g * distance) - distance);
         double AOS = z / 2;
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
-        double H = Math.abs(g * Math.pow(AOS, 2));
-        double t = Math.abs(Math.sqrt(2 * H / g));
+        double H = Math.abs(g * AOS * AOS);
+        t = Math.abs(Math.sqrt(2 * H / -g));
         double vH = 2 * z / t;
         double vV = t * g;
         double angle = Math.toDegrees(Math.atan2(vV, vH));
@@ -141,8 +155,9 @@ public class SmartShooter2 {
             angle = Constants.ShooterConstants.maxHeadAngle;
             vV /= Math.sin(Math.toRadians(angle));
         }
-        double shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / Constants.ShooterConstants.shooterGearRatio;
+        shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / (Constants.ShooterConstants.shooterGearRatio * Constants.ShooterConstants.flyWheelDiameter * Math.PI / 39.37) * Constants.GoBildaMotorMax;
         turretHead.setTargetRotation(angle / Constants.ShooterConstants.turretHeadGearRatio);
+        //turretHead.setTargetRotation(0);
         turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distance, t)));
         shoot(shooterVel - frontV);
     }
@@ -161,6 +176,11 @@ public class SmartShooter2 {
         telemetry.addData("aimed: ", aimed);
         telemetry.addData("sees april tag:", seeTarget);
         telemetry.addData("Current pos:", Constants.OdometryConstants.fieldPos.position);
+        telemetry.addData("Target vel: ", shooterVel);
+        telemetry.addData("Time: ", t);
+        telemetry.addData("Parabola end: ", z);
+        telemetry.addData("fV", fv);
+        telemetry.addData("Shooter vel", leftShooter.getVelocity());
         telemetry.update();
     }
 
