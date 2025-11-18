@@ -34,22 +34,17 @@ public final class Constants {
 
     public static final class IntakeConstants {
         public static final String intake = "intake"; //Expansion hub Motor port 0
-        public static final String colourSensor = "colourSensor"; //Control hub - I2C port/bus 1 - Rev Color Sensor v3
-        public static final String transferServo = "transferServo"; //Control hub Servo port 2
-        public static final String transferServo2 = "transferServo2"; //Control hub Servo port 3
+        public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
+        public static final String transferServo2 = "transferServo2"; //Expansion hub Servo port 3
     }
 
     public static final class ShooterConstants {
-        //GoBilda
-        public static final double smallTriangleDist = 0.23; /*meters*/
-        public static final double largeTriangleDist = 0.71; /*meters*/
         public static final String leftShooter = "leftShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
         public static final String rightShooter = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
-        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 0, rr perpendicular deadwheel
-        public static final String flipServo = "flipServo"; //Control hub Servo port 1
+        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
+        public static final String flipServo = "flipServo"; //Expansion hub Servo port 1
         //Encoders
         public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
-        public static final String turretBlockServo = "turretBlock";
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final double shooterGearRatio = 21/15; //Gear multiplier
         public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier
@@ -83,9 +78,11 @@ public final class Constants {
         public static final String camera = "Webcam"; //USB port
         public static final int resX = 640;
         public static final int resY = 480;
-        public static final int FOV = 55;
+        public static final int FOV = 54;
         public static final double inOffset = 4.798 + 0.5;
         public static String[] colours = {"N", "N", "N"};
+        public static int cameraAngle = 11;
+        public static int pipeline = 0;
     }
 
 }

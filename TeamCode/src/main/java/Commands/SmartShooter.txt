@@ -129,7 +129,6 @@ public class SmartShooter {
         }
         transferServo2.setPower(-transferServo.getPower());
     }
-
     private void setShooterVelocity(double R /* horizontal distance in meters */, double h /* height diff in meters */, double currentVelocity) {
         double g = 386.08858267717; //9.8m/s in inches
         double t = 1.0; // desired travel time (s), adjust if you want shorter/longer arcs

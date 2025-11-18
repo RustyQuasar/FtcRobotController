@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 import Commands.MecanumDrive;
 import Commands.SmartIntake;
-import Commands.SmartShooter;
+import Commands.SmartShooter2;
 import Subsystems.Vision;
 import Subsystems.ThreeDeadWheelLocalizer;
 import Utilities.ConfigVariables;
@@ -24,7 +24,7 @@ public class Auto extends LinearOpMode {
     FtcDashboard dashboard;
     ThreeDeadWheelLocalizer odometry;
     SmartIntake intake;
-    SmartShooter shooter;
+    SmartShooter2 shooter;
     MecanumDrive drive;
     Vision vision;
 
@@ -32,8 +32,8 @@ public class Auto extends LinearOpMode {
     public void runOpMode() {
         // --- initialize subsystems ---
         dashboard = FtcDashboard.getInstance();
-        vision = new Vision(hardwareMap, dashboard);
-        shooter = new SmartShooter(hardwareMap, vision);
+        vision = new Vision(hardwareMap, telemetry);
+        shooter = new SmartShooter2(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
         double artifactY = y(40.133805);
@@ -57,7 +57,7 @@ public class Auto extends LinearOpMode {
 
         // HYBRID C1: enable intake once (one-shot toggle) so it runs for the whole auto
         try {
-            intake.intake(true, false,false); // one-shot: turns intake ON
+            intake.intake(true, false); // one-shot: turns intake ON
         } catch (Exception e) {
             telemetry.addData("Intake init err", e.getMessage());
             telemetry.update();
@@ -138,7 +138,7 @@ public class Auto extends LinearOpMode {
         }
 
         // Disable intake and shooter transfer to be safe
-        try { intake.intake(false, false, false); } catch (Exception ignored){}
+        try { intake.intake(false, false); } catch (Exception ignored){}
         try { shooter.transfer(false); } catch (Exception ignored){}
 
         telemetry.addLine("Sequence complete!");
@@ -177,11 +177,11 @@ public class Auto extends LinearOpMode {
  * Including these in the drive.builder via stopAndAdd(...) is fine — they are executed sequentially at that point.
  */
 class TransferCommand implements Action {
-    private final SmartShooter shooter;
+    private final SmartShooter2 shooter;
     private final boolean transferOn;
     private boolean ran = false;
 
-    public TransferCommand(SmartShooter shooter, boolean transferOn) {
+    public TransferCommand(SmartShooter2 shooter, boolean transferOn) {
         this.shooter = shooter;
         this.transferOn = transferOn;
     }

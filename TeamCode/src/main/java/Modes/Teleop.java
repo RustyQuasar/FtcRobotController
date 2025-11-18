@@ -32,24 +32,22 @@ public class Teleop extends LinearOpMode {
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
-        Vision = new Vision(hardwareMap, dashboard);
+        Vision = new Vision(hardwareMap, telemetry);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter2(hardwareMap, Vision);
         Elevator = new Elevator(hardwareMap);
-        boolean lastYInput = false;
         waitForStart();
 
         while (opModeIsActive()) {
             odometry.update();
             Vision.updateAprilTags();
-            //Shooter.aim();
+            Shooter.aim();
             activeGamepad1.copy(gamepad1);
-            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a,activeGamepad1.left_trigger>0.3);
+            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             if (activeGamepad1.left_trigger > 0.3) {
                 Shooter.shoot(activeGamepad1.left_trigger * 2040);
                 Shooter.transfer(true);
-                Intake.colorWipe();
-            }else{
+            } else {
                 Shooter.transfer(false);
                 Shooter.shoot(0);
             }
@@ -67,10 +65,10 @@ public class Teleop extends LinearOpMode {
             if (activeGamepad1.yWasReleased()) {
                 Elevator.switchState();
             }
-            lastYInput = activeGamepad1.y;
             //Mechanum.telemetry(telemetry);
-            //Shooter.telemetry(telemetry);
+            Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
+            //Vision.telemetry(telemetry);
             odometry.telemetry(telemetry);
             telemetry.update();
             dashboard.updateConfig();

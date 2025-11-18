@@ -3,15 +3,22 @@ package Commands;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
+import java.util.Arrays;
+import java.util.List;
 
 import Subsystems.RTPAxon;
 import Subsystems.Vision;
@@ -34,18 +41,22 @@ public class SmartShooter2 {
     double t;
     double z;
     double fv;
-
+    Pose2d cameraPos;
     public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
+        turretNeckMotor.setPower(0.8);
         AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
-
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
         flipServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.flipServo);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
         if (Constants.TEAM.equals("RED")) {
             aimedTagID = 24;
         } else {
@@ -55,6 +66,7 @@ public class SmartShooter2 {
 
         transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
         transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
+        turretHead.setTargetRotation(0);
 
     }
 
@@ -66,10 +78,14 @@ public class SmartShooter2 {
     public void aim() {
         turretHead.update();
         Vector2d targetPose;
-        if (Constants.TEAM.equals("RED")){
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})){
+            targetPose = Constants.OdometryConstants.targetPosMotif;
+        } else if (Constants.TEAM.equals("RED")){
             targetPose = Constants.OdometryConstants.targetPosRed;
+            Constants.VisionConstants.pipeline = 1;
         } else {
             targetPose = Constants.OdometryConstants.targetPosBlue;
+            Constants.VisionConstants.pipeline = 2;
         }
         double detectedX;
         double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
@@ -85,11 +101,13 @@ public class SmartShooter2 {
         if (Double.isNaN(sv)) sv = 0;
         seeTarget = false;
         // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : Vision.getDetections()) {
-            if (detection.id == aimedTagID) {
+        LLResult result = Vision.getDetections();
+        List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+        for (LLResultTypes.FiducialResult fr : fiducialResults) {
+            if (fr.getFiducialId() == aimedTagID) {
                 seeTarget = true;
-                detectedX = detection.ftcPose.x;
-                distance = (detection.ftcPose.range + Constants.ShooterConstants.centerOffset);
+                detectedX = fr.getTargetXPixels();
+                distance = (30 - Constants.Sizes.robotHeight) / Math.tan(Math.toRadians(result.getTy()) + Constants.VisionConstants.cameraAngle);
                 double angleOffset = Math.toDegrees(Math.acos(Constants.VisionConstants.inOffset / distance));
                 double xOffset = detectedX - Constants.VisionConstants.resX / 2;
                 double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset + angleOffset; // degrees;
@@ -126,7 +144,7 @@ public class SmartShooter2 {
     }
 
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed && Math.abs(getShooterVelocity() - shooterVel - fv) < 20 ) {
+        if (!buttonPressed || !(Math.abs(getShooterVelocity() - shooterVel - fv) < 204)) {
             flipServo.setPosition(1);
             transferServo.setPower(0);
         } else {
@@ -137,7 +155,7 @@ public class SmartShooter2 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        double h = (48 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
+        double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8; //9.8m/s in inches
         distance /= 39.37;
         z = Math.abs(h / (g * distance) - distance);
@@ -159,7 +177,7 @@ public class SmartShooter2 {
         turretHead.setTargetRotation(angle / Constants.ShooterConstants.turretHeadGearRatio);
         //turretHead.setTargetRotation(0);
         turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distance, t)));
-        shoot(shooterVel - frontV);
+        //shoot(shooterVel - frontV);
     }
 
 
@@ -176,6 +194,8 @@ public class SmartShooter2 {
         telemetry.addData("aimed: ", aimed);
         telemetry.addData("sees april tag:", seeTarget);
         telemetry.addData("Current pos:", Constants.OdometryConstants.fieldPos.position);
+        telemetry.addData("Current heading:", Constants.OdometryConstants.fieldPos.heading);
+        telemetry.addData("Camera pos:", cameraPos);
         telemetry.addData("Target vel: ", shooterVel);
         telemetry.addData("Time: ", t);
         telemetry.addData("Parabola end: ", z);

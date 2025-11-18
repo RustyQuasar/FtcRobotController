@@ -1,118 +1,111 @@
 package Subsystems;
-
-import android.util.Size;
-
-import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-
-import java.util.Arrays;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
-
+import java.util.Arrays;
 import Utilities.Constants;
 
 public class Vision {
-    private Position cameraPosition = new Position(DistanceUnit.INCH, 0, 0, 0, 0); //Idk what this is but I'm too afraid to delete it
-    //TODO: Get this shit ;-;
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, 0, -90, 0, 0);
-    private AprilTagProcessor aprilTag;
-    List<AprilTagDetection> currentDetections;
-
-    public Vision(HardwareMap hardwareMap, FtcDashboard dashboard) {
-        initAprilTag(hardwareMap, dashboard);
+    private Limelight3A limelight;
+    LLResult result;
+    int currentPipeline = 0;
+    public Vision(HardwareMap hardwareMap, Telemetry telemetry) {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(0);
+        telemetry.setMsTransmissionInterval(11);
+        limelight.start();
+        result = limelight.getLatestResult();
     }
 
-    private void initAprilTag(HardwareMap hardwareMap, FtcDashboard dashboard) {
-
-        // Create the AprilTag processor.
-        aprilTag = new AprilTagProcessor.Builder()
-
-                // The following default settings are available to un-comment and edit as needed.
-                .setDrawAxes(true).setDrawCubeProjection(true).setDrawTagOutline(true).setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11).setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary()).setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-
-                // == CAMERA CALIBRATION ==
-                // If you do not manually specify calibration parameters, the SDK will attempt
-                // to load a predefined calibration for your camera.
-                //            focalLength="822.317f, 822.317f"
-                //            principalPoint="319.495f, 242.502f"
-                .setLensIntrinsics(822.317, 822.317, 319.495, 242.502)
-                // ... these parameters are fx, fy, cx, cy.
-                //Calibrations can be found in teamwebcamcalibrations.xml under res/xml, then ctrl+f C270
-                //However idk how to use em
-                .build();
-
-        // Adjust Image Decimation to trade-off detection-range for detection-rate.
-        // eg: Some typical detection data using a Logitech C920 WebCam
-        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
-        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
-        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
-        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
-        // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(3);
-
-        // Create the vision portal by using a builder.
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-
-        // Set the camera (webcam vs. built-in RC phone camera).
-        builder.setCamera(hardwareMap.get(WebcamName.class, Constants.VisionConstants.camera));
-
-        // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(Constants.VisionConstants.resX, Constants.VisionConstants.resY));
-
-        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        builder.enableLiveView(true);
-
-        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
-        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
-
-        // Choose whether or not LiveView stops if no processors are enabled.
-        // If set "true", monitor shows solid orange screen if no processors enabled.
-        // If set "false", monitor shows camera view without annotations.
-        builder.setAutoStopLiveView(false);
-
-        // Set and enable the processor.
-        builder.addProcessor(aprilTag);
-
-        // Build the Vision Portal, using the above settings.
-        VisionPortal visionPortal = builder.build();
-
-        // Disable or re-enable the aprilTag processor at any time.
-        visionPortal.setProcessorEnabled(aprilTag, true);
-
-        dashboard.startCameraStream(visionPortal, 30);
-
-    }
-
-    public List<AprilTagDetection> getDetections() {
-        if (Arrays.equals(Constants.VisionConstants.colours, new String[]{"N", "N", "N"})) {
-            Constants.VisionConstants.colours = setColours(currentDetections);
-        }
-        return currentDetections;
+    public LLResult getDetections() {
+        return result;
     }
 
     public void updateAprilTags() {
-        currentDetections = aprilTag.getDetections();
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[]{"N", "N", "N"})) {
+            Constants.VisionConstants.colours = setColours();
+        }
+        if (currentPipeline != Constants.VisionConstants.pipeline) {
+            limelight.pipelineSwitch(Constants.VisionConstants.pipeline);
+            currentPipeline = Constants.VisionConstants.pipeline;
+        }
+        result = limelight.getLatestResult();
     }
 
-    public String[] setColours(List<AprilTagDetection> currentDetections) {
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.id == 21) {
-                return new String[]{"G", "P", "P"};
-            } else if (detection.id == 22) {
-                return new String[]{"P", "G", "P"};
-            } else if (detection.id == 23) {
-                return new String[]{"P", "P", "G"};
+    public String[] setColours() {
+        if (result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                switch (fr.getFiducialId()) {
+                    case 21:
+                        return new String[]{"G", "P", "P"};
+                    case 22:
+                        return new String[]{"P", "G", "P"};
+                    case 23:
+                        return new String[]{"P", "P", "G"};
+                }
             }
         }
         return new String[]{"N", "N", "N"};
+    }
+    public void telemetry(Telemetry telemetry){
+        telemetry.addData("Colours: ", Constants.VisionConstants.colours[0] + Constants.VisionConstants.colours[1] + Constants.VisionConstants.colours[2]);
+        telemetry.addData("Current pipeline: ", currentPipeline);
+        telemetry.addData("Intended pipeline: ", Constants.VisionConstants.pipeline);
+        telemetry.addData("Running: ", limelight.isRunning());
+        telemetry.addData("Connected: ", limelight.isConnected());
+        if (result.isValid()) {
+            // Access general information
+            Pose3D botpose = result.getBotpose();
+            double captureLatency = result.getCaptureLatency();
+            double targetingLatency = result.getTargetingLatency();
+            double parseLatency = result.getParseLatency();
+            telemetry.addData("LL Latency", captureLatency + targetingLatency);
+            telemetry.addData("Parse Latency", parseLatency);
+
+            telemetry.addData("tx", result.getTx());
+            telemetry.addData("txnc", result.getTxNC());
+            telemetry.addData("ty", result.getTy());
+            telemetry.addData("tync", result.getTyNC());
+
+            telemetry.addData("Botpose", botpose.toString());
+
+            // Access barcode results
+            List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
+            for (LLResultTypes.BarcodeResult br : barcodeResults) {
+
+                telemetry.addData("Barcode", "Data: %s", br.getData());
+            }
+
+            // Access classifier results
+            List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
+            for (LLResultTypes.ClassifierResult cr : classifierResults) {
+                telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
+            }
+
+            // Access detector results
+            List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
+            for (LLResultTypes.DetectorResult dr : detectorResults) {
+                telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
+            }
+
+            // Access fiducial results
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+            }
+
+            // Access color results
+            List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
+            for (LLResultTypes.ColorResult cr : colorResults) {
+                telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
+            }
+        } else {
+            telemetry.addData("Limelight", "No data available");
+        }
     }
 }
