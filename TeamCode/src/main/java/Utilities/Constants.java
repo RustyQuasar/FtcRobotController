@@ -51,7 +51,7 @@ public final class Constants {
         public static final String transferServo = "transferServo"; //Control hub Servo port 1
         public static final String blockServo = "blockServo";
 
-        public static final String hoodServo = "hoodServo";
+        public static final String hoodServo = "turretHead";
         //Encoders
 
        // public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0

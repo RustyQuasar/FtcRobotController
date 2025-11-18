@@ -49,9 +49,9 @@ public class Teleop extends LinearOpMode {
         while (opModeIsActive()) {
 
         activeGamepad1.copy(gamepad1);
-        if(activeGamepad1.left_trigger>0.1){Shooter.shoot(0.8);}
+        if(activeGamepad1.left_trigger>0.1){Shooter.shoot(-0.8);}
         else{Shooter.shoot(0);}
-Shooter.Hood(activeGamepad1.right_trigger);
+//Shooter.Hood(activeGamepad1.right_trigger);
 
         if (activeGamepad1.left_bumper) {
             Intake.intake((true), 0.8);
