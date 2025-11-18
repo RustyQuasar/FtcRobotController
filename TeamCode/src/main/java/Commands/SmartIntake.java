@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import Subsystems.RTPAxon;
 import Utilities.Constants;
 
 public class SmartIntake {
@@ -24,7 +25,15 @@ public class SmartIntake {
     boolean ballPresent = false;
     int scans = 0;
 
+    private final Servo block;
+    private final CRServo transfer1,transfer2;
+
     public SmartIntake(HardwareMap hardwareMap) {
+
+        block = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretBlockServo);
+
+        transfer1 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
+        transfer2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         motorIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         colorSen = hardwareMap.get(ColorSensor.class, Constants.IntakeConstants.colourSensor);
@@ -82,7 +91,7 @@ public class SmartIntake {
         telemetry.addData("Scans: ", scans);
     }
 
-    public void intake(boolean trigger, boolean a) {
+    public void intake(boolean trigger, boolean a , boolean Shooting) {
         double motorPower = 0.8;
         if (!trigger && a) motorPower *= -1;
         colorRegister();
@@ -105,9 +114,17 @@ public class SmartIntake {
                 }
             } else {
                 motorIntake.setPower(motorPower);
+               if( Shooting){
+                   transfer1.setPower(1);
+                   transfer2.setPower(1);
+                   block.setPosition(1);
+               }
             }
         } else {
             motorIntake.setPower(0);
+            transfer1.setPower(0);
+            transfer2.setPower(0);
+            block.setPosition(0);
         }
     }
 }

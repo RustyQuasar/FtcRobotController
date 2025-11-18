@@ -57,7 +57,7 @@ public class Auto extends LinearOpMode {
 
         // HYBRID C1: enable intake once (one-shot toggle) so it runs for the whole auto
         try {
-            intake.intake(true, false); // one-shot: turns intake ON
+            intake.intake(true, false,false); // one-shot: turns intake ON
         } catch (Exception e) {
             telemetry.addData("Intake init err", e.getMessage());
             telemetry.update();
@@ -138,7 +138,7 @@ public class Auto extends LinearOpMode {
         }
 
         // Disable intake and shooter transfer to be safe
-        try { intake.intake(false, false); } catch (Exception ignored){}
+        try { intake.intake(false, false, false); } catch (Exception ignored){}
         try { shooter.transfer(false); } catch (Exception ignored){}
 
         telemetry.addLine("Sequence complete!");

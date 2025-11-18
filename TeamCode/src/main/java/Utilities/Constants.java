@@ -49,6 +49,7 @@ public final class Constants {
         public static final String flipServo = "flipServo"; //Control hub Servo port 1
         //Encoders
         public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
+        public static final String turretBlockServo = "turretBlock";
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final double shooterGearRatio = 21/15; //Gear multiplier
         public static final double turretNeckGearRatio = (double) 18 / 210; //Gear multiplier

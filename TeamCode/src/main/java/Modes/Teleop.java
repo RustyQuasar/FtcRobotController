@@ -44,12 +44,12 @@ public class Teleop extends LinearOpMode {
             Vision.updateAprilTags();
             //Shooter.aim();
             activeGamepad1.copy(gamepad1);
-            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
+            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a,activeGamepad1.left_trigger>0.3);
             if (activeGamepad1.left_trigger > 0.3) {
                 Shooter.shoot(activeGamepad1.left_trigger * 2040);
                 Shooter.transfer(true);
                 Intake.colorWipe();
-            } else {
+            }else{
                 Shooter.transfer(false);
                 Shooter.shoot(0);
             }
@@ -64,7 +64,7 @@ public class Teleop extends LinearOpMode {
                 odometry.resetYaw();
             }
 
-            if (activeGamepad1.y && !lastYInput) {
+            if (activeGamepad1.yWasReleased()) {
                 Elevator.switchState();
             }
             lastYInput = activeGamepad1.y;
