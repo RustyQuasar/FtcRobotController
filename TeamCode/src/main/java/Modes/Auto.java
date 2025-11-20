@@ -13,10 +13,9 @@ import java.util.Arrays;
 
 import Commands.MecanumDrive;
 import Commands.SmartIntake;
-import Commands.SmartShooter2;
+import Commands.SmartShooter3;
 import Subsystems.Vision;
 import Subsystems.ThreeDeadWheelLocalizer;
-import Utilities.ConfigVariables;
 import Utilities.Constants;
 
 @Autonomous
@@ -24,7 +23,7 @@ public class Auto extends LinearOpMode {
     FtcDashboard dashboard;
     ThreeDeadWheelLocalizer odometry;
     SmartIntake intake;
-    SmartShooter2 shooter;
+    SmartShooter3 shooter;
     MecanumDrive drive;
     Vision vision;
 
@@ -33,13 +32,13 @@ public class Auto extends LinearOpMode {
         // --- initialize subsystems ---
         dashboard = FtcDashboard.getInstance();
         vision = new Vision(hardwareMap, telemetry);
-        shooter = new SmartShooter2(hardwareMap, vision);
+        shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
         double artifactY = y(40.133805);
         Action driveSequence;
 
-        int path = ConfigVariables.path; // keep your path selection logic here
+        int path = 1; // keep your path selection logic here
         if (path == 1) {
             Constants.OdometryConstants.startPos = new Pose2d(0, y(0), heading(0));
             driveSequence = drive.actionBuilder(Constants.OdometryConstants.startPos)
@@ -177,11 +176,11 @@ public class Auto extends LinearOpMode {
  * Including these in the drive.builder via stopAndAdd(...) is fine — they are executed sequentially at that point.
  */
 class TransferCommand implements Action {
-    private final SmartShooter2 shooter;
+    private final SmartShooter3 shooter;
     private final boolean transferOn;
     private boolean ran = false;
 
-    public TransferCommand(SmartShooter2 shooter, boolean transferOn) {
+    public TransferCommand(SmartShooter3 shooter, boolean transferOn) {
         this.shooter = shooter;
         this.transferOn = transferOn;
     }

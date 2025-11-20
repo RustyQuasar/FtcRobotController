@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Commands.Elevator;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
-import Commands.SmartShooter2;
+import Commands.SmartShooter3;
 import Subsystems.Vision;
 import Subsystems.ThreeDeadWheelLocalizer;
 import Utilities.Constants;
@@ -21,7 +21,7 @@ public class Teleop extends LinearOpMode {
     Gamepad activeGamepad1;
     MechanumDrive Mechanum;
     SmartIntake Intake;
-    SmartShooter2 Shooter;
+    SmartShooter3 Shooter;
     Vision Vision;
     ThreeDeadWheelLocalizer odometry;
     Elevator Elevator;
@@ -34,7 +34,7 @@ public class Teleop extends LinearOpMode {
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, telemetry);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter2(hardwareMap, Vision);
+        Shooter = new SmartShooter3(hardwareMap, Vision);
         Elevator = new Elevator(hardwareMap);
         waitForStart();
 
@@ -66,7 +66,7 @@ public class Teleop extends LinearOpMode {
                 Elevator.switchState();
             }
             //Mechanum.telemetry(telemetry);
-            Shooter.telemetry(telemetry);
+            //Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
             //Vision.telemetry(telemetry);
             odometry.telemetry(telemetry);

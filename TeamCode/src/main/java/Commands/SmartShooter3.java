@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -22,9 +23,10 @@ import java.util.List;
 
 import Subsystems.RTPAxon;
 import Subsystems.Vision;
+import Utilities.ConfigVariables;
 import Utilities.Constants;
 
-public class SmartShooter2 {
+public class SmartShooter3 {
     private final DcMotorEx leftShooter, rightShooter;
     private final Servo flipServo;
     private final DcMotorEx turretNeckMotor;
@@ -42,11 +44,11 @@ public class SmartShooter2 {
     double z;
     double fv;
     Pose2d cameraPos;
-    public SmartShooter2(HardwareMap hardwareMap, Vision vision) {
+    int targetNeckPos;
+    public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
-        turretNeckMotor.setPower(0.8);
         AnalogInput turretHeadEncoder = hardwareMap.get(AnalogInput.class, Constants.ShooterConstants.turretHeadEncoder);
         CRServo turretHeadServo = hardwareMap.get(CRServo.class, Constants.ShooterConstants.turretHeadServo);
         turretHead = new RTPAxon(turretHeadServo, turretHeadEncoder);
@@ -54,6 +56,9 @@ public class SmartShooter2 {
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        turretNeckMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turretNeckMotor.setTargetPosition(0);
+        turretNeckMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -70,12 +75,18 @@ public class SmartShooter2 {
 
     }
 
-    public void shoot(double power) {
-        leftShooter.setVelocity(power);
+    public void shoot(double vel) {
+        leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(ConfigVariables.p, ConfigVariables.i, ConfigVariables.d, 0));
+        leftShooter.setVelocity(vel);
         rightShooter.setPower(leftShooter.getPower());
     }
 
     public void aim() {
+        if (turretNeckMotor.getCurrentPosition() != turretNeckMotor.getTargetPosition()) {
+            turretNeckMotor.setPower(0.5);
+        } else {
+            turretNeckMotor.setPower(0);
+        }
         turretHead.update();
         Vector2d targetPose;
         if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"})){
@@ -93,7 +104,7 @@ public class SmartShooter2 {
         if (botHeading < 0) {
             botHeading += max;
         }
-        double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * max / Constants.ShooterConstants.turretNeckGearRatio;
+        double neckHeading= botHeading + ((double) turretNeckMotor.getCurrentPosition() / Constants.StudickaMotorMax) * max * Constants.ShooterConstants.turretNeckGearRatio;
         neckHeading -= (Math.floor(neckHeading / max) * max);
         fv = Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
         if (Double.isNaN(fv)) fv = 0;
@@ -122,8 +133,8 @@ public class SmartShooter2 {
         }
         if (!seeTarget){
             //+72 because negatives suck
-             xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
-             yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
+            xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
+            yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             //TOA in the indian princess' name
@@ -144,7 +155,8 @@ public class SmartShooter2 {
     }
 
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(getShooterVelocity() - shooterVel - fv) < 204)) {
+        //if (!buttonPressed || !(Math.abs(getShooterVelocity() - shooterVel - fv) < 204)) {
+        if (!buttonPressed) {
             flipServo.setPosition(1);
             transferServo.setPower(0);
         } else {
@@ -155,29 +167,28 @@ public class SmartShooter2 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
+        distance = Math.min(distance - 24, 0);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8; //9.8m/s in inches
-        distance /= 39.37;
-        z = Math.abs(h / (g * distance) - distance);
+        double distanceMeters = distance / 39.37;
+        z = Math.abs(h / (g * distanceMeters) - distanceMeters);
         double AOS = z / 2;
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
         double H = Math.abs(g * AOS * AOS);
         t = Math.abs(Math.sqrt(2 * H / -g));
-        double vH = 2 * z / t;
-        double vV = t * g;
-        double angle = Math.toDegrees(Math.atan2(vV, vH));
+
+        double angle = distance * 0.3;
         if (angle < 0){
             angle = 0;
             //Idk why this would be needed but, eh
         } else if (angle > Constants.ShooterConstants.maxHeadAngle){
             angle = Constants.ShooterConstants.maxHeadAngle;
-            vV /= Math.sin(Math.toRadians(angle));
         }
-        shooterVel = Math.sqrt(Math.pow(vH, 2) + Math.pow(vV, 2)) / (Constants.ShooterConstants.shooterGearRatio * Constants.ShooterConstants.flyWheelDiameter * Math.PI / 39.37) * Constants.GoBildaMotorMax;
+        shooterVel = distance * ((double) 450 / (120 - 24)) + 1000;
         turretHead.setTargetRotation(angle / Constants.ShooterConstants.turretHeadGearRatio);
-        //turretHead.setTargetRotation(0);
-        turretNeckMotor.setTargetPosition((int) (turretNeckMotor.getTargetPosition() + xTurn(angleToTurn, sideV, distance, t)));
-        //shoot(shooterVel - frontV);
+        targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t));
+        turretNeckMotor.setTargetPosition(targetNeckPos);
+        shoot(shooterVel);
     }
 
 
@@ -186,31 +197,30 @@ public class SmartShooter2 {
         telemetry.addLine("Shooter");
         telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addData("Turret neck angle: ", turretNeckMotor.getCurrentPosition());
-        telemetry.addData("Turret head position: ", turretHead.getCurrentAngle());
+        telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
+        telemetry.addData("Turret head angle: ", turretHead.getCurrentAngle());
+        telemetry.addData("Turret neck target pos:", targetNeckPos);
         telemetry.addData("Distance: ", distance);
-        telemetry.addData("xChange: ", xChange);
-        telemetry.addData("yChange: ", yChange);
         telemetry.addData("aimed: ", aimed);
         telemetry.addData("sees april tag:", seeTarget);
         telemetry.addData("Current pos:", Constants.OdometryConstants.fieldPos.position);
         telemetry.addData("Current heading:", Constants.OdometryConstants.fieldPos.heading);
-        telemetry.addData("Camera pos:", cameraPos);
         telemetry.addData("Target vel: ", shooterVel);
         telemetry.addData("Time: ", t);
-        telemetry.addData("Parabola end: ", z);
-        telemetry.addData("fV", fv);
         telemetry.addData("Shooter vel", leftShooter.getVelocity());
+        telemetry.addData("Shooter PID", leftShooter.getPIDFCoefficients(leftShooter.getMode()));
         telemetry.update();
     }
 
     private double xTurn(double angleToTurnDeg, double velocity, double distance, double time) {
         double leadAngleDeg = Math.toDegrees(Math.atan2(velocity, distance / time));
-        double angleDiff =  (angleToTurnDeg - leadAngleDeg) / Constants.ShooterConstants.turretNeckGearRatio;
+        double angleDiff = angleToTurnDeg - leadAngleDeg;
         if (angleDiff < 0){
             angleDiff += 360;
         }
-        return angleDiff * Constants.StudickaMotorMax / Constants.ShooterConstants.turretNeckGearRatio / 360;
+        //return angleDiff * Constants.StudickaMotorMax / Constants.ShooterConstants.turretNeckGearRatio / 360;
+        return (angleDiff /Constants.StudickaMotorMax) * ((double) Constants.StudickaMotorMax / 360);
+
     }
 
 }

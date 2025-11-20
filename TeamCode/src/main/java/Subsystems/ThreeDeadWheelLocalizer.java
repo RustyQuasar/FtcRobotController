@@ -30,11 +30,10 @@ import messages.ThreeDeadWheelInputsMessage;
 @Config
 public final class ThreeDeadWheelLocalizer {
     public static class Params {
-        public double par0YTicks = 0.0; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 0.0; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
-
-        public double inPerTick = Constants.OdometryConstants.deadwheelDiameter / Constants.OdometryConstants.externalMax;
+        public double par0YTicks = 10.0; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks = -10.0; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks = 10.0; // x position of the perpendicular encoder (in tick units)
+        double inPerTick = 1.0 /1750;
     }
 
     public static Params PARAMS = new Params();
@@ -44,7 +43,7 @@ public final class ThreeDeadWheelLocalizer {
     private boolean initialized;
     BNO055IMU imu;
     private double yawOffset;
-
+    Pose2d pos;
     public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, Pose2d initialPose) {
 
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
@@ -65,8 +64,9 @@ public final class ThreeDeadWheelLocalizer {
 
         FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
 
-        Constants.OdometryConstants.fieldPos = initialPose;
+        pos = initialPose;
         resetYaw();
+        initialized = false;
     }
 
     private double getRawHeading() {
@@ -79,7 +79,12 @@ public final class ThreeDeadWheelLocalizer {
     }
 
     public void resetYaw() {
-        yawOffset = getRawHeading();
+        yawOffset = getRawHeading() + Math.PI;
+        if (yawOffset > 2 * Math.PI) {
+            yawOffset -= Math.PI * 2;
+        } else if (yawOffset < 0) {
+            yawOffset += Math.PI * 2;
+        }
     }
 
     public void update() {
@@ -96,7 +101,7 @@ public final class ThreeDeadWheelLocalizer {
             lastPar1Pos = par1PosVel.position;
             lastPerpPos = perpPosVel.position;
 
-            Constants.OdometryConstants.fieldVels =  new PoseVelocity2d(new Vector2d(0.0, 0.0), 0.0);
+            Constants.OdometryConstants.fieldVels = new PoseVelocity2d(new Vector2d(0.0, 0.0), 0.0);
         }
 
         int par0PosDelta = par0PosVel.position - lastPar0Pos;
@@ -124,16 +129,22 @@ public final class ThreeDeadWheelLocalizer {
         lastPar1Pos = par1PosVel.position;
         lastPerpPos = perpPosVel.position;
 
-        Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.fieldPos.plus(twist.value());
-        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.x)) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.startPos.position.x, Constants.OdometryConstants.fieldPos.position.y, 0);
-        if (Double.isNaN(Constants.OdometryConstants.fieldPos.position.y)) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.startPos.position.y, 0);
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, getRawHeading() - yawOffset);
-        if (Double.isNaN(Constants.OdometryConstants.fieldPos.heading.toDouble())) Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, 0);
+        pos = pos.plus(twist.value());
+        Constants.OdometryConstants.fieldPos = pos;
         Constants.OdometryConstants.fieldVels = twist.velocity().value();
     }
 
     public void telemetry(Telemetry telemetry){
+        update();
         telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos);
+        telemetry.addData("Field vel: ", Constants.OdometryConstants.fieldVels);
+        telemetry.addData("Local pos", pos);
+        telemetry.addData("Perp pos: ", perp.getPositionAndVelocity().position);
+        telemetry.addData("Par0 pos: ", par0.getPositionAndVelocity().position);
+        telemetry.addData("Par1 pos: ", par1.getPositionAndVelocity().position);
+        telemetry.addData("Perp vel: ", perp.getPositionAndVelocity().velocity);
+        telemetry.addData("Par0 vel: ", par0.getPositionAndVelocity().velocity);
+        telemetry.addData("Par1 vel: ", par1.getPositionAndVelocity().velocity);
     }
 
 }
