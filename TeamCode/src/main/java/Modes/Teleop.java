@@ -24,7 +24,7 @@ public class Teleop extends LinearOpMode {
     SmartShooter3 Shooter;
     Vision Vision;
     ThreeDeadWheelLocalizer odometry;
-    Elevator Elevator;
+    //Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
@@ -35,7 +35,7 @@ public class Teleop extends LinearOpMode {
         Vision = new Vision(hardwareMap, telemetry);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter3(hardwareMap, Vision);
-        Elevator = new Elevator(hardwareMap);
+        //Elevator = new Elevator(hardwareMap);
         waitForStart();
 
         while (opModeIsActive()) {
@@ -60,10 +60,6 @@ public class Teleop extends LinearOpMode {
 
             if (activeGamepad1.dpad_down) {
                 odometry.resetYaw();
-            }
-
-            if (activeGamepad1.yWasReleased()) {
-                Elevator.switchState();
             }
             //Mechanum.telemetry(telemetry);
             //Shooter.telemetry(telemetry);
