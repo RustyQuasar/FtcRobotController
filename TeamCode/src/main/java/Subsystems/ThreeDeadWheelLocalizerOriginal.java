@@ -28,7 +28,7 @@ import Utilities.Constants;
 import messages.ThreeDeadWheelInputsMessage;
 
 @Config
-public final class ThreeDeadWheelLocalizer {
+public final class ThreeDeadWheelLocalizerOriginal {
     public static class Params {
         double inPerTick = 1.0 / 720;
         public double par0YTicks = 3/inPerTick; // y position of the first parallel encoder (in tick units)
@@ -41,7 +41,7 @@ public final class ThreeDeadWheelLocalizer {
     private boolean initialized;
     BNO055IMU imu;
     private double yawOffset;
-    public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, Pose2d initialPose) {
+    public ThreeDeadWheelLocalizerOriginal(HardwareMap hardwareMap, Pose2d initialPose) {
 
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -122,48 +122,18 @@ public final class ThreeDeadWheelLocalizer {
                         (par0PosVel.velocity - par1PosVel.velocity) / (PARAMS.par0YTicks - PARAMS.par1YTicks),
                 })
         );
-// save last encoder positions (you already do this)
+
         lastPar0Pos = par0PosVel.position;
         lastPar1Pos = par1PosVel.position;
         lastPerpPos = perpPosVel.position;
-
-// local twist (robot frame)
-        Pose2d localDelta = pose.plus(twist.value());            // .position.x/.position.y are in robot frame
-        double dtheta = localDelta.heading.toDouble(); // change in heading (radians)
-
-// previous/global heading before applying this delta
-        double prevHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
-
-// use midpoint heading for rotation (better accuracy for finite rotation)
-        double midHeading = prevHeading + dtheta * 0.5;
-
-// rotate local dx,dy into global frame
-        double lx = localDelta.position.x;
-        double ly = localDelta.position.y;
-        double gx = lx * Math.cos(midHeading) - ly * Math.sin(midHeading);
-        double gy = lx * Math.sin(midHeading) + ly * Math.cos(midHeading);
-
-// apply to global pose
-        double newX = Constants.OdometryConstants.fieldPos.position.x + gx;
-        double newY = Constants.OdometryConstants.fieldPos.position.y + gy;
-
-// compute new heading — prefer IMU if you want absolute heading, otherwise integrate:
-        double imuHeading = getRawHeading() - yawOffset;
-// wrap imuHeading to [0, 2pi)
-        while (imuHeading < 0) imuHeading += 2.0 * Math.PI;
-        while (imuHeading >= 2.0 * Math.PI) imuHeading -= 2.0 * Math.PI;
-
-// choose which heading to use. If you want to trust IMU:
-        double newHeading = imuHeading;
-// OR, if you prefer integrated heading from odometry uncomment:
-// double newHeading = prevHeading + dtheta;
-
-// set final pose
-        Constants.OdometryConstants.fieldPos = new Pose2d(newX, newY, newHeading);
-
-// velocities
+        double heading = getRawHeading() - yawOffset;
+        if (heading < 0) heading += Math.PI * 2;
+        if (heading > Math.PI * 2) heading -= Math.PI * 2;
+        pose = pose.plus(twist.value());
+        if (Double.isNaN(pose.position.x)) pose = new Pose2d(0, pose.position.y, 0);
+        if (Double.isNaN(pose.position.y)) pose = new Pose2d(pose.position.x, 0, 0);
+        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x + pose.position.x, Constants.OdometryConstants.fieldPos.position.y + pose.position.y, heading);
         Constants.OdometryConstants.fieldVels = twist.velocity().value();
-
     }
 
     public void telemetry(Telemetry telemetry){

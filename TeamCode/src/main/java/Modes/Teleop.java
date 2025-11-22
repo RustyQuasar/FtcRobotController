@@ -7,12 +7,11 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import Commands.Elevator;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.Vision;
-import Subsystems.ThreeDeadWheelLocalizer;
+import Subsystems.ThreeDeadWheelLocalizerOriginal;
 import Utilities.Constants;
 
 @TeleOp
@@ -23,13 +22,13 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter3 Shooter;
     Vision Vision;
-    ThreeDeadWheelLocalizer odometry;
+    ThreeDeadWheelLocalizerOriginal odometry;
     //Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
+        odometry = new ThreeDeadWheelLocalizerOriginal(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap, telemetry);
@@ -45,11 +44,11 @@ public class Teleop extends LinearOpMode {
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             if (activeGamepad1.left_trigger > 0.3) {
-                Shooter.shoot(activeGamepad1.left_trigger * 2040);
+                //Shooter.shoot(activeGamepad1.left_trigger * 2040);
                 Shooter.transfer(true);
             } else {
                 Shooter.transfer(false);
-                Shooter.shoot(0);
+                //Shooter.shoot(0);
             }
 
             Mechanum.drive(
@@ -62,7 +61,7 @@ public class Teleop extends LinearOpMode {
                 odometry.resetYaw();
             }
             //Mechanum.telemetry(telemetry);
-            //Shooter.telemetry(telemetry);
+            Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
             //Vision.telemetry(telemetry);
             odometry.telemetry(telemetry);

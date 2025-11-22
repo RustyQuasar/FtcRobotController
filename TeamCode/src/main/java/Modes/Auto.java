@@ -15,13 +15,13 @@ import Commands.MecanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.Vision;
-import Subsystems.ThreeDeadWheelLocalizer;
+import Subsystems.ThreeDeadWheelLocalizerOriginal;
 import Utilities.Constants;
 
 @Autonomous
 public class Auto extends LinearOpMode {
     FtcDashboard dashboard;
-    ThreeDeadWheelLocalizer odometry;
+    ThreeDeadWheelLocalizerOriginal odometry;
     SmartIntake intake;
     SmartShooter3 shooter;
     MecanumDrive drive;
@@ -50,7 +50,7 @@ public class Auto extends LinearOpMode {
         }
 
         // Wait for start - keep init logic above so dashboard/vision/odometry are ready
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.startPos);
+        odometry = new ThreeDeadWheelLocalizerOriginal(hardwareMap, Constants.OdometryConstants.startPos);
         waitForStart();
         if (isStopRequested()) return;
 

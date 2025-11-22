@@ -46,8 +46,8 @@ public final class Constants {
         //Encoders
         public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
-        public static final double shooterGearRatio = 1; //Gear multiplier
-        public static final double turretNeckGearRatio = (double) 35 / 197 / 19.2; //Gear multiplier
+        public static final double shooterGearRatio = 21.0/15; //Gear multiplier
+        public static final double turretNeckGearRatio = (double) 19.2 * 35 / 197; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 50;
         public static final double maxNeckAngle = 90;
