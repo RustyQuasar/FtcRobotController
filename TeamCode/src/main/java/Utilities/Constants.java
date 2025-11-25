@@ -43,6 +43,7 @@ public final class Constants {
 
     public static final class ShooterConstants {
         //GoBilda
+        public static final double turretHeadTicksPerEncoder=0/0; //todo
         public static final double smallTriangleDist = 0.23; /*meters*/
         public static final double largeTriangleDist = 0.71; /*meters*/
         public static final String leftShooter1 = "leftShooter"; //Expansion hub Motor port 1, rr parallel deadwheel 1

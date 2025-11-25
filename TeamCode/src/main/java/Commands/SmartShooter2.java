@@ -3,11 +3,14 @@ package Commands;
 
 //import com.acmerobotics.roadrunner.Pose2d;
 //import com.acmerobotics.roadrunner.Vector2d;
+import static com.sun.tools.doclint.Entity.Pi;
+
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -17,6 +20,7 @@ import Utilities.Constants;
 import Utilities.RTPAxon;
 
 public class SmartShooter2 {
+    private final IMU imu;
     private final DcMotorEx leftShooter;
     private final DcMotor rightShooter;
     //private final CRServo transferServo;
@@ -27,6 +31,7 @@ public class SmartShooter2 {
     //Vision Vision;
 
     public SmartShooter2(HardwareMap hardwareMap) {
+        imu = hardwareMap.get(IMU.class,Constants.DriveTrainConstants.imu);
 //        hoodServo = hardwareMap.get(RTPAxon.class, Constants.ShooterConstants.hoodServo);
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter1);
         rightShooter = hardwareMap.get(DcMotor.class, Constants.ShooterConstants.rightShooter2);
@@ -46,6 +51,10 @@ public class SmartShooter2 {
 
 
       //  Vision = vision;
+    }
+
+    public double globalPos(){
+        return ((turretNeckMotor.getVelocity()/Constants.ShooterConstants.turretHeadTicksPerEncoder)*Constants.ShooterConstants.turretNeckGearRatio)-imu.getRobotYawPitchRollAngles().getYaw();
     }
 public void manualTurn(double power){
         turretNeckMotor.setPower(power);
