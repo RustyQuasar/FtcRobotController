@@ -6,8 +6,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
     public static final String TEAM =
-            "RED"
-            //"BLUE"
+            //"RED"
+            "BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
 
@@ -33,8 +33,8 @@ public final class Constants {
 
     public static final class ShooterConstants {
         public static final int hoodMax = 255;
-        public static final String leftShooter = "leftShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
-        public static final String rightShooter = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
+        public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
+        public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final String flipServo = "flipServo"; //Expansion hub Servo port 1
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0

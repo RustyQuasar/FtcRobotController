@@ -142,13 +142,13 @@ public class SmartShooter3 {
     }
 
     public void transfer(boolean buttonPressed) {
-        //if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 204)) {
-        if (!buttonPressed) {
-            flipServo.setPosition(0);
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 204)) {
+        //if (!buttonPressed) {
+            flipServo.setPosition(0.1);
             transferServo.setPower(0);
         } else {
             flipServo.setPosition(0.25);
-            transferServo.setPower(1);
+            transferServo.setPower(0.5);
         }
         transferServo2.setPower(-transferServo.getPower());
     }
@@ -166,6 +166,7 @@ public class SmartShooter3 {
         distance -= t * frontV;
         angle = distance * 0.3;
         shooterVel = distance * 3.80334 + 1030.9556;
+        if (distance > 75) shooterVel += 30;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.StudickaMotorMax;
         if (!odometryUsed) {
             targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t));
@@ -192,12 +193,21 @@ public class SmartShooter3 {
         telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
         //telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
         //telemetry.addData("Turret heading: ", neckHeading);
-        telemetry.addData("Turret head pos: ", angle);
-        telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
+        //telemetry.addData("Turret head pos: ", angle);
+        //telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
         telemetry.addData("Distance: ", distance);
         telemetry.addData("Target vel: ", shooterVel);
         telemetry.addData("Shooter vel", leftShooter.getVelocity());
         telemetry.update();
+    }
+    public void manualNeckMotor(boolean leftBumper, boolean rightBumper){
+        if (leftBumper && rightBumper) {turretNeckMotor.setTargetPosition(0); return;}
+        if (leftBumper && Constants.TEAM.equals("RED")) {turretNeckMotor.setTargetPosition(950); return;}
+        if (leftBumper && Constants.TEAM.equals("BLUE")) {turretNeckMotor.setTargetPosition(-950); return;}
+        if (rightBumper) turretNeckMotor.setTargetPosition(0);
+        //target pos +- 950
+        //left bumper is offset pos
+        //right bumper is straight forward (0)
     }
     private double xTurn(double angleToTurnDeg, double velocity, double distance, double time) {
         double leadAngleDeg = Math.toDegrees(Math.acos(velocity / (distance / time)));

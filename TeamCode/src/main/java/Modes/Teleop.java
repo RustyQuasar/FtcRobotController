@@ -46,6 +46,7 @@ public class Teleop extends LinearOpMode {
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             Shooter.transfer(activeGamepad1.left_trigger > 0.3);
+            Shooter.manualNeckMotor(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.turretHeadTester(activeGamepad1.b);
             //Shooter.shoot(activeGamepad1.left_trigger * 2040);
             if (activeGamepad1.left_trigger > 0.3) {
@@ -56,7 +57,7 @@ public class Teleop extends LinearOpMode {
             Mechanum.drive(
                     -gamepad1.left_stick_y,
                     gamepad1.left_stick_x,
-                    gamepad1.right_stick_x
+                    -gamepad1.right_stick_x
             );
 
             if (activeGamepad1.dpad_down) {
