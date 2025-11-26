@@ -20,7 +20,7 @@ public class Vision {
         limelight.start();
         result = limelight.getLatestResult();
     }
-
+public boolean hasTarget(){return result.isValid();}
     public LLResult getDetections() {
         return result;
     }
@@ -54,6 +54,7 @@ public class Vision {
     }
     public void telemetry(Telemetry telemetry){
         telemetry.addData("Status: ", limelight.getStatus());
+        telemetry.addData("do I see?: ", hasTarget());
         telemetry.addData("Colours: ", Constants.VisionConstants.colours[0] + Constants.VisionConstants.colours[1] + Constants.VisionConstants.colours[2]);
         telemetry.addData("Current pipeline: ", currentPipeline);
         telemetry.addData("Intended pipeline: ", Constants.VisionConstants.pipeline);

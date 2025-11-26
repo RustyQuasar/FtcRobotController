@@ -38,8 +38,10 @@ public class Teleop extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
             odometry.update();
             Vision.updateAprilTags();
+            Vision.hasTarget();
             Shooter.aim();
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
