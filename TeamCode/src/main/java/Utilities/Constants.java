@@ -44,10 +44,10 @@ public final class Constants {
         public static final double maxNeckAngle = 90;
     }
     public static final class OdometryConstants{
-        public static Pose2d fieldPos = new Pose2d(Sizes.field/2 - 12, -Sizes.field, 0);
+        public static Pose2d fieldPos = new Pose2d(-Sizes.field/2 + Sizes.robotOffset, -Sizes.field/2 + Sizes.robotOffset, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosRed = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
-        public static final Vector2d targetPosBlue = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
+        public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field/2 - 12);
+        public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field/2 - 12);
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field/2, 0);
         public static Pose2d startPos = new Pose2d(0, 0, 0);
     }

@@ -45,6 +45,7 @@ public class Teleop extends LinearOpMode {
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             Shooter.transfer(activeGamepad1.left_trigger > 0.3);
             //Shooter.turretHeadTester(activeGamepad1.b);
+            Shooter.shoot(activeGamepad1.left_trigger * 2040);
             if (activeGamepad1.left_trigger > 0.3) {
                 Shooter.transfer(true);
             } else {
