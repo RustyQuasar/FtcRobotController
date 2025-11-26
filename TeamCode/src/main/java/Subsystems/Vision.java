@@ -19,13 +19,6 @@ public class Vision {
         telemetry.setMsTransmissionInterval(11);
         limelight.start();
         result = limelight.getLatestResult();
-    }
-public boolean hasTarget(){return result.isValid();}
-    public LLResult getDetections() {
-        return result;
-    }
-
-    public void updateAprilTags() {
         if (Arrays.equals(Constants.VisionConstants.colours, new String[]{"N", "N", "N"})) {
             Constants.VisionConstants.colours = setColours();
         }
@@ -33,7 +26,25 @@ public boolean hasTarget(){return result.isValid();}
             limelight.pipelineSwitch(Constants.VisionConstants.pipeline);
             currentPipeline = Constants.VisionConstants.pipeline;
         }
+    }
+public boolean hasTarget(){return result.isValid();}
+    public LLResult getDetections() {
+        return result;
+    }
+
+    public void updateAprilTags() {
         result = limelight.getLatestResult();
+    }
+    public void setCurrentPipeline(int Pipeline){
+        limelight.pipelineSwitch(Pipeline);
+    }
+
+    public Limelight3A getLimelight() {
+        return limelight;
+    }
+
+    public double[] getTagAngles(){
+        return new double[] {result.getTx(),result.getTy()};
     }
 
     public String[] setColours() {
