@@ -19,6 +19,13 @@ public class Vision {
         telemetry.setMsTransmissionInterval(11);
         limelight.start();
         result = limelight.getLatestResult();
+        if (Arrays.equals(Constants.VisionConstants.colours, new String[]{"N", "N", "N"})) {
+            Constants.VisionConstants.colours = setColours();
+        }
+        if (currentPipeline != Constants.VisionConstants.pipeline) {
+            limelight.pipelineSwitch(Constants.VisionConstants.pipeline);
+            currentPipeline = Constants.VisionConstants.pipeline;
+        }
     }
 public boolean hasTarget(){return result.isValid();}
     public LLResult getDetections() {
