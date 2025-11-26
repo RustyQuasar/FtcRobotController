@@ -71,7 +71,7 @@ public class SmartShooter3 {
         rightShooter.setPower(leftShooter.getPower());
     }
     public void turretHeadTester(boolean pressed){
-        if (pressed) {turretHead.setPosition(0.25);} else {
+        if (pressed) {turretHead.setPosition(0.2);} else {
             turretHead.setPosition(1);
         }
     }
@@ -154,7 +154,7 @@ public class SmartShooter3 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean odometryUsed) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = Math.max(distance - 24, 0);
+        distance = Math.max(distance - 12, 0);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8;
         double distanceMeters = distance / 39.37;
