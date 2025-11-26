@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import Commands.Limelight;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
@@ -22,12 +23,15 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter3 Shooter;
     Vision Vision;
+    boolean test = true; // iddk if I have to say this kill
+    Limelight lime;
     ThreeDeadWheelLocalizer odometry;
     //Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
+        lime = new Limelight(hardwareMap, telemetry);
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
@@ -38,7 +42,7 @@ public class Teleop extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-
+            lime.runVision(test);
             odometry.update();
             Vision.updateAprilTags();
             Vision.hasTarget();
