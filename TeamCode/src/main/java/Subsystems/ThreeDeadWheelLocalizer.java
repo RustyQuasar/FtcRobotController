@@ -30,7 +30,7 @@ import messages.ThreeDeadWheelInputsMessage;
 @Config
 public final class ThreeDeadWheelLocalizer {
     public static class Params {
-        double inPerTick = 1.0 / 720;
+        double inPerTick = 57.0 / 100000;
         public double par0YTicks = 3/inPerTick; // y position of the first parallel encoder (in tick units)
         public double par1YTicks = -3/inPerTick; // y position of the second parallel encoder (in tick units)
         public double perpXTicks = 4.337/inPerTick; // x position of the perpendicular encoder (in tick units)
@@ -56,8 +56,7 @@ public final class ThreeDeadWheelLocalizer {
         par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.backLeftMotor)));
         perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, Constants.DriveTrainConstants.frontLeftMotor)));
 
-        par0.setDirection(DcMotorSimple.Direction.REVERSE);
-        perp.setDirection(DcMotorSimple.Direction.REVERSE);
+        par1.setDirection(DcMotorSimple.Direction.REVERSE);
 
         FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
 
@@ -168,14 +167,9 @@ public final class ThreeDeadWheelLocalizer {
 
     public void telemetry(Telemetry telemetry){
         update();
-        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos);
+        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos.position);
+        telemetry.addData("Field heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
         telemetry.addData("Field vel: ", Constants.OdometryConstants.fieldVels);
-        telemetry.addData("Perp pos: ", perp.getPositionAndVelocity().position);
-        telemetry.addData("Par0 pos: ", par0.getPositionAndVelocity().position);
-        telemetry.addData("Par1 pos: ", par1.getPositionAndVelocity().position);
-        telemetry.addData("Perp vel: ", perp.getPositionAndVelocity().velocity);
-        telemetry.addData("Par0 vel: ", par0.getPositionAndVelocity().velocity);
-        telemetry.addData("Par1 vel: ", par1.getPositionAndVelocity().velocity);
     }
 
 }

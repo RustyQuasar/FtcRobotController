@@ -10,8 +10,6 @@ public final class Constants {
             //"BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
-    public static final int GoBildaMotorMax = 28; //360
-    public static final int defaultDCRPS = (100 / 60); //https://docs.wsr.studica.com/en/latest/docs/Motors/maverick-dc-motor.html
 
     public static final class ElevatorConstants {
         public static final String elevator = "elevator"; //Control hub Servo port 1
@@ -25,11 +23,6 @@ public final class Constants {
         public static final String backRightMotor = "backRight"; //Control hub Motor port 3
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
-        //idk
-        public static final double controlHubOffset = 0;
-        public static final double gearRatio = 20;
-        public static final double wheelDiameter = 4; //in meters
-        public static final double wheelWidth = 1; //in meters
     }
 
     public static final class IntakeConstants {
@@ -39,28 +32,22 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
+        public static final int hoodMax = 255;
         public static final String leftShooter = "leftShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
         public static final String rightShooter = "rightShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final String flipServo = "flipServo"; //Expansion hub Servo port 1
-        //Encoders
-        public static final String turretHeadEncoder = "turretHeadEncoder"; //Analog Input Devices 0
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
-        public static final double shooterGearRatio = 21.0/15; //Gear multiplier
-        public static final double turretNeckGearRatio = (double) 19.2 * 35 / 197; //Gear multiplier
+        public static final double turretNeckGearRatio = 19.2 * 197 / 35; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 50;
         public static final double maxNeckAngle = 90;
-        public static final double flyWheelDiameter = 4;
-        public static final double centerOffset = 12;
     }
     public static final class OdometryConstants{
-        public static final double externalMax = 8192; //https://www.revrobotics.com/rev-11-1271, under specifications
-        public static final double deadwheelDiameter = 1;
-        public static Pose2d fieldPos = new Pose2d(0, 0, 0);
+        public static Pose2d fieldPos = new Pose2d(Sizes.field/2 - 12, -Sizes.field, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
-        public static final Vector2d targetPosRed = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
+        public static final Vector2d targetPosRed = new Vector2d(-1 * (Sizes.field/2 - 12), Sizes.field - 12);
+        public static final Vector2d targetPosBlue = new Vector2d(Sizes.field/2 - 12, Sizes.field - 12);
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field/2, 0);
         public static Pose2d startPos = new Pose2d(0, 0, 0);
     }
