@@ -77,7 +77,7 @@ public final class ThreeDeadWheelLocalizer {
     public void resetYaw() {
         yawOffset = getRawHeading();
         if (yawOffset > 2 * Math.PI) {
-            yawOffset += Math.PI * 2;
+            yawOffset -= Math.PI * 2;
         } else if (yawOffset < 0) {
             yawOffset += Math.PI * 2;
         }
@@ -104,6 +104,20 @@ public final class ThreeDeadWheelLocalizer {
         int par0PosDelta = par0PosVel.position - lastPar0Pos;
         int par1PosDelta = par1PosVel.position - lastPar1Pos;
         int perpPosDelta = perpPosVel.position - lastPerpPos;
+
+        if (par0PosDelta < 0 && par1PosDelta < 0) {
+            Constants.OdometryConstants.directions[0] = false;
+        } else if (par0PosDelta > 0 && par1PosDelta > 0) {
+            Constants.OdometryConstants.directions[0] = true;
+        }
+
+        if (Math.signum(par0PosDelta) == Math.signum(par1PosDelta)){
+            if (perpPosDelta > 0) {
+                Constants.OdometryConstants.directions[1] = true;
+            } else {
+                Constants.OdometryConstants.directions[1] = false;
+            }
+        }
 
         Twist2dDual<Time> twist = new Twist2dDual<>(
                 new Vector2dDual<>(
@@ -137,8 +151,8 @@ public final class ThreeDeadWheelLocalizer {
         double midHeading = prevHeading + dtheta * 0.5;
 
 // rotate local dx,dy into global frame
-        double ly = localDelta.position.x;
-        double lx = localDelta.position.y;
+        double lx = localDelta.position.x;
+        double ly = localDelta.position.y;
         double gx = lx * Math.cos(midHeading) - ly * Math.sin(midHeading);
         double gy = lx * Math.sin(midHeading) + ly * Math.cos(midHeading);
 

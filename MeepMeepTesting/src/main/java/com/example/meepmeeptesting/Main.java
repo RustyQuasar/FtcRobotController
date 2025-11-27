@@ -30,7 +30,7 @@ public class Main {
                         .build());
                 break;
             case 2:
-                myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(28.92, y(2.16), heading(90.00)))
+                myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(28.92, y(2.16), heading(0)))
                         .splineTo(new Vector2d(-4.72, y(23.21)), heading(147.96))
                         .splineTo(new Vector2d(-7.87, y(-18.69)), heading(265.70))
                         .splineTo(new Vector2d(30.69, y(-20.26)), heading(-2.34))
@@ -61,8 +61,11 @@ public class Main {
                 break;
 
         }
-        allianceBot.runAction(allianceBot.getDrive().actionBuilder(new Pose2d(39.40, y(3.71), heading(90.00)))
-                .splineTo(new Vector2d(14.85, y(21.04)), heading(144.78))
+
+        allianceBot.runAction(allianceBot.getDrive().actionBuilder(new Pose2d(39.40, y(3.71), heading(0)))
+                .turnTo(Math.PI)
+                .splineTo(new Vector2d(14.85, y(21.04)), heading(180))
+                /*
                 .splineTo(new Vector2d(-28.47, y(-9.90)), heading(215.54))
                 .splineTo(new Vector2d(9.90, y(-27.23)), heading(-24.30))
                 .splineTo(new Vector2d(34.25, y(37.34)), heading(69.34))
@@ -72,6 +75,7 @@ public class Main {
                 .splineTo(new Vector2d(-48.28, y(55.91)), heading(89.58))
                 .splineTo(new Vector2d(58.38, y(-57.97)), heading(-46.88))
                 .splineTo(new Vector2d(20.42, y(-70.14)), heading(197.78))
+                 */
                 .build());
 
 
