@@ -113,8 +113,8 @@ public class SmartShooter3 {
         if (Double.isNaN(sv)) sv = 0;
         seeTarget = false;
         // Step through the list of detections and display info for each one.
-        //LLResult result = Vision.getDetections();
-        LLResult result = null;
+        /*
+        LLResult result = Vision.getDetections();
         List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fr : fiducialResults) {
             if (fr.getFiducialId() == aimedTagID) {
@@ -132,6 +132,8 @@ public class SmartShooter3 {
                 Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
             }
         }
+
+         */
         if (!seeTarget){
             //+72 because negatives suck
             xChange = (Constants.OdometryConstants.fieldPos.position.x+72) - (targetPose.x+72);
@@ -165,9 +167,10 @@ public class SmartShooter3 {
         double z = Math.abs(h / (g * distanceMeters) - distanceMeters);
         double AOS = z / 2;
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
-        double H = -g * Math.pow(AOS, 2);
+        double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.sqrt(H / -g);
-        distance -= t * frontV;
+        distance -= Math.max(t * frontV, 0);
+        if (Double.isNaN(distance)) distance = 0;
         angle = distance * 0.3;
         shooterVel = distance * 3.80334 + 1030.9556;
         if (distance > 75) shooterVel += 30;
@@ -177,9 +180,8 @@ public class SmartShooter3 {
         if (targetNeckPos > totalTicks / 2) targetNeckPos -= (int) totalTicks;
         if (targetNeckPos < -totalTicks / 2) targetNeckPos += (int) totalTicks;
         actualTargetNeckPos = targetNeckPos;
-        if (Math.abs(targetNeckPos) > 732) targetNeckPos = (int) (732 * Math.signum(targetNeckPos));
+        if (Math.abs(targetNeckPos) > 900) targetNeckPos = (int) (900 * Math.signum(targetNeckPos));
         double targetPos = (1 - Math.max(0, Math.min(1-0.25, angle / Constants.ShooterConstants.maxHeadAngle)));
-        if (Double.isNaN(targetPos)) targetPos = 0;
         turretHead.setPosition(targetPos);
         //turretNeckMotor.setTargetPosition(targetNeckPos);
         shoot(shooterVel);
