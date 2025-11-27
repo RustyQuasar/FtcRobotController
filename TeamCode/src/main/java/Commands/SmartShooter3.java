@@ -28,7 +28,7 @@ public class SmartShooter3 {
     private final DcMotorEx turretNeckMotor;
     private final CRServo transferServo, transferServo2;
     private final int aimedTagID;
-    Vision Vision;
+    //Vision Vision;
     double distance = 0;
     double xChange;
     double yChange;
@@ -39,7 +39,8 @@ public class SmartShooter3 {
     double neckHeading;
     double actualTargetNeckPos;
     double angle;
-    public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
+    //Re-add Vision when it works, removing it all for now to have things run a bit better
+    public SmartShooter3(HardwareMap hardwareMap) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
@@ -60,7 +61,7 @@ public class SmartShooter3 {
         } else {
             aimedTagID = 20;
         }
-        Vision = vision;
+        //Vision = vision;
         transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
         transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
     }
@@ -78,7 +79,7 @@ public class SmartShooter3 {
 
     public void aim() {
         if (Math.abs(Math.abs(turretNeckMotor.getCurrentPosition()) - Math.abs(turretNeckMotor.getTargetPosition())) > 50) {
-            //turretNeckMotor.setPower(0.5);
+            turretNeckMotor.setPower(0.5);
         } else {
             turretNeckMotor.setPower(0);
         }
@@ -101,15 +102,18 @@ public class SmartShooter3 {
         neckHeading = botHeading + ((double) turretNeckMotor.getCurrentPosition() / (Constants.StudickaMotorMax * Constants.ShooterConstants.turretNeckGearRatio) * max);
         neckHeading -= (Math.floor(neckHeading / max) * max);
         double fv =
-                //Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
-                0;
+                Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
+                if (!Constants.OdometryConstants.directions[0]) fv *= -1;
+                //0;
         if (Double.isNaN(fv)) fv = 0;
         double sv =
                 //Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(neckHeading);
+                //if (!Constants.OdometryConstants.directions[1]) sv *= -1;
                 0;
         if (Double.isNaN(sv)) sv = 0;
         seeTarget = false;
         // Step through the list of detections and display info for each one.
+        /*
         LLResult result = Vision.getDetections();
         List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fr : fiducialResults) {
@@ -128,6 +132,8 @@ public class SmartShooter3 {
                 Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
             }
         }
+
+         */
         if (!seeTarget){
             //+72 because negatives suck
             xChange = (Constants.OdometryConstants.fieldPos.position.x+72) - (targetPose.x+72);
@@ -148,7 +154,7 @@ public class SmartShooter3 {
             transferServo.setPower(0);
         } else {
             flipServo.setPosition(0.25);
-            transferServo.setPower(0.5);
+            transferServo.setPower(0.3);
         }
         transferServo2.setPower(-transferServo.getPower());
     }
@@ -161,25 +167,21 @@ public class SmartShooter3 {
         double z = Math.abs(h / (g * distanceMeters) - distanceMeters);
         double AOS = z / 2;
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
-        double H = -g * Math.pow(AOS, 2);
+        double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.sqrt(H / -g);
-        distance -= t * frontV;
+        distance -= Math.max(t * frontV, 0);
+        if (Double.isNaN(distance)) distance = 0;
         angle = distance * 0.3;
         shooterVel = distance * 3.80334 + 1030.9556;
         if (distance > 75) shooterVel += 30;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.StudickaMotorMax;
-        if (!odometryUsed) {
-            targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t));
-        } else {
-            targetNeckPos = (int) xTurn(angleToTurn, sideV, distance, t);
-        }
+        targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
         if (targetNeckPos > totalTicks / 2) targetNeckPos -= (int) totalTicks;
         if (targetNeckPos < -totalTicks / 2) targetNeckPos += (int) totalTicks;
         actualTargetNeckPos = targetNeckPos;
-        if (Math.abs(targetNeckPos) > 732) targetNeckPos = (int) (732 * Math.signum(targetNeckPos));
+        if (Math.abs(targetNeckPos) > 900) targetNeckPos = (int) (900 * Math.signum(targetNeckPos));
         double targetPos = (1 - Math.max(0, Math.min(1-0.25, angle / Constants.ShooterConstants.maxHeadAngle)));
-        if (Double.isNaN(targetPos)) targetPos = 0;
         turretHead.setPosition(targetPos);
         //turretNeckMotor.setTargetPosition(targetNeckPos);
         shoot(shooterVel);

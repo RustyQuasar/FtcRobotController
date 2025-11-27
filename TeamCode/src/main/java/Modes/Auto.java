@@ -25,14 +25,14 @@ public class Auto extends LinearOpMode {
     SmartIntake intake;
     SmartShooter3 shooter;
     MecanumDrive drive;
-    Vision vision;
+    //Vision vision;
 
     @Override
     public void runOpMode() {
         // --- initialize subsystems ---
         dashboard = FtcDashboard.getInstance();
-        vision = new Vision(hardwareMap, telemetry);
-        shooter = new SmartShooter3(hardwareMap, vision);
+        //vision = new Vision(hardwareMap, telemetry);
+        shooter = new SmartShooter3(hardwareMap);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
         double artifactY = y(40.133805);
@@ -74,7 +74,7 @@ public class Auto extends LinearOpMode {
 
             // 2) Update vision (non-blocking)
             try {
-                vision.updateAprilTags();
+                //vision.updateAprilTags();
             } catch (Exception e) {
                 telemetry.addData("Vision err", e.getMessage());
             }
