@@ -52,7 +52,7 @@ public final class Constants {
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field, 0);
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
-        public static Pose2d startPos = new Pose2d(0, 0, 0);
+        public static Pose2d startPos = new Pose2d(300, 5, 0);
         public static boolean[] directions = new boolean[2];
     }
     public static final class Sizes {

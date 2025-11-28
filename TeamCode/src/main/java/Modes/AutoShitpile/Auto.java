@@ -15,7 +15,7 @@ public final class Auto extends LinearOpMode {
 
         Object TuningOpModes = null;
         int side =- 1;
-        Pose2d beginPose = new Pose2d(300, side*10, 0);
+        Pose2d beginPose = Constants.OdometryConstants.startPos;
         if(Constants.TEAM.equals("blue")){side= 1;}
 
         {
