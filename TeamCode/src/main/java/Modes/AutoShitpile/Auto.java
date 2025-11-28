@@ -14,9 +14,9 @@ public final class Auto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         Object TuningOpModes = null;
-        int side =1;
+        int side =- 1;
         Pose2d beginPose = new Pose2d(300, side*10, 0);
-        if(Constants.TEAM.equals("blue")){side=-1;}
+        if(Constants.TEAM.equals("blue")){side= 1;}
 
         {
             Mechanum drive = new Mechanum(hardwareMap, beginPose);
@@ -24,23 +24,24 @@ public final class Auto extends LinearOpMode {
             SmartShooter3 shooter = new SmartShooter3(hardwareMap);
             waitForStart();
                 shooter.aim();
+                intake.intake(true,false);
 
                     drive.actionBuilder(beginPose)
 
-
-                            .stopAndAdd(shooter.transfer(true))
-                            .waitSeconds(0.5)
-                            .stopAndAdd(shooter.transfer(true))
-                            .waitSeconds(0.5)
-                            .stopAndAdd(shooter.transfer(true))
+                            .waitSeconds(1)
+                            .stopAndAdd(shooter.pulse())
+                            .waitSeconds(0.2)
+                            .stopAndAdd(shooter.pulse())
+                            .waitSeconds(0.2)
+                            .stopAndAdd(shooter.pulse())
                             .splineTo(new Vector2d(300, side*300), Math.toRadians(side*270))
-                            .waitSeconds(0.5)
+                            .waitSeconds(0.2)
                             .splineTo(new Vector2d(300, side*10), Math.toRadians(side*270))
-                            .stopAndAdd(shooter.transfer(true))
-                            .waitSeconds(0.5)
-                            .stopAndAdd(shooter.transfer(true))
-                            .waitSeconds(0.5)
-                            .stopAndAdd(shooter.transfer(true))
+                            .stopAndAdd(shooter.pulse())
+                            .waitSeconds(0.2)
+                            .stopAndAdd(shooter.pulse())
+                            .waitSeconds(0.2)
+                            .stopAndAdd(shooter.pulse())
                             .build();
 
 

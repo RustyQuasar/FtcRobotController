@@ -38,6 +38,7 @@ public class SmartShooter3 {
     double headingTarget;
     //Re-add Vision when it works, removing it all for now to have things run a bit better
     public SmartShooter3(HardwareMap hardwareMap) {
+
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
@@ -158,6 +159,12 @@ public class SmartShooter3 {
             transferServo.setPower(0.2);
         }
         transferServo2.setPower(-transferServo.getPower());
+        return null;
+    }
+    public Action pulse() throws InterruptedException {
+        transfer(true);
+        wait(500);
+        transfer(false);
         return null;
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean odometryUsed) {
