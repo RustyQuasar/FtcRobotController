@@ -1,14 +1,9 @@
 package Commands;
 
-import android.widget.Button;
-
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -24,7 +19,7 @@ public class SmartIntake {
         telemetry.addData("Intaking: ", motorIntake.getPower() != 0);
     }
 
-    public void intake(boolean trigger, boolean a) {
+    public Action intake(boolean trigger, boolean a) {
         double motorPower = 0.8;
         if (!trigger && a) motorPower *= -1;
         boolean buttonPressed = trigger || a;
@@ -33,6 +28,7 @@ public class SmartIntake {
         } else {
             motorIntake.setPower(0);
         }
+        return null;
     }
 }
 

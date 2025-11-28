@@ -1,10 +1,8 @@
 package Commands;
 
 
-import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,9 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Arrays;
-import java.util.List;
 
-import Subsystems.Vision;
 import Utilities.ConfigVariables;
 import Utilities.Constants;
 
@@ -78,7 +74,7 @@ public class SmartShooter3 {
         }
     }
 
-    public void aim() {
+    public Action aim() {
         //if (Math.abs(Math.abs(turretNeckMotor.getCurrentPosition()) - Math.abs(turretNeckMotor.getTargetPosition())) > 5) {
             turretNeckMotor.setPower(0.3);
         //} else {
@@ -149,9 +145,10 @@ public class SmartShooter3 {
             aiming(distance, fv, sv, angleToTurn, true);
         }
         aimed = true;
+        return null;
     }
 
-    public void transfer(boolean buttonPressed) {
+    public Action transfer(boolean buttonPressed) {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 30)) {
         //if (!buttonPressed) {
             flipServo.setPosition(0.13);
@@ -161,6 +158,7 @@ public class SmartShooter3 {
             transferServo.setPower(0.2);
         }
         transferServo2.setPower(-transferServo.getPower());
+        return null;
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean odometryUsed) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
