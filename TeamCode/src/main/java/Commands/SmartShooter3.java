@@ -152,7 +152,7 @@ public class SmartShooter3 {
     }
 
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 204)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 30)) {
         //if (!buttonPressed) {
             flipServo.setPosition(0.13);
             transferServo.setPower(0);
