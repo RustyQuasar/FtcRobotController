@@ -27,13 +27,10 @@ public class Teleop extends LinearOpMode {
     boolean test = true; // iddk if I have to say this kill
     //Limelight lime;
     ThreeDeadWheelLocalizer odometry;
-
-
     //Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
-
     public void runOpMode() {
         //lime = new Limelight(hardwareMap, telemetry);
         Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, Constants.OdometryConstants.resetPosBlue.y, Math.PI);
@@ -45,7 +42,6 @@ public class Teleop extends LinearOpMode {
         Shooter = new SmartShooter3(hardwareMap);
         //Elevator = new Elevator(hardwareMap);
         waitForStart();
-
 
         while (opModeIsActive()) {
             //lime.runVision(test);

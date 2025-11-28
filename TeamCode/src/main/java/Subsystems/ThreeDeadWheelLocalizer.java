@@ -68,7 +68,6 @@ public final class ThreeDeadWheelLocalizer {
         initialized = false;
     }
 
-
     private double getRawHeading() {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         double rad =  angles.firstAngle;
@@ -86,9 +85,7 @@ public final class ThreeDeadWheelLocalizer {
             yawOffset += Math.PI * 2;
         }
     }
-    public void setPos(Pose2d Pos){
-        Constants.OdometryConstants.fieldPos= Pos;
-    }
+
     public void update() {
         Pose2d pose = new Pose2d(0, 0, 0);
         PositionVelocityPair par0PosVel = par0.getPositionAndVelocity();
