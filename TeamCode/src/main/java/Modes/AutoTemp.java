@@ -1,6 +1,5 @@
 package Modes;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -29,35 +28,36 @@ public class AutoTemp extends LinearOpMode {
         if (isStopRequested()) return;
         while(opModeIsActive()){
             odometry.update();
-            shooter.aim();
+            shooter.aim(true);
             //3000, 4500, 8500, 10000, 13000
-            if (System.currentTimeMillis() - startTime < 3000) {
+            if (System.currentTimeMillis() - startTime < 7000) {
                 //Initial shoot
                 shooter.transfer(true);
                 intake.intake(true, false);
                 drive.drive(0, 0, 0);
-            } else if (System.currentTimeMillis() - startTime < 3500) {
-                //Driving backward to pick up balls
+            } else if (Math.abs(Constants.OdometryConstants.startPos.position.y) + 13 + Constants.Sizes.robotOffset > Math.abs(Constants.OdometryConstants.fieldPos.position.y)) {
+                //Now driving forward
                 shooter.transfer(false);
+                drive.drive(0.2, 0, 0);
+            } /* else if (System.currentTimeMillis() - startTime < 9000) {
                 drive.drive(-0.7, 0, 0);
-            } else if (System.currentTimeMillis() - startTime < 7500) {
-                //Picking up balls
-                shooter.transfer(false);
-                drive.drive(0, 0, 0);
-            } else if (System.currentTimeMillis() - startTime < 8000){
+            } else if (System.currentTimeMillis() - startTime < 11000){
                 //Driving forward after picking up balls
-                shooter.transfer(false);
-                drive.drive(0.7, 0, 0);
-            } else if (System.currentTimeMillis() - startTime < 11000) {
+                drive.drive(-0.7, 0, 0);
+            }
+            else if (System.currentTimeMillis() - startTime < 14000) {
                 //Final shooting
                 shooter.transfer(true);
                 drive.drive(0, 0, 0);
-            } else {
+                }
+             */
+            else {
                 //Stop
                 shooter.transfer(false);
                 intake.intake(false, false);
                 drive.drive(0, 0, 0);
             }
+
         }
     }
 }

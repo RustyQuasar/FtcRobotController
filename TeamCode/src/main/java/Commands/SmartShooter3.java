@@ -41,6 +41,7 @@ public class SmartShooter3 {
     double angle;
     double headingTarget;
     double targetPos;
+    double offset;
     //Re-add Vision when it works, removing it all for now to have things run a bit better
     public SmartShooter3(HardwareMap hardwareMap) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
@@ -79,7 +80,7 @@ public class SmartShooter3 {
         }
     }
 
-    public void aim() {
+    public void aim(boolean auto) {
         //if (Math.abs(Math.abs(turretNeckMotor.getCurrentPosition()) - Math.abs(turretNeckMotor.getTargetPosition())) > 5) {
             turretNeckMotor.setPower(0.3);
         //} else {
@@ -147,13 +148,16 @@ public class SmartShooter3 {
             double angleToTurn = Math.toDegrees(neckHeading + headingTarget);
            // if (Constants.TEAM.equals("BLUE")) {angleToTurn -= 5; }
             //else {angleToTurn -= 2; }
-            aiming(distance, fv, sv, angleToTurn, true);
+            aiming(distance, fv, sv, angleToTurn, auto);
         }
         aimed = true;
     }
-
+    public void manualOffset(boolean leftTrigger, boolean rightTrigger){
+        if (leftTrigger) offset -= 3;
+        if (rightTrigger) offset += 3;
+    }
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 204)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 80)) {
         //if (!buttonPressed) {
             flipServo.setPosition(0.13);
             transferServo.setPower(0);
@@ -163,9 +167,9 @@ public class SmartShooter3 {
         }
         transferServo2.setPower(-transferServo.getPower());
     }
-    public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean odometryUsed) {
+    public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean auto) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = Math.max(distance - 30, 0);
+        distance = Math.max(distance - 28, 0);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8;
         double distanceMeters = distance / 39.37;
@@ -176,19 +180,25 @@ public class SmartShooter3 {
         double t = Math.sqrt(H / -g);
         distance -= Math.max(t * frontV, 0);
         if (Double.isNaN(distance)) distance = 0;
-        angle = distance * 0.6;
+        angle = distance * 0.9;
+
         shooterVel = distance * 3.80334 + 1030.9556;
         if (distance > 75) shooterVel += 40;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
-        targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t));
+        targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
         if (targetNeckPos > totalTicks / 2) targetNeckPos -= (int) totalTicks;
         if (targetNeckPos < -totalTicks / 2) targetNeckPos += (int) totalTicks;
+        targetNeckPos -= 15;
         actualTargetNeckPos = targetNeckPos;
-        if (Math.abs(targetNeckPos) > 900) targetNeckPos = (int) (900 * Math.signum(targetNeckPos));
+        if (Math.abs(targetNeckPos) > 1000) targetNeckPos = (int) (1000 * Math.signum(targetNeckPos));
         targetPos = (1 - Math.max(0, Math.min(0.75, angle / Constants.ShooterConstants.maxHeadAngle)));
         turretHead.setPosition(targetPos);
-        turretNeckMotor.setTargetPosition(targetNeckPos);
+        if (auto) {
+            turretNeckMotor.setTargetPosition(targetNeckPos);
+        } else {
+            turretNeckMotor.setTargetPosition(0);
+        }
         shoot(shooterVel);
     }
 
