@@ -40,6 +40,7 @@ public class SmartShooter3 {
     double actualTargetNeckPos;
     double angle;
     double headingTarget;
+    double targetPos;
     //Re-add Vision when it works, removing it all for now to have things run a bit better
     public SmartShooter3(HardwareMap hardwareMap) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
@@ -175,17 +176,17 @@ public class SmartShooter3 {
         double t = Math.sqrt(H / -g);
         distance -= Math.max(t * frontV, 0);
         if (Double.isNaN(distance)) distance = 0;
-        angle = distance * 0.3;
+        angle = distance * 0.6;
         shooterVel = distance * 3.80334 + 1030.9556;
-        if (distance > 75) shooterVel += 30;
+        if (distance > 75) shooterVel += 40;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
         if (targetNeckPos > totalTicks / 2) targetNeckPos -= (int) totalTicks;
         if (targetNeckPos < -totalTicks / 2) targetNeckPos += (int) totalTicks;
         actualTargetNeckPos = targetNeckPos;
-        if (Math.abs(targetNeckPos) > 700) targetNeckPos = (int) (700 * Math.signum(targetNeckPos));
-        double targetPos = (1 - Math.max(0, Math.min(1-0.25, angle / Constants.ShooterConstants.maxHeadAngle)));
+        if (Math.abs(targetNeckPos) > 900) targetNeckPos = (int) (900 * Math.signum(targetNeckPos));
+        targetPos = (1 - Math.max(0, Math.min(0.75, angle / Constants.ShooterConstants.maxHeadAngle)));
         turretHead.setPosition(targetPos);
         turretNeckMotor.setTargetPosition(targetNeckPos);
         shoot(shooterVel);
@@ -197,12 +198,12 @@ public class SmartShooter3 {
         telemetry.addLine("Shooter");
         //telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         //telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
-        telemetry.addData("Turret heading: ", neckHeading);
-        //telemetry.addData("Turret head pos: ", angle);
+        //telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
+        //telemetry.addData("Turret heading: ", neckHeading);
+        telemetry.addData("Turret head pos: ", targetPos);
         telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
         telemetry.addData("Target neck heading: ", headingTarget);
-        //telemetry.addData("Distance: ", distance);
+        telemetry.addData("Distance: ", distance);
         //telemetry.addData("Target vel: ", shooterVel);
         //telemetry.addData("Shooter vel", leftShooter.getVelocity());
         telemetry.update();

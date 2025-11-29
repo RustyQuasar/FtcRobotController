@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 //import Commands.Limelight;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
@@ -28,13 +26,13 @@ public class Teleop extends LinearOpMode {
     //Limelight lime;
     ThreeDeadWheelLocalizer odometry;
     //Elevator Elevator;
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
+    //FtcDashboard dashboard = FtcDashboard.getInstance();
+    //Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
         //lime = new Limelight(hardwareMap, telemetry);
-        Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, Constants.OdometryConstants.resetPosBlue.y, Math.PI);
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.startPos);
+        //Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, 0, Math.PI/2);
+        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
         //Vision = new Vision(hardwareMap, telemetry);
@@ -71,12 +69,12 @@ public class Teleop extends LinearOpMode {
                 Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
             }
             //Mechanum.telemetry(telemetry);
-            Shooter.telemetry(telemetry);
+            //Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
             //Vision.telemetry(telemetry);
-            odometry.telemetry(telemetry);
-            telemetry.update();
-            dashboard.updateConfig();
+            //odometry.telemetry(telemetry);
+            //telemetry.update();
+            //dashboard.updateConfig();
         }
     }
 }
