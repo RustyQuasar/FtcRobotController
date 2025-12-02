@@ -18,8 +18,9 @@ public class Vision {
     IMU imu;
     LLResult result;
     int currentPipeline = 0;
-    public Vision(HardwareMap hardwareMap, Telemetry telemetry) {
 
+    public Vision(HardwareMap hardwareMap, Telemetry telemetry) {
+        //13 deg high
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         telemetry.setMsTransmissionInterval(11);
@@ -32,18 +33,28 @@ public class Vision {
             currentPipeline = Constants.VisionConstants.pipeline;
         }
     }
-    public double tagDist(){return result.getTa();}
-public boolean hasTarget(){return result.isValid();}
+
+    public double tagDist() {
+        return result.getTa();
+    }
+
+    public boolean hasTarget() {
+        return result.isValid();
+    }
+
     public LLResult getDetections() {
         return result;
     }
 
-    public void setStream(){ limelight.start();}
+    public void setStream() {
+        limelight.start();
+    }
 
     public void updateAprilTags() {
         result = limelight.getLatestResult();
     }
-    public void setCurrentPipeline(int Pipeline){
+
+    public void setCurrentPipeline(int Pipeline) {
         limelight.pipelineSwitch(Pipeline);
     }
 
@@ -51,19 +62,18 @@ public boolean hasTarget(){return result.isValid();}
         return limelight;
     }
 
-    public double[] getTagAngles(){
-        return new double[] {result.getTx(),result.getTy()};
+    public double[] getTagAngles() {
+        return new double[]{result.getTx(), result.getTy()};
     }
 
 
-public Pose2d getPose(){
-
-        double dist = result.getBotposeAvgDist()*0.0256;
-        double[] camOfset = {0,0}; // idk if right to do
-return new Pose2d(0,0,imu.getRobotYawPitchRollAngles().getYaw());
+    public Pose2d getPose() {
+        Pose3D botpose = result.getBotpose();
+        return new Pose2d(botpose.getPosition().x, botpose.getPosition().y, imu.getRobotYawPitchRollAngles().getYaw());
 
 // what the fuck is this math idk help, ima ask tommy, idk this trig magic
     }  //return inches
+
     public String[] setColours() {
         if (result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
@@ -78,23 +88,29 @@ return new Pose2d(0,0,imu.getRobotYawPitchRollAngles().getYaw());
                 }
             }
         }
-        return new String[]{null};
+        return new String[]{"N", "N", "N"};
     }
-    public void telemetry(Telemetry telemetry){
+
+    public void telemetry(Telemetry telemetry) {
+        updateAprilTags();
         result = limelight.getLatestResult();
+        /*
         telemetry.addData("Status: ", limelight.getStatus());
-        telemetry.addData("do I see?: ", hasTarget());
         telemetry.addData("Colours: ", Constants.VisionConstants.colours[0] + Constants.VisionConstants.colours[1] + Constants.VisionConstants.colours[2]);
         telemetry.addData("Current pipeline: ", currentPipeline);
         telemetry.addData("Intended pipeline: ", Constants.VisionConstants.pipeline);
         telemetry.addData("Running: ", limelight.isRunning());
+         */
         telemetry.addData("Connected: ", limelight.isConnected());
+        telemetry.addData("Reading tag: ", result.isValid());
         if (result.isValid()) {
             // Access general information
             Pose3D botpose = result.getBotpose();
+            /*
             double captureLatency = result.getCaptureLatency();
             double targetingLatency = result.getTargetingLatency();
             double parseLatency = result.getParseLatency();
+
             telemetry.addData("LL Latency", captureLatency + targetingLatency);
             telemetry.addData("Parse Latency", parseLatency);
 
@@ -102,13 +118,13 @@ return new Pose2d(0,0,imu.getRobotYawPitchRollAngles().getYaw());
             telemetry.addData("txnc", result.getTxNC());
             telemetry.addData("ty", result.getTy());
             telemetry.addData("tync", result.getTyNC());
+             */
 
             telemetry.addData("Botpose", botpose.toString());
-
+            /*
             // Access barcode results
             List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
             for (LLResultTypes.BarcodeResult br : barcodeResults) {
-
                 telemetry.addData("Barcode", "Data: %s", br.getData());
             }
 
@@ -137,6 +153,8 @@ return new Pose2d(0,0,imu.getRobotYawPitchRollAngles().getYaw());
             }
         } else {
             telemetry.addData("Limelight", "No data available");
+        }
+             */
         }
     }
 }

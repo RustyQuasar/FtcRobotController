@@ -7,6 +7,7 @@ import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.ThreeDeadWheelLocalizer;
+import Subsystems.Vision;
 import Utilities.Constants;
 
 @Autonomous
@@ -15,11 +16,13 @@ public class AutoTemp extends LinearOpMode {
     SmartIntake intake;
     SmartShooter3 shooter;
     MechanumDrive drive;
+    Vision vision;
 
     @Override
     public void runOpMode() {
         // --- initialize subsystems ---
-        shooter = new SmartShooter3(hardwareMap);
+        vision = new Vision(hardwareMap, telemetry);
+        shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MechanumDrive(hardwareMap);
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.startPos);

@@ -28,12 +28,10 @@ public class SmartShooter3 {
     private final DcMotorEx turretNeckMotor;
     private final CRServo transferServo, transferServo2;
     private final int aimedTagID;
-    //Vision Vision;
+    Vision Vision;
     double distance = 0;
     double xChange;
     double yChange;
-    boolean aimed = false;
-    boolean seeTarget = true;
     double shooterVel = 0;
     int targetNeckPos;
     double neckHeading;
@@ -42,8 +40,9 @@ public class SmartShooter3 {
     double headingTarget;
     double targetPos;
     public double offset;
-    //Re-add Vision when it works, removing it all for now to have things run a bit better
-    public SmartShooter3(HardwareMap hardwareMap) {
+    double limelightToShooterCenter = 5.72;
+    double shooterToBotCenter = 1.39;
+    public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
@@ -64,7 +63,7 @@ public class SmartShooter3 {
         } else {
             aimedTagID = 20;
         }
-        //Vision = vision;
+        Vision = vision;
         transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
         transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
     }
@@ -114,31 +113,19 @@ public class SmartShooter3 {
                 //if (!Constants.OdometryConstants.directions[1]) sv *= -1;
                 0;
         if (Double.isNaN(sv)) sv = 0;
-        seeTarget = false;
         // Step through the list of detections and display info for each one.
-        /*
         LLResult result = Vision.getDetections();
         List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fr : fiducialResults) {
             if (fr.getFiducialId() == aimedTagID) {
-                seeTarget = true;
-                detectedX = fr.getTargetXPixels();
-                distance = (30 - Constants.Sizes.robotHeight) / Math.tan(Math.toRadians(result.getTy()) + Constants.VisionConstants.cameraAngle);
-                double angleOffset = Math.toDegrees(Math.acos(Constants.VisionConstants.inOffset / distance));
-                double xOffset = detectedX - Constants.VisionConstants.resX / 2;
-                double angleToTurn = ((double) Constants.VisionConstants.FOV / Constants.VisionConstants.resX) * xOffset + angleOffset; // degrees;
-                aiming(distance, fv, sv, angleToTurn, false);
-                //x and y gotta be swapped cuz roadrunner swaps em
-                double botX = targetPose.x - Math.abs(distance * Math.sin(neckHeading));
-                double botY = targetPose.y - Math.signum(targetPose.y) * Math.abs(distance * Math.cos(neckHeading));
-                //Cam values update pos
-                Constants.OdometryConstants.fieldPos = new Pose2d(new Vector2d(botX, botY), Constants.OdometryConstants.fieldPos.heading);
+                double neckDeltaHeading = neckHeading - botHeading + Math.PI/2;
+                double[] limelightPos = new double[]{limelightToShooterCenter * Math.sin(neckDeltaHeading), limelightToShooterCenter * Math.cos(neckDeltaHeading)};
+                double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
+                double[] totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
+                Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x - totalOffsets[0], Constants.OdometryConstants.fieldPos.position.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
         }
-
-         */
-        if (!seeTarget){
-            //+72 because negatives suck
+        //+72 because negatives suck
             xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
             yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
             //THEOREM OF PYTHAGORAS
@@ -149,8 +136,6 @@ public class SmartShooter3 {
            // if (Constants.TEAM.equals("BLUE")) {angleToTurn -= 5; }
             //else {angleToTurn -= 2; }
             aiming(distance, fv, sv, angleToTurn, auto);
-        }
-        aimed = true;
     }
     public void manualOffset(boolean leftTrigger, boolean rightTrigger){
         if (leftTrigger) offset -= 3;

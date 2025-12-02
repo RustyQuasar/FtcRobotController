@@ -14,7 +14,7 @@ import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.ThreeDeadWheelLocalizer;
-//import Subsystems.Vision;
+import Subsystems.Vision;
 import Utilities.Constants;
 
 @TeleOp
@@ -24,7 +24,7 @@ public class Teleop extends LinearOpMode {
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter3 Shooter;
-    //Vision Vision;
+    Vision Vision;
     // iddk if I have to say this kill
     Limelight lime;
     ThreeDeadWheelLocalizer odometry;
@@ -38,21 +38,21 @@ public class Teleop extends LinearOpMode {
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
-        //Vision = new Vision(hardwareMap, telemetry);
+        Vision = new Vision(hardwareMap, telemetry);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter3(hardwareMap);
+        Shooter = new SmartShooter3(hardwareMap, Vision);
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());
         //Elevator = new Elevator(hardwareMap);
         boolean upLastState = false;
-        boolean autoNeck = true;
+        boolean autoNeck = false;
 
         waitForStart();
 
         while (opModeIsActive()) {
             //lime.runVision(test);
             odometry.update();
-            //Vision.updateAprilTags();
-            //Vision.hasTarget();
+            Vision.updateAprilTags();
+            Vision.hasTarget();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
                 autoNeck = !autoNeck;
             }
@@ -80,11 +80,11 @@ public class Teleop extends LinearOpMode {
             if (activeGamepad1.dpad_right){
                 Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
             }
-            Mechanum.telemetry(telemetry);
-            Shooter.telemetry(telemetry);
-            Intake.telemetry(telemetry);
-           // Vision.telemetry(telemetry);
-            odometry.telemetry(telemetry);
+            //Mechanum.telemetry(telemetry);
+            //Shooter.telemetry(telemetry);
+            //Intake.telemetry(telemetry);
+            Vision.telemetry(telemetry);
+            //odometry.telemetry(telemetry);
             telemetry.update();
             dashboard.updateConfig();
         }

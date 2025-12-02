@@ -12,11 +12,8 @@ import Utilities.Constants;
 
 public class Limelight {
     Vision vision;
-       Telemetry telemetry;
-    SmartShooter3 shooter;
-PIDFCoefficients offsetCon;
+    Telemetry telemetry;
     public Limelight(HardwareMap hardwareMap, Telemetry telemetry){
-        SmartShooter3 shooter = new SmartShooter3(hardwareMap);
         Vision vision= new Vision(hardwareMap,telemetry);
         telemetry = this.telemetry;
         vision.setStream();
@@ -45,8 +42,6 @@ PIDFCoefficients offsetCon;
              }
              vision.updateAprilTags();
              vision.telemetry(telemetry);
-
-
          }
 
     }
