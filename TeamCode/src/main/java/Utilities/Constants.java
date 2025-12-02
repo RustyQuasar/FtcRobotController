@@ -12,6 +12,7 @@ public final class Constants {
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
 
+
     public static final class ElevatorConstants {
         public static final String elevator = "elevator"; //Control hub Servo port 1
     }//TEST
@@ -45,6 +46,7 @@ public final class Constants {
         public static final double maxNeckAngle = 90;
     }
     public static final class OdometryConstants{
+        public Pose2d goalAprilTag = new Pose2d(0,TEAM=="BLUE"?0:y(0),0);
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
         public static final Vector2d targetPosBlue = new Vector2d(-Sizes.field, -Sizes.field);
@@ -66,6 +68,8 @@ public final class Constants {
 
     public static final class VisionConstants {
         //Webcam
+        public static double shooterCamDist =0;//inch
+        public static double shooterCenterDist =0;//inch
         public static final String camera = "Webcam"; //USB port
         public static final int resX = 640;
         public static final int resY = 480;

@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 //import Commands.Limelight;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import Commands.Limelight;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
@@ -22,15 +25,15 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter3 Shooter;
     //Vision Vision;
-    boolean test = true; // iddk if I have to say this kill
-    //Limelight lime;
+    // iddk if I have to say this kill
+    Limelight lime;
     ThreeDeadWheelLocalizer odometry;
     //Elevator Elevator;
-    //FtcDashboard dashboard = FtcDashboard.getInstance();
-    //Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
-        //lime = new Limelight(hardwareMap, telemetry);
+        lime = new Limelight(hardwareMap, telemetry);
         //Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, 0, Math.PI/2);
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
@@ -42,6 +45,7 @@ public class Teleop extends LinearOpMode {
         //Elevator = new Elevator(hardwareMap);
         boolean upLastState = false;
         boolean autoNeck = true;
+
         waitForStart();
 
         while (opModeIsActive()) {
@@ -76,13 +80,13 @@ public class Teleop extends LinearOpMode {
             if (activeGamepad1.dpad_right){
                 Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
             }
-            //Mechanum.telemetry(telemetry);
-            //Shooter.telemetry(telemetry);
-            //Intake.telemetry(telemetry);
-            //Vision.telemetry(telemetry);
-            //odometry.telemetry(telemetry);
-            //telemetry.update();
-            //dashboard.updateConfig();
+            Mechanum.telemetry(telemetry);
+            Shooter.telemetry(telemetry);
+            Intake.telemetry(telemetry);
+           // Vision.telemetry(telemetry);
+            odometry.telemetry(telemetry);
+            telemetry.update();
+            dashboard.updateConfig();
         }
     }
 }

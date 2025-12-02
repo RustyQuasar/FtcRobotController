@@ -41,7 +41,7 @@ public class SmartShooter3 {
     double angle;
     double headingTarget;
     double targetPos;
-    double offset;
+    public double offset;
     //Re-add Vision when it works, removing it all for now to have things run a bit better
     public SmartShooter3(HardwareMap hardwareMap) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);

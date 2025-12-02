@@ -1,24 +1,32 @@
 package Subsystems;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.robotcore.hardware.IMU;
+
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 import java.util.Arrays;
+import Commands.SmartShooter3;
 import Utilities.Constants;
 
 public class Vision {
     private Limelight3A limelight;
+    IMU imu;
     LLResult result;
     int currentPipeline = 0;
     public Vision(HardwareMap hardwareMap, Telemetry telemetry) {
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         telemetry.setMsTransmissionInterval(11);
         limelight.start();
+
         result = limelight.getLatestResult();
+
         if (currentPipeline != Constants.VisionConstants.pipeline) {
             limelight.pipelineSwitch(Constants.VisionConstants.pipeline);
             currentPipeline = Constants.VisionConstants.pipeline;
@@ -29,6 +37,8 @@ public boolean hasTarget(){return result.isValid();}
     public LLResult getDetections() {
         return result;
     }
+
+    public void setStream(){ limelight.start();}
 
     public void updateAprilTags() {
         result = limelight.getLatestResult();
@@ -45,6 +55,15 @@ public boolean hasTarget(){return result.isValid();}
         return new double[] {result.getTx(),result.getTy()};
     }
 
+
+public Pose2d getPose(){
+
+        double dist = result.getBotposeAvgDist()*0.0256;
+        double[] camOfset = {0,0}; // idk if right to do
+return new Pose2d(0,0,imu.getRobotYawPitchRollAngles().getYaw());
+
+// what the fuck is this math idk help, ima ask tommy, idk this trig magic
+    }  //return inches
     public String[] setColours() {
         if (result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
