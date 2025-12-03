@@ -6,10 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-//import Commands.Limelight;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import Commands.Limelight;
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
@@ -25,15 +23,12 @@ public class Teleop extends LinearOpMode {
     SmartIntake Intake;
     SmartShooter3 Shooter;
     Vision Vision;
-    // iddk if I have to say this kill
-    Limelight lime;
     ThreeDeadWheelLocalizer odometry;
     //Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
-        lime = new Limelight(hardwareMap, telemetry);
         //Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, 0, Math.PI/2);
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.fieldPos);
         activeGamepad1 = new Gamepad();
@@ -52,7 +47,6 @@ public class Teleop extends LinearOpMode {
             //lime.runVision(test);
             odometry.update();
             Vision.updateAprilTags();
-            Vision.hasTarget();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
                 autoNeck = !autoNeck;
             }

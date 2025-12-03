@@ -1,5 +1,6 @@
 package Subsystems;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -25,54 +26,26 @@ public class Vision {
         limelight.pipelineSwitch(0);
         telemetry.setMsTransmissionInterval(11);
         limelight.start();
-
         result = limelight.getLatestResult();
-
-        if (currentPipeline != Constants.VisionConstants.pipeline) {
-            limelight.pipelineSwitch(Constants.VisionConstants.pipeline);
-            currentPipeline = Constants.VisionConstants.pipeline;
-        }
-    }
-
-    public double tagDist() {
-        return result.getTa();
-    }
-
-    public boolean hasTarget() {
-        return result.isValid();
     }
 
     public LLResult getDetections() {
         return result;
     }
-
-    public void setStream() {
-        limelight.start();
+    public boolean hasTarget(){
+        return result.isValid();
     }
 
     public void updateAprilTags() {
         result = limelight.getLatestResult();
     }
 
-    public void setCurrentPipeline(int Pipeline) {
-        limelight.pipelineSwitch(Pipeline);
-    }
-
-    public Limelight3A getLimelight() {
-        return limelight;
-    }
-
-    public double[] getTagAngles() {
-        return new double[]{result.getTx(), result.getTy()};
-    }
 
 
-    public Pose2d getPose() {
+    public Vector2d getPose() {
         Pose3D botpose = result.getBotpose();
-        return new Pose2d(botpose.getPosition().x, botpose.getPosition().y, imu.getRobotYawPitchRollAngles().getYaw());
-
-// what the fuck is this math idk help, ima ask tommy, idk this trig magic
-    }  //return inches
+        return new Vector2d(botpose.getPosition().x, botpose.getPosition().y, imu.getRobotYawPitchRollAngles().getYaw());
+    }
 
     public String[] setColours() {
         if (result.isValid()) {
@@ -94,13 +67,11 @@ public class Vision {
     public void telemetry(Telemetry telemetry) {
         updateAprilTags();
         result = limelight.getLatestResult();
-        /*
         telemetry.addData("Status: ", limelight.getStatus());
-        telemetry.addData("Colours: ", Constants.VisionConstants.colours[0] + Constants.VisionConstants.colours[1] + Constants.VisionConstants.colours[2]);
+        //telemetry.addData("Colours: ", Constants.VisionConstants.colours[0] + Constants.VisionConstants.colours[1] + Constants.VisionConstants.colours[2]);
         telemetry.addData("Current pipeline: ", currentPipeline);
         telemetry.addData("Intended pipeline: ", Constants.VisionConstants.pipeline);
         telemetry.addData("Running: ", limelight.isRunning());
-         */
         telemetry.addData("Connected: ", limelight.isConnected());
         telemetry.addData("Reading tag: ", result.isValid());
         if (result.isValid()) {
@@ -119,8 +90,7 @@ public class Vision {
             telemetry.addData("ty", result.getTy());
             telemetry.addData("tync", result.getTyNC());
              */
-
-            telemetry.addData("Botpose", botpose.toString());
+            telemetry.addData("Botpose", botpose.getPosition().x / 0.0254 + " " + botpose.getPosition().y / 0.0254 + " " + botpose.getPosition().z / 0.0254);
             /*
             // Access barcode results
             List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();

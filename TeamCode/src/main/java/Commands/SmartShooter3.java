@@ -42,6 +42,8 @@ public class SmartShooter3 {
     public double offset;
     double limelightToShooterCenter = 5.72;
     double shooterToBotCenter = 1.39;
+    double[] totalOffsets;
+    Pose2d camPos;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
@@ -55,6 +57,7 @@ public class SmartShooter3 {
         turretNeckMotor.setTargetPosition(0);
         turretHead.setPosition(1);
         turretNeckMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turretNeckMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(5, 1, 0, 0));
         leftShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         turretHead.setDirection(Servo.Direction.FORWARD);
@@ -74,28 +77,22 @@ public class SmartShooter3 {
         rightShooter.setPower(leftShooter.getPower());
     }
     public void turretHeadTester(boolean pressed){
-        if (pressed) {turretHead.setPosition(0.2);} else {
-            turretHead.setPosition(1);
-        }
+        if (pressed) {turretHead.setPosition(0.2);}
+        else {turretHead.setPosition(1);}
     }
 
     public void aim(boolean auto) {
         //if (Math.abs(Math.abs(turretNeckMotor.getCurrentPosition()) - Math.abs(turretNeckMotor.getTargetPosition())) > 5) {
-            turretNeckMotor.setPower(0.3);
+        //  turretNeckMotor.setPower(0.3);
         //} else {
         //    turretNeckMotor.setPower(0);
         //}
         Vector2d targetPose;
-        if (Arrays.equals(Constants.VisionConstants.colours, new String[] {"N", "N", "N"}) && false ){
-            targetPose = Constants.OdometryConstants.targetPosMotif;
-        } else if (Constants.TEAM.equals("RED")){
+        if (Constants.TEAM.equals("RED")){
             targetPose = Constants.OdometryConstants.targetPosRed;
-            Constants.VisionConstants.pipeline = 1;
         } else {
             targetPose = Constants.OdometryConstants.targetPosBlue;
-            Constants.VisionConstants.pipeline = 2;
         }
-        double detectedX;
         double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
         double max = 2 * Math.PI;
         if (botHeading < 0) {
@@ -114,17 +111,16 @@ public class SmartShooter3 {
                 0;
         if (Double.isNaN(sv)) sv = 0;
         // Step through the list of detections and display info for each one.
-        LLResult result = Vision.getDetections();
-        List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-        for (LLResultTypes.FiducialResult fr : fiducialResults) {
-            if (fr.getFiducialId() == aimedTagID) {
+            if (Vision.hasTarget()) {
                 double neckDeltaHeading = neckHeading - botHeading + Math.PI/2;
                 double[] limelightPos = new double[]{limelightToShooterCenter * Math.sin(neckDeltaHeading), limelightToShooterCenter * Math.cos(neckDeltaHeading)};
                 double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
-                double[] totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
-                Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x - totalOffsets[0], Constants.OdometryConstants.fieldPos.position.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
+                totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
+                Vector2d pose = Vision.getPose();
+                //Constants.OdometryConstants.fieldPos = new Pose2d(pose.x - totalOffsets[0], pose.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
+                camPos = new Pose2d(pose.x - totalOffsets[0], pose.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
+
             }
-        }
         //+72 because negatives suck
             xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
             yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
@@ -133,7 +129,7 @@ public class SmartShooter3 {
             //TOA in the indian princess' name
             headingTarget = Math.atan2(xChange, yChange);
             double angleToTurn = Math.toDegrees(neckHeading + headingTarget);
-           // if (Constants.TEAM.equals("BLUE")) {angleToTurn -= 5; }
+            // if (Constants.TEAM.equals("BLUE")) {angleToTurn -= 5; }
             //else {angleToTurn -= 2; }
             aiming(distance, fv, sv, angleToTurn, auto);
     }
@@ -144,7 +140,7 @@ public class SmartShooter3 {
     public void transfer(boolean buttonPressed) {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 80)) {
         //if (!buttonPressed) {
-            flipServo.setPosition(0.13);
+            flipServo.setPosition(0.1);
             transferServo.setPower(0);
         } else {
             flipServo.setPosition(0.25);
@@ -177,7 +173,7 @@ public class SmartShooter3 {
         targetNeckPos -= 15;
         actualTargetNeckPos = targetNeckPos;
         if (Math.abs(targetNeckPos) > 1000) targetNeckPos = (int) (1000 * Math.signum(targetNeckPos));
-        targetPos = (1 - Math.max(0, Math.min(0.75, angle / Constants.ShooterConstants.maxHeadAngle)));
+        targetPos = (1 - Math.max(0, Math.min(0.8, angle / Constants.ShooterConstants.maxHeadAngle)));
         turretHead.setPosition(targetPos);
         if (auto) {
             turretNeckMotor.setTargetPosition(targetNeckPos);
@@ -195,10 +191,11 @@ public class SmartShooter3 {
         //telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
         //telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
         //telemetry.addData("Turret heading: ", neckHeading);
-        telemetry.addData("Turret head pos: ", targetPos);
-        telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
+        //telemetry.addData("Turret head pos: ", targetPos);
+        //telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
         telemetry.addData("Target neck heading: ", headingTarget);
         telemetry.addData("Distance: ", distance);
+        telemetry.addData("Camera pos: ", camPos);
         //telemetry.addData("Target vel: ", shooterVel);
         //telemetry.addData("Shooter vel", leftShooter.getVelocity());
         telemetry.update();
