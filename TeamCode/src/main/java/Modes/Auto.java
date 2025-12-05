@@ -25,14 +25,14 @@ public class Auto extends LinearOpMode {
     SmartIntake intake;
     SmartShooter3 shooter;
     MecanumDrive drive;
-    //Vision vision;
+    Vision vision;
 
     @Override
     public void runOpMode() {
         // --- initialize subsystems ---
         dashboard = FtcDashboard.getInstance();
-        //vision = new Vision(hardwareMap, telemetry);
-        shooter = new SmartShooter3(hardwareMap);
+        vision = new Vision(hardwareMap, telemetry);
+        shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         drive = new MecanumDrive(hardwareMap);
         double artifactY = y(40.133805);
@@ -81,7 +81,7 @@ public class Auto extends LinearOpMode {
 
             // 3) Keep shooter aiming/revving every loop (C1)
             try {
-                shooter.aim(); // you said this is the no-arg continuous call
+                shooter.aim(true); // you said this is the no-arg continuous call
             } catch (Exception e) {
                 telemetry.addData("Shooter aim err", e.getMessage());
             }

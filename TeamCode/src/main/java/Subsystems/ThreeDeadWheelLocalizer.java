@@ -42,7 +42,6 @@ public final class ThreeDeadWheelLocalizer {
     BNO055IMU imu;
     private double yawOffset;
     double startPerp, startPar0, startPar1;
-    double startOffset = 0;
     public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, Pose2d initialPose) {
 
         imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
@@ -112,20 +111,6 @@ public final class ThreeDeadWheelLocalizer {
         int par1PosDelta = par1PosVel.position - lastPar1Pos;
         int perpPosDelta = perpPosVel.position - lastPerpPos;
 
-        if (par0PosDelta < 0 && par1PosDelta < 0) {
-            Constants.OdometryConstants.directions[0] = false;
-        } else if (par0PosDelta > 0 && par1PosDelta > 0) {
-            Constants.OdometryConstants.directions[0] = true;
-        }
-
-        if (Math.signum(par0PosDelta) == Math.signum(par1PosDelta)){
-            if (perpPosDelta > 0) {
-                Constants.OdometryConstants.directions[1] = true;
-            } else {
-                Constants.OdometryConstants.directions[1] = false;
-            }
-        }
-
         Twist2dDual<Time> twist = new Twist2dDual<>(
                 new Vector2dDual<>(
                         new DualNum<Time>(new double[] {
@@ -189,11 +174,11 @@ public final class ThreeDeadWheelLocalizer {
     public void telemetry(Telemetry telemetry){
         update();
         telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos.position);
-        telemetry.addData("Field heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
-        telemetry.addData("Field vel: ", Constants.OdometryConstants.fieldVels);
-        telemetry.addData("Par 0 position: ", par0.getPositionAndVelocity().position - startPar0);
-        telemetry.addData("Par 1 position: ", par1.getPositionAndVelocity().position - startPar1);
-        telemetry.addData("Perp position: ", perp.getPositionAndVelocity().position - startPerp);
+        //telemetry.addData("Field heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
+        //telemetry.addData("Field vel: ", Constants.OdometryConstants.fieldVels);
+        //telemetry.addData("Par 0 position: ", par0.getPositionAndVelocity().position - startPar0);
+        //telemetry.addData("Par 1 position: ", par1.getPositionAndVelocity().position - startPar1);
+        //telemetry.addData("Perp position: ", perp.getPositionAndVelocity().position - startPerp);
     }
 
 }

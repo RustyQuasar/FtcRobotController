@@ -46,15 +46,15 @@ public final class Constants {
         public static final double maxNeckAngle = 90;
     }
     public static final class OdometryConstants{
-        public Pose2d goalAprilTag = new Pose2d(0,TEAM=="BLUE"?0:y(0),0);
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-Sizes.field, -Sizes.field);
-        public static final Vector2d targetPosRed = new Vector2d(-Sizes.field, Sizes.field);
+        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 3), -(Sizes.field - 3));
+        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field - 3), (Sizes.field - 3));
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field, 0);
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
         public static Pose2d startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset), heading(-Math.PI/2));
+        public static Pose2d endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset + 12), heading(-Math.PI/2));
         public static boolean[] directions = new boolean[2];
     }
     public static final class Sizes {

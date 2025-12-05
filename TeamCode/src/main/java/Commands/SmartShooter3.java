@@ -3,8 +3,6 @@ package Commands;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,9 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import java.util.Arrays;
-import java.util.List;
-
+import Subsystems.PIDController;
 import Subsystems.Vision;
 import Utilities.ConfigVariables;
 import Utilities.Constants;
@@ -27,7 +23,6 @@ public class SmartShooter3 {
     private final Servo flipServo, turretHead;
     private final DcMotorEx turretNeckMotor;
     private final CRServo transferServo, transferServo2;
-    private final int aimedTagID;
     Vision Vision;
     double distance = 0;
     double xChange;
@@ -39,11 +34,12 @@ public class SmartShooter3 {
     double angle;
     double headingTarget;
     double targetPos;
-    public double offset;
+    public double offset = 0;
     double limelightToShooterCenter = 5.72;
     double shooterToBotCenter = 1.39;
     double[] totalOffsets;
-    Pose2d camPos;
+    //Pose2d camPos;
+    PIDController neckController;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
@@ -53,22 +49,17 @@ public class SmartShooter3 {
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turretNeckMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turretNeckMotor.setTargetPosition(0);
         turretHead.setPosition(1);
-        turretNeckMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretNeckMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(5, 1, 0, 0));
+        turretNeckMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         turretHead.setDirection(Servo.Direction.FORWARD);
-        if (Constants.TEAM.equals("RED")) {
-            aimedTagID = 24;
-        } else {
-            aimedTagID = 20;
-        }
         Vision = vision;
         transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
         transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
+        neckController = new PIDController(0.0018, 0.000000000012, 0);
+
     }
 
     public void shoot(double vel) {
@@ -82,11 +73,6 @@ public class SmartShooter3 {
     }
 
     public void aim(boolean auto) {
-        //if (Math.abs(Math.abs(turretNeckMotor.getCurrentPosition()) - Math.abs(turretNeckMotor.getTargetPosition())) > 5) {
-        //  turretNeckMotor.setPower(0.3);
-        //} else {
-        //    turretNeckMotor.setPower(0);
-        //}
         Vector2d targetPose;
         if (Constants.TEAM.equals("RED")){
             targetPose = Constants.OdometryConstants.targetPosRed;
@@ -100,26 +86,27 @@ public class SmartShooter3 {
         }
         neckHeading = botHeading - ((double) turretNeckMotor.getCurrentPosition() / (Constants.GoBildaMotorMax * Constants.ShooterConstants.turretNeckGearRatio) * max);
         neckHeading -= (Math.floor(neckHeading / max) * max);
-        double fv =
-                Constants.OdometryConstants.fieldVels.linearVel.x * Math.cos(neckHeading);
-                if (!Constants.OdometryConstants.directions[0]) fv *= -1;
-                //0;
-        if (Double.isNaN(fv)) fv = 0;
-        double sv =
-                //Constants.OdometryConstants.fieldVels.linearVel.y * Math.sin(neckHeading);
-                //if (!Constants.OdometryConstants.directions[1]) sv *= -1;
+        double xv =
+                //Constants.OdometryConstants.fieldVels.linearVel.x;
                 0;
-        if (Double.isNaN(sv)) sv = 0;
+                if (!Constants.OdometryConstants.directions[0]) xv *= -1;
+        if (Double.isNaN(xv)) xv = 0;
+        double yv =
+                //Constants.OdometryConstants.fieldVels.linearVel.y;
+                0;
+                if (!Constants.OdometryConstants.directions[1]) yv *= -1;
+        if (Double.isNaN(yv)) yv = 0;
+        double fv  =  xv * Math.cos(neckHeading) + xv * Math.sin(neckHeading);
+        double sv = -yv * Math.sin(neckHeading) + yv * Math.cos(neckHeading);
         // Step through the list of detections and display info for each one.
             if (Vision.hasTarget()) {
                 double neckDeltaHeading = neckHeading - botHeading + Math.PI/2;
-                double[] limelightPos = new double[]{limelightToShooterCenter * Math.sin(neckDeltaHeading), limelightToShooterCenter * Math.cos(neckDeltaHeading)};
-                double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
+                double[] limelightPos = new double[]{limelightToShooterCenter * Math.cos(neckDeltaHeading), limelightToShooterCenter * Math.sin(neckDeltaHeading)};
+                double[] shooterPos = new double[]{shooterToBotCenter * Math.cos(botHeading), shooterToBotCenter * Math.cos(botHeading)};
                 totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
-                Vector2d pose = Vision.getPose();
-                //Constants.OdometryConstants.fieldPos = new Pose2d(pose.x - totalOffsets[0], pose.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
-                camPos = new Pose2d(pose.x - totalOffsets[0], pose.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
-
+                Vector2d llPos = Vision.getPose(neckHeading);
+                Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
+                //camPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
         //+72 because negatives suck
             xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
@@ -134,14 +121,14 @@ public class SmartShooter3 {
             aiming(distance, fv, sv, angleToTurn, auto);
     }
     public void manualOffset(boolean leftTrigger, boolean rightTrigger){
-        if (leftTrigger) offset -= 3;
-        if (rightTrigger) offset += 3;
+        if (leftTrigger) offset -= 4;
+        if (rightTrigger) offset += 4;
     }
     public void transfer(boolean buttonPressed) {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 80)) {
         //if (!buttonPressed) {
             flipServo.setPosition(0.1);
-            transferServo.setPower(0);
+            transferServo.setPower(-0.2);
         } else {
             flipServo.setPosition(0.25);
             transferServo.setPower(0.2);
@@ -150,7 +137,7 @@ public class SmartShooter3 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean auto) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = Math.max(distance - 28, 0);
+        distance = Math.max(distance, 50);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8;
         double distanceMeters = distance / 39.37;
@@ -159,12 +146,10 @@ public class SmartShooter3 {
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
         double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.sqrt(H / -g);
-        distance -= Math.max(t * frontV, 0);
         if (Double.isNaN(distance)) distance = 0;
-        angle = distance * 0.9;
-
-        shooterVel = distance * 3.80334 + 1030.9556;
-        if (distance > 75) shooterVel += 40;
+        angle = distance * 0.4;
+        shooterVel = (distance - frontV * t) * 6.33894 + 690.0401;
+        if (distance > 150) shooterVel += 35;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -176,9 +161,9 @@ public class SmartShooter3 {
         targetPos = (1 - Math.max(0, Math.min(0.8, angle / Constants.ShooterConstants.maxHeadAngle)));
         turretHead.setPosition(targetPos);
         if (auto) {
-            turretNeckMotor.setTargetPosition(targetNeckPos);
+            turretNeckMotor.setPower(neckController.calculate(targetNeckPos, turretNeckMotor.getCurrentPosition()));
         } else {
-            turretNeckMotor.setTargetPosition(0);
+            turretNeckMotor.setPower(neckController.calculate(0, turretNeckMotor.getCurrentPosition()));
         }
         shoot(shooterVel);
     }
@@ -189,15 +174,16 @@ public class SmartShooter3 {
         telemetry.addLine("Shooter");
         //telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         //telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        //telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
+        telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
         //telemetry.addData("Turret heading: ", neckHeading);
         //telemetry.addData("Turret head pos: ", targetPos);
-        //telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
-        telemetry.addData("Target neck heading: ", headingTarget);
+        telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
+        //telemetry.addData("Target neck heading: ", headingTarget);
+        telemetry.addData("Offset: ", offset);
         telemetry.addData("Distance: ", distance);
-        telemetry.addData("Camera pos: ", camPos);
-        //telemetry.addData("Target vel: ", shooterVel);
-        //telemetry.addData("Shooter vel", leftShooter.getVelocity());
+        //telemetry.addData("Camera Bot pos: ", camPos );
+        telemetry.addData("Target vel: ", shooterVel);
+        telemetry.addData("Current vel", leftShooter.getVelocity());
         telemetry.update();
     }
     public void manualNeckMotor(boolean leftBumper, boolean rightBumper){

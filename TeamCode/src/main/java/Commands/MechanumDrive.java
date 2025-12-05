@@ -35,10 +35,20 @@ public class MechanumDrive {
     public void drive(double driveY, double driveX, double rotation) {
         double offsetHeading = Constants.OdometryConstants.startPos.heading.toDouble();
         if (offsetHeading < 0) offsetHeading += 2 * Math.PI;
-        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() + offsetHeading%360;
+        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() + offsetHeading;
+
+        if (driveY > 0){
+            Constants.OdometryConstants.directions[0] = true;
+        } else if (driveY < 0) {
+            Constants.OdometryConstants.directions[0] = false;
+        }
+        if (driveX > 0){
+            Constants.OdometryConstants.directions[1] = true;
+        } else if (driveX < 0) {
+            Constants.OdometryConstants.directions[1] = false;
+        }
 
         // Rotate the movement direction counter to the bot's rotation
-
         double sin = Math.sin(-botHeading);
         double cos = Math.cos(-botHeading);
 

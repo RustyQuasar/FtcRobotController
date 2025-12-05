@@ -1,22 +1,17 @@
 package Subsystems;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
-import java.util.Arrays;
-import Commands.SmartShooter3;
 import Utilities.Constants;
 
 public class Vision {
     private Limelight3A limelight;
-    IMU imu;
     LLResult result;
     int currentPipeline = 0;
 
@@ -42,9 +37,10 @@ public class Vision {
 
 
 
-    public Vector2d getPose() {
-        Pose3D botpose = result.getBotpose();
-        return new Vector2d(botpose.getPosition().x, botpose.getPosition().y, imu.getRobotYawPitchRollAngles().getYaw());
+    public Vector2d getPose(double neckHeading) {
+        limelight.updateRobotOrientation(Math.toDegrees(neckHeading));
+        Pose3D botpose = result.getBotpose_MT2();
+        return new Vector2d(botpose.getPosition().x / 0.0254, botpose.getPosition().y / 0.0254);
     }
 
     public String[] setColours() {

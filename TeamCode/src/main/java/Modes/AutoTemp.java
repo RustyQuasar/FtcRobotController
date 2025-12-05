@@ -42,18 +42,7 @@ public class AutoTemp extends LinearOpMode {
                 //Now driving forward
                 shooter.transfer(false);
                 drive.drive(0.2, 0, 0);
-            } /* else if (System.currentTimeMillis() - startTime < 9000) {
-                drive.drive(-0.7, 0, 0);
-            } else if (System.currentTimeMillis() - startTime < 11000){
-                //Driving forward after picking up balls
-                drive.drive(-0.7, 0, 0);
             }
-            else if (System.currentTimeMillis() - startTime < 14000) {
-                //Final shooting
-                shooter.transfer(true);
-                drive.drive(0, 0, 0);
-                }
-             */
             else {
                 //Stop
                 shooter.transfer(false);
