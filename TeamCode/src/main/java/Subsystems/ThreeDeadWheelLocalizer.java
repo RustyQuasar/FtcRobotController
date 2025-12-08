@@ -63,7 +63,6 @@ public final class ThreeDeadWheelLocalizer {
         FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
         Constants.OdometryConstants.fieldPos = initialPose;
 
-        resetYaw();
         initialized = false;
     }
 

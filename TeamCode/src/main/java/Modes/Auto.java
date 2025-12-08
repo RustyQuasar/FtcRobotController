@@ -51,6 +51,7 @@ public class Auto extends LinearOpMode {
 
         // Wait for start - keep init logic above so dashboard/vision/odometry are ready
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.startPos);
+        odometry.resetYaw();
         waitForStart();
         if (isStopRequested()) return;
 
