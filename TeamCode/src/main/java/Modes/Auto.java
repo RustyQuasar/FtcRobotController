@@ -42,7 +42,7 @@ public class Auto extends LinearOpMode {
         if (path == 1) {
             Constants.OdometryConstants.startPos = new Pose2d(0, y(0), heading(0));
             driveSequence = drive.actionBuilder(Constants.OdometryConstants.startPos)
-                    .splineToLinearHeading(new Pose2d(10, 0, 0), 0)
+                    .lineToX(10)
                     .build();
 
         } else {
