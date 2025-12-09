@@ -147,9 +147,8 @@ public class SmartShooter3 {
         double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.sqrt(H / -g);
         if (Double.isNaN(distance)) distance = 0;
-        angle = distance * 0.4;
-        shooterVel = (distance - frontV * t) * 6.33894 + 690.0401;
-        if (distance > 150) shooterVel += 35;
+        angle = distance * 0.3;
+        shooterVel = (distance - frontV * t) * 5.35437 + 739.28803;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));

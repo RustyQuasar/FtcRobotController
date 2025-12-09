@@ -27,10 +27,11 @@ public class Teleop extends LinearOpMode {
     //Elevator Elevator;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
+    //double shooterVel = 1000;
     @Override
     public void runOpMode() {
-        Constants.OdometryConstants.endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, Constants.OdometryConstants.resetPosBlue.y, Math.PI);
-        Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, Constants.OdometryConstants.resetPosBlue.y, Math.PI);
+        Constants.OdometryConstants.endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, Constants.OdometryConstants.resetPosBlue.y, -Math.PI/2);
+        Constants.OdometryConstants.startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, Constants.OdometryConstants.resetPosBlue.y, -Math.PI/2);
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
@@ -41,15 +42,14 @@ public class Teleop extends LinearOpMode {
         //Elevator = new Elevator(hardwareMap);
         boolean upLastState = false;
         boolean autoNeck = true;
-
         waitForStart();
 
         while (opModeIsActive()) {
-            //lime.runVision(test);
             odometry.update();
             Vision.updateAprilTags();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
                 autoNeck = !autoNeck;
+                //shooterVel += 20;
             }
             upLastState = gamepad1.dpad_up;
             Shooter.aim(autoNeck);
@@ -60,7 +60,7 @@ public class Teleop extends LinearOpMode {
             Shooter.manualOffset(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.manualNeckMotor(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.turretHeadTester(activeGamepad1.b);
-            //Shooter.shoot(activeGamepad1.left_trigger * 1040 + 1000);
+            //Shooter.shoot(shooterVel);
             Mechanum.drive(
                     -gamepad1.left_stick_y,
                     gamepad1.left_stick_x,
