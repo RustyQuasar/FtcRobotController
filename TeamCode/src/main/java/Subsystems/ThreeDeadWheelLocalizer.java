@@ -30,7 +30,7 @@ import messages.ThreeDeadWheelInputsMessage;
 @Config
 public final class ThreeDeadWheelLocalizer {
     public static class Params {
-        double inPerTick = 58.25 / 100000;
+        double inPerTick = 6.172145296346953E-4 * 78/70;;
         public double par0YTicks = 3/inPerTick; // y position of the first parallel encoder (in tick units)
         public double par1YTicks = -3/inPerTick; // y position of the second parallel encoder (in tick units)
         public double perpXTicks = 4.337/inPerTick; // x position of the perpendicular encoder (in tick units)
