@@ -24,13 +24,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import Modes.AutoConstants;
 import Utilities.Constants;
 import messages.ThreeDeadWheelInputsMessage;
 
 @Config
 public final class ThreeDeadWheelLocalizer {
     public static class Params {
-        double inPerTick = 6.172145296346953E-4 * 78/70;;
+        double inPerTick = AutoConstants.inPerTick;
         public double par0YTicks = 3/inPerTick; // y position of the first parallel encoder (in tick units)
         public double par1YTicks = -3/inPerTick; // y position of the second parallel encoder (in tick units)
         public double perpXTicks = 4.337/inPerTick; // x position of the perpendicular encoder (in tick units)
@@ -76,7 +77,6 @@ public final class ThreeDeadWheelLocalizer {
     }
 
     public void resetYaw() {
-        yawOffset = getRawHeading() + Constants.OdometryConstants.startPos.heading.toDouble();
         if (yawOffset > 2 * Math.PI) {
             yawOffset -= Math.PI * 2;
         } else if (yawOffset < 0) {

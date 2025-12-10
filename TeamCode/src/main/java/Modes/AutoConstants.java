@@ -12,8 +12,9 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class AutoConstants {
-    static double inPerTick =
+public final class AutoConstants {
+    public static final double shootTime = 3000;
+    public static final double inPerTick =
             //58.25 / 100000;
             6.172145296346953E-4 * 78/70;
     public static FollowerConstants followerConstants = new FollowerConstants()

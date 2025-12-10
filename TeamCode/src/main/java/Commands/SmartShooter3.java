@@ -205,6 +205,7 @@ public class SmartShooter3 {
         return angleDiff * Constants.GoBildaMotorMax * Constants.ShooterConstants.turretNeckGearRatio / 360;
     }
     public void chill(){
-        shoot(0);
+        leftShooter.setPower(0);
+        rightShooter.setPower(0);
     }
 }

@@ -62,9 +62,9 @@ public class Main {
 
         }
 
-        allianceBot.runAction(allianceBot.getDrive().actionBuilder(new Pose2d(39.40, y(3.71), heading(0)))
+        allianceBot.runAction(allianceBot.getDrive().actionBuilder(new Pose2d(0, y(0), heading(0)))
                 .turnTo(Math.PI)
-                .splineTo(new Vector2d(14.85, y(21.04)), heading(180))
+                .splineTo(new Vector2d(0, y(10)), Math.PI/2)
                 /*
                 .splineTo(new Vector2d(-28.47, y(-9.90)), heading(215.54))
                 .splineTo(new Vector2d(9.90, y(-27.23)), heading(-24.30))

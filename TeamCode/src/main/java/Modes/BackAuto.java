@@ -25,15 +25,30 @@ public class BackAuto extends OpMode {
     ThreeDeadWheelLocalizer odometry;
     Vision vision;
     PathChain path;
+    int currentPath = 1;
+    boolean running = true;
     @Override
     public void loop() {
         follower.update();
-        if (!follower.isBusy()) {
+        if (running) {
             if (follower.atParametricEnd()) {
-                follower.followPath(path, true);
+                switch (currentPath) {
+                    case 1:
+                        currentPath = 2;
+                        break;
+                    case 2:
+                        follower.followPath(path, true);
+                        currentPath = 3;
+                        break;
+                    default: running = false;
+                }
             }
             shooter.aim(true);
             odometry.update();
+            vision.updateAprilTags();
+        } else {
+            shooter.chill();
+            intake.intake(false, false);
         }
     }
 
@@ -51,7 +66,6 @@ public class BackAuto extends OpMode {
         intake = new SmartIntake(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72-8, 72 - x(88), Constants.OdometryConstants.startHeading));
-        follower.followPath(path, true);
     }
 
     @Override
