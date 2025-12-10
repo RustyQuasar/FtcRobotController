@@ -137,7 +137,7 @@ public class SmartShooter3 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean auto) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = Math.min(Math.max(distance, 48), 148);
+        distance = 5 + Math.min(Math.max(distance, 48), 148);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8;
         double distanceMeters = distance / 39.37;

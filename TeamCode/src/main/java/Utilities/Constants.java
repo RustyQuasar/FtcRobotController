@@ -48,8 +48,8 @@ public final class Constants {
     public static final class OdometryConstants{
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 3), -(Sizes.field - 3));
-        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field - 3), (Sizes.field - 3));
+        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 4), -(Sizes.field - 4));
+        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field - 4), (Sizes.field - 4));
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field, 0);
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
