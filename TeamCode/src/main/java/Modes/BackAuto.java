@@ -3,9 +3,7 @@ package Modes;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.CoordinateSystem;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -18,33 +16,49 @@ import Utilities.Constants;
 
 @Autonomous(name = "3 Piece + Line Autonomous", group = "Auto")
 public class BackAuto extends OpMode {
+
     public static Follower follower;
-    CoordinateSystem system;
     SmartIntake intake;
     SmartShooter3 shooter;
     ThreeDeadWheelLocalizer odometry;
     Vision vision;
+
     PathChain path;
+
     int currentPath = 1;
     boolean running = true;
+    boolean lastTimeSet = false;
+    double lastTime = 0;
+
     @Override
     public void loop() {
+        odometry.update();
         follower.update();
         if (running) {
-            if (follower.atParametricEnd()) {
+            if (!follower.isBusy()) {
                 switch (currentPath) {
                     case 1:
-                        currentPath = 2;
+                        if (!lastTimeSet) {
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime < AutoConstants.farShootTime) {
+                            shooter.transfer(true);
+                            intake.intake(true, true);
+                        } else {
+                            currentPath = 2;
+                        }
                         break;
                     case 2:
                         follower.followPath(path, true);
                         currentPath = 3;
                         break;
-                    default: running = false;
+                    default:
+                        running = false;
+                        break;
                 }
             }
             shooter.aim(true);
-            odometry.update();
             vision.updateAprilTags();
         } else {
             shooter.chill();
@@ -53,19 +67,30 @@ public class BackAuto extends OpMode {
     }
 
     @Override
+    public void start() {
+        //follower.followPath(path);
+    }
+
+    @Override
     public void init() {
         follower = AutoConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(88, 8));
         path = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(88.000, 8.000), new Pose(110.000, 8.000))
+                        new BezierLine(
+                                new Pose(88.000, 8.000),
+                                new Pose(110.000, 8.000)
+                        )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(heading(0), heading(0))
                 .build();
         vision = new Vision(hardwareMap);
         intake = new SmartIntake(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72-8, 72 - x(88), Constants.OdometryConstants.startHeading));
+        odometry = new ThreeDeadWheelLocalizer(
+                hardwareMap,
+                new Pose2d(72 - 8, 72 - x(88), Constants.OdometryConstants.startHeading)
+        );
     }
 
     @Override
@@ -73,12 +98,16 @@ public class BackAuto extends OpMode {
         follower.update();
         shooter.aim(true);
     }
-    public static double x(double offset){
-        if (Constants.TEAM.equals("BLUE")) offset += (72-offset) * 2;
+
+    public static double x(double offset) {
+        if (Constants.TEAM.equals("BLUE"))
+            offset += (72 - offset) * 2;
         return offset;
     }
+
     private static double heading(double angle) {
-        if (Constants.TEAM.equals("BLUE")) angle += (90-angle) * 2;
-        return angle;
+        if (Constants.TEAM.equals("BLUE"))
+            angle += (90 - angle) * 2;
+        return Math.toRadians(angle);
     }
 }

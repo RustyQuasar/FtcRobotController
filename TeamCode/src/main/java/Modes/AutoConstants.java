@@ -13,7 +13,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public final class AutoConstants {
-    public static final double shootTime = 3000;
+    public static final double closeShootTime = 3000;
+    public static final double farShootTime = 8000;
     public static final double inPerTick =
             //58.25 / 100000;
             6.172145296346953E-4 * 78/70;
