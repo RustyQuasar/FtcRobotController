@@ -34,7 +34,7 @@ public class Teleop extends LinearOpMode {
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
-        Vision = new Vision(hardwareMap, telemetry);
+        Vision = new Vision(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter3(hardwareMap, Vision);
         //Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());

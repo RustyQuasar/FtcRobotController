@@ -15,11 +15,10 @@ public class Vision {
     LLResult result;
     int currentPipeline = 0;
 
-    public Vision(HardwareMap hardwareMap, Telemetry telemetry) {
+    public Vision(HardwareMap hardwareMap) {
         //13 deg high
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
-        telemetry.setMsTransmissionInterval(11);
         limelight.start();
         result = limelight.getLatestResult();
     }

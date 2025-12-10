@@ -137,7 +137,7 @@ public class SmartShooter3 {
     }
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean auto) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = Math.max(distance, 50);
+        distance = Math.max(distance, 48);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8;
         double distanceMeters = distance / 39.37;
@@ -147,9 +147,8 @@ public class SmartShooter3 {
         double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.sqrt(H / -g);
         if (Double.isNaN(distance)) distance = 0;
-        angle = distance * 0.4;
-        shooterVel = (distance - frontV * t) * 6.33894 + 690.0401;
-        if (distance > 150) shooterVel += 35;
+        angle = distance * 0.3;
+        shooterVel = (distance - frontV * t) * 5.35437 + 739.28803;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -205,5 +204,7 @@ public class SmartShooter3 {
         }
         return angleDiff * Constants.GoBildaMotorMax * Constants.ShooterConstants.turretNeckGearRatio / 360;
     }
-
+    public void chill(){
+        shoot(0);
+    }
 }
