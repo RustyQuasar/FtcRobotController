@@ -1,11 +1,15 @@
 package Modes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.*;
 import com.pedropathing.paths.*;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.ThreeDeadWheelLocalizer;
@@ -15,45 +19,61 @@ import Utilities.Constants;
 @Autonomous(name = "12 Piece Autonomous", group = "Auto")
 public class FrontAuto extends OpMode {
     public static Follower follower;
-    ThreeDeadWheelLocalizer odometry;
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
     PathChain path1, path2, path3, path4, path5, path6, path7, path8, path9, path10, path11;
     int currentPath = 1;
-    double lastTime = 0;
+    double lastTime = 10;
+    double pathStartTime = 0;
     boolean lastTimeSet = false;
     boolean running = true;
+    double pathCooldown = 1000;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry telemetry = dashboard.getTelemetry();
     @Override
     public void loop() {
-        odometry.update();
+        telemetry.addData("Current path: ", currentPath);
+        telemetry.addData("Current time: ", System.currentTimeMillis());
+        telemetry.addData("Last time: ", lastTime);
+        telemetry.addData("Difference: ", System.currentTimeMillis() - lastTime);
+        telemetry.addData("Done shooting: ", System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime);
+        telemetry.addData("Done path: ", !follower.atParametricEnd() || !follower.isBusy());
+        telemetry.addData("Running: ", running);
+        telemetry.addData("Current pos: ", follower.getPose());
+        //shooter.telemetry(telemetry);
         follower.update();
         if (running) {
             //also mentions of follower.atParametricEnd() but idk how much to trust that
-            if (!follower.isBusy()) {
+            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
                 switch(currentPath){
                     case 1:
                         if (!lastTimeSet) {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime < AutoConstants.closeShootTime) {
                         shooter.transfer(true);
-                        intake.intake(true, true);
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
+                            lastTimeSet = false;
+                            follower.followPath(path2);
+                            pathStartTime = System.currentTimeMillis();
+                            currentPath = 2;
                         } else {
-                        lastTimeSet = false;
-                        follower.followPath(path2);
-                        currentPath = 2;
+                            intake.intake(true, true);
                         }
                         break;
+
                         case 2:
+                            shooter.transfer(false);
                             intake.intake(true, false);
                         follower.followPath(path3);
+                        pathStartTime = System.currentTimeMillis();
                         currentPath = 3;
                         break;
                         case 3:
                             intake.intake(false, false);
                         follower.followPath(path4);
+                            pathStartTime = System.currentTimeMillis();
                         currentPath = 4;
                         break;
                         case 4:
@@ -61,24 +81,28 @@ public class FrontAuto extends OpMode {
                                 lastTime = System.currentTimeMillis();
                                 lastTimeSet = true;
                             }
-                            if (System.currentTimeMillis() - lastTime < AutoConstants.closeShootTime) {
-                                shooter.transfer(true);
-                                intake.intake(true, true);
-                            } else {
+                            shooter.transfer(true);
+                            if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                                 intake.intake(false, false);
                                 lastTimeSet = false;
                                 follower.followPath(path5);
+                                pathStartTime = System.currentTimeMillis();
                                 currentPath = 5;
+                            } else {
+                                intake.intake(true, true);
                             }
                         break;
                         case 5:
+                            shooter.transfer(false);
                             intake.intake(true, false);
                         follower.followPath(path6);
+                            pathStartTime = System.currentTimeMillis();
                         currentPath = 6;
                         break;
                         case 6:
                             intake.intake(false, false);
                         follower.followPath(path7);
+                            pathStartTime = System.currentTimeMillis();
                         currentPath = 7;
                         break;
                         case 7:
@@ -86,42 +110,48 @@ public class FrontAuto extends OpMode {
                                 lastTime = System.currentTimeMillis();
                                 lastTimeSet = true;
                             }
-                            if (System.currentTimeMillis() - lastTime < AutoConstants.closeShootTime) {
-                                shooter.transfer(true);
-                                intake.intake(true, true);
-                            } else {
+                            shooter.transfer(true);
+                            if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                                 intake.intake(false, false);
                                 lastTimeSet = false;
                                 follower.followPath(path8);
-                                currentPath = 8;
+                                pathStartTime = System.currentTimeMillis();
+                                currentPath = 8;} else {
+                                intake.intake(true, true);
                             }
                         break;
                         case 8:
+                            shooter.transfer(false);
                             intake.intake(true, false);
                         follower.followPath(path9);
+                            pathStartTime = System.currentTimeMillis();
                         currentPath = 9;
                         break;
                         case 9:
                             intake.intake(false, false);
                         follower.followPath(path10);
+                            pathStartTime = System.currentTimeMillis();
                         currentPath = 10;
                         break;
                         case 10:
+                            pathStartTime = System.currentTimeMillis();
                             if (!lastTimeSet) {
                                 lastTime = System.currentTimeMillis();
                                 lastTimeSet = true;
                             }
-                            if (System.currentTimeMillis() - lastTime < AutoConstants.closeShootTime) {
-                                shooter.transfer(true);
-                                intake.intake(true, true);
-                            } else {
+                            shooter.transfer(true);
+                            if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                                 lastTimeSet = false;
                                 currentPath = 11;
+                            } else {
+                                intake.intake(true, true);
                             }
                         break;
                         case 11:
+                            shooter.transfer(false);
                             intake.intake(false, false);
                         follower.followPath(path11);
+                            pathStartTime = System.currentTimeMillis();
                         currentPath = 12;
                         break;
                     default: running = false;
@@ -134,25 +164,27 @@ public class FrontAuto extends OpMode {
             shooter.chill();
             intake.intake(false, false);
         }
+        telemetry.update();
     }
     @Override
     public void start(){
+        pathStartTime = System.currentTimeMillis();
         follower.followPath(path1);
     }
     @Override
     public void init() {
         vision = new Vision(hardwareMap);
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72 - 123, 72 - x(123), heading(37)));
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(123, 123));
+        follower.setStartingPose(new Pose(x(110), 136));
+
         path1 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(123.000), 123.000), new Pose(x(100.000), 105.000))
+                        new BezierLine(new Pose(x(110), 136), new Pose(x(100.000), 105.000))
                 )
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(heading(0), heading(36))
                 .build();
 
         path2 = follower
@@ -160,79 +192,79 @@ public class FrontAuto extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(x(100.000), 105.000), new Pose(x(102.000), 83.000))
                 )
-                .setLinearHeadingInterpolation(heading(37), heading(180))
+                .setLinearHeadingInterpolation(heading(36), heading(180))
                 .build();
 
         path3 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(102.000), 83.000), new Pose(x(130.000), 83.000))
+                        new BezierLine(new Pose(x(102.000), 83.000), new Pose(x(112), 83.000))
                 )
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(heading(180))
                 .build();
 
         path4 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(130.000), 83.000), new Pose(x(100.000), 105.000))
+                        new BezierLine(new Pose(x(112), 83.000), new Pose(x(90), 95))
                 )
-                .setLinearHeadingInterpolation(heading(180), heading(37))
+                .setLinearHeadingInterpolation(heading(180), heading(36))
                 .build();
 
         path5 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(100.000), 105.000), new Pose(x(102.000), 59.000))
+                        new BezierLine(new Pose(x(90), 95), new Pose(x(97), 59.000))
                 )
-                .setLinearHeadingInterpolation(heading(37), heading(180))
+                .setLinearHeadingInterpolation(heading(36), heading(180))
                 .build();
 
         path6 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(102.000), 59.000), new Pose(x(130.000), 59.000))
+                        new BezierLine(new Pose(x(97), 59.000), new Pose(x(108), 59.000))
                 )
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(heading(180))
                 .build();
 
         path7 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(130.000), 59.000), new Pose(x(100.000), 105.000))
+                        new BezierLine(new Pose(x(108), 59.000), new Pose(x(90), 95))
                 )
-                .setLinearHeadingInterpolation(heading(180), heading(37))
+                .setLinearHeadingInterpolation(heading(180), heading(36))
                 .build();
 
         path8 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(100.000), 105.000), new Pose(x(102.000), 35.000))
+                        new BezierLine(new Pose(x(90), 95), new Pose(x(97), 30))
                 )
-                .setLinearHeadingInterpolation(heading(37), heading(180))
+                .setLinearHeadingInterpolation(heading(36), heading(180))
                 .build();
 
         path9 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(102.000), 35.000), new Pose(x(130.000), 35.000))
+                        new BezierLine(new Pose(x(97), 30), new Pose(x(112), 30))
                 )
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(heading(180))
                 .build();
 
         path10 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(130.000), 35.000), new Pose(x(100.000), 105.000))
+                        new BezierLine(new Pose(x(112), 30), new Pose(x(85), 95))
                 )
-                .setLinearHeadingInterpolation(heading(180), heading(37))
+                .setLinearHeadingInterpolation(heading(180), heading(36))
                 .build();
 
         path11 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(100.000), 105.000), new Pose(x(120), 69))
+                        new BezierLine(new Pose(x(85), 95), new Pose(x(120), 69))
                 )
-                .setLinearHeadingInterpolation(heading(37), heading(0))
+                .setLinearHeadingInterpolation(heading(36), heading(0))
                 .build();
     }
 

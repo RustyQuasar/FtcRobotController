@@ -173,13 +173,13 @@ public class SmartShooter3 {
         telemetry.addLine("Shooter");
         //telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         //telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
-        telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
+        //telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
         //telemetry.addData("Turret heading: ", neckHeading);
         //telemetry.addData("Turret head pos: ", targetPos);
-        telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
+        //telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
         //telemetry.addData("Target neck heading: ", headingTarget);
-        telemetry.addData("Offset: ", offset);
-        telemetry.addData("Distance: ", distance);
+        //telemetry.addData("Offset: ", offset);
+        //telemetry.addData("Distance: ", distance);
         //telemetry.addData("Camera Bot pos: ", camPos );
         telemetry.addData("Target vel: ", shooterVel);
         telemetry.addData("Current vel", leftShooter.getVelocity());

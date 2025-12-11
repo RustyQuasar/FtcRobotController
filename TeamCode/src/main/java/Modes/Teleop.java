@@ -30,7 +30,7 @@ public class Teleop extends LinearOpMode {
     @Override
     public void runOpMode() {
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
-        odometry.resetYaw();
+        //odometry.resetYaw();
         odometry.update();
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
