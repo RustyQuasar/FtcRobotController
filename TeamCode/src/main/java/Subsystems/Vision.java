@@ -69,9 +69,10 @@ public class Vision {
         telemetry.addData("Running: ", limelight.isRunning());
         telemetry.addData("Connected: ", limelight.isConnected());
         telemetry.addData("Reading tag: ", result.isValid());
+
         if (result.isValid()) {
             // Access general information
-            Pose3D botpose = result.getBotpose();
+            Pose3D botpose = result.getBotpose_MT2();
             /*
             double captureLatency = result.getCaptureLatency();
             double targetingLatency = result.getTargetingLatency();
@@ -86,6 +87,7 @@ public class Vision {
             telemetry.addData("tync", result.getTyNC());
              */
             telemetry.addData("Botpose", botpose.getPosition().x / 0.0254 + " " + botpose.getPosition().y / 0.0254 + " " + botpose.getPosition().z / 0.0254);
+            telemetry.addData("Heading: ", botpose.getOrientation());
             /*
             // Access barcode results
             List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();

@@ -79,7 +79,7 @@ public class SmartShooter3 {
         } else {
             targetPose = Constants.OdometryConstants.targetPosBlue;
         }
-        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
+        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() + Constants.OdometryConstants.startHeading;
         double max = 2 * Math.PI;
         if (botHeading < 0) {
             botHeading += max;
@@ -135,6 +135,19 @@ public class SmartShooter3 {
         }
         transferServo2.setPower(-transferServo.getPower());
     }
+
+    public void overrideTransfer(boolean buttonPressed) {
+        //if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 80)) {
+        if (!buttonPressed) {
+                flipServo.setPosition(0.1);
+                transferServo.setPower(-0.2);
+            } else {
+                flipServo.setPosition(0.25);
+                transferServo.setPower(0.2);
+        }
+        transferServo2.setPower(-transferServo.getPower());
+    }
+
     public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean auto) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = 5 + Math.min(Math.max(distance, 48), 148);
@@ -162,7 +175,7 @@ public class SmartShooter3 {
         if (auto) {
             turretNeckMotor.setPower(neckController.calculate(targetNeckPos, turretNeckMotor.getCurrentPosition()));
         } else {
-            turretNeckMotor.setPower(neckController.calculate(0, turretNeckMotor.getCurrentPosition()));
+            turretNeckMotor.setPower(neckController.calculate(offset, turretNeckMotor.getCurrentPosition()));
         }
         shoot(shooterVel);
     }
@@ -179,7 +192,7 @@ public class SmartShooter3 {
         //telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
         //telemetry.addData("Target neck heading: ", headingTarget);
         //telemetry.addData("Offset: ", offset);
-        //telemetry.addData("Distance: ", distance);
+        telemetry.addData("Distance: ", distance);
         //telemetry.addData("Camera Bot pos: ", camPos );
         telemetry.addData("Target vel: ", shooterVel);
         telemetry.addData("Current vel", leftShooter.getVelocity());
@@ -207,5 +220,6 @@ public class SmartShooter3 {
     public void chill(){
         leftShooter.setPower(0);
         rightShooter.setPower(0);
+        turretNeckMotor.setPower(0);
     }
 }

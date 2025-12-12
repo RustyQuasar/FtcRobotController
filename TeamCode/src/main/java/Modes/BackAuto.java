@@ -14,13 +14,13 @@ import Subsystems.ThreeDeadWheelLocalizer;
 import Subsystems.Vision;
 import Utilities.Constants;
 
-@Autonomous(name = "3 Piece + Line Autonomous", group = "Auto")
+@Autonomous(name = "Back Autonomous", group = "Auto")
 public class BackAuto extends OpMode {
 
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
-    ThreeDeadWheelLocalizer odometry;
+    //ThreeDeadWheelLocalizer odometry;
     Vision vision;
 
     PathChain path;
@@ -32,7 +32,7 @@ public class BackAuto extends OpMode {
 
     @Override
     public void loop() {
-        odometry.update();
+        //odometry.update();
         follower.update();
         if (running) {
             if (!follower.isBusy()) {
@@ -46,6 +46,7 @@ public class BackAuto extends OpMode {
                             shooter.transfer(true);
                             intake.intake(true, true);
                         } else {
+                            shooter.transfer(false);
                             currentPath = 2;
                         }
                         break;
@@ -73,6 +74,7 @@ public class BackAuto extends OpMode {
 
     @Override
     public void init() {
+        Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.startPos;
         follower = AutoConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(88, 8));
         path = follower.pathBuilder()
@@ -82,21 +84,18 @@ public class BackAuto extends OpMode {
                                 new Pose(110.000, 8.000)
                         )
                 )
-                .setLinearHeadingInterpolation(heading(0), heading(0))
+                .setConstantHeadingInterpolation(follower.getHeading())
                 .build();
         vision = new Vision(hardwareMap);
         intake = new SmartIntake(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
-        odometry = new ThreeDeadWheelLocalizer(
-                hardwareMap,
-                new Pose2d(72 - 8, 72 - x(88), Constants.OdometryConstants.startHeading)
-        );
+        //odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72 - 8, 72 - x(88), Constants.OdometryConstants.startHeading));
     }
 
     @Override
     public void init_loop() {
         follower.update();
-        shooter.aim(true);
+        //shooter.aim(true);
     }
 
     public static double x(double offset) {
@@ -106,8 +105,7 @@ public class BackAuto extends OpMode {
     }
 
     private static double heading(double angle) {
-        if (Constants.TEAM.equals("BLUE"))
-            angle += (90 - angle) * 2;
+        if (Constants.TEAM.equals("BLUE")) angle += (90 - angle) * 2;
         return Math.toRadians(angle);
     }
 }

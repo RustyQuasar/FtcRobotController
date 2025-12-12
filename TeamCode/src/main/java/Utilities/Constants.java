@@ -6,8 +6,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
     public static final String TEAM =
-            "RED"
-            //"BLUE"
+            //"RED"
+            "BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
@@ -54,7 +54,9 @@ public final class Constants {
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
         public static double startHeading = heading(Math.PI/2);
-        public static Pose2d endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset + 12), heading(-Math.PI/2));
+        public static Pose2d startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset * 2), startHeading);
+
+        public static Pose2d endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset + 12), startHeading);
         public static boolean[] directions = new boolean[2];
     }
     public static final class Sizes {

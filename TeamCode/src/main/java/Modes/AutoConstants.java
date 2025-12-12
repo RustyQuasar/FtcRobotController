@@ -12,6 +12,8 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import Utilities.Constants;
+
 public final class AutoConstants {
     public static final double closeShootTime = 3000;
     public static final double farShootTime = 8000;
@@ -41,7 +43,8 @@ public final class AutoConstants {
             .rightEncoderDirection(Encoder.FORWARD)
             .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
-            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD))
+            ;
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             .rightFrontMotorName("frontRight")
@@ -61,5 +64,10 @@ public final class AutoConstants {
                 .mecanumDrivetrain(driveConstants)
                 .threeWheelIMULocalizer(localizerConstants)
                 .build();
+    }
+
+    private static double heading(double angle) {
+        if (Constants.TEAM.equals("BLUE")) angle += (90-angle) * 2;
+        return Math.toRadians(angle);
     }
 }

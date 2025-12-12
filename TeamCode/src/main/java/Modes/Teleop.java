@@ -40,12 +40,11 @@ public class Teleop extends LinearOpMode {
         //Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());
         //Elevator = new Elevator(hardwareMap);
         boolean upLastState = false;
-        boolean autoNeck = true;
+        boolean autoNeck = false;
 
         waitForStart();
 
         while (opModeIsActive()) {
-            //lime.runVision(test);
             odometry.update();
             Vision.updateAprilTags();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
@@ -53,10 +52,11 @@ public class Teleop extends LinearOpMode {
             }
             upLastState = gamepad1.dpad_up;
             Shooter.aim(autoNeck);
+            //Shooter.aim(false);
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             Shooter.transfer(activeGamepad1.left_trigger > 0.3);
-            //Shooter.transfer(true);
+            //Shooter.overrideTransfer(true);
             Shooter.manualOffset(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.manualNeckMotor(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.turretHeadTester(activeGamepad1.b);
@@ -76,9 +76,9 @@ public class Teleop extends LinearOpMode {
                 Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
             }
             //Mechanum.telemetry(telemetry);
-            Shooter.telemetry(telemetry);
+            //Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
-            //Vision.telemetry(telemetry);
+            Vision.telemetry(telemetry);
             odometry.telemetry(telemetry);
             telemetry.update();
             dashboard.updateConfig();
