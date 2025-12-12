@@ -1,6 +1,5 @@
 package Modes;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -10,13 +9,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
-import Subsystems.ThreeDeadWheelLocalizer;
 import Subsystems.Vision;
 import Utilities.Constants;
 
 @Autonomous(name = "Back Autonomous", group = "Auto")
 public class BackAuto extends OpMode {
-
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
@@ -33,6 +30,8 @@ public class BackAuto extends OpMode {
     @Override
     public void loop() {
         //odometry.update();
+        shooter.telemetry(telemetry);
+        telemetry.update();
         follower.update();
         if (running) {
             if (!follower.isBusy()) {
@@ -59,7 +58,7 @@ public class BackAuto extends OpMode {
                         break;
                 }
             }
-            shooter.aim(true);
+            shooter.aim(true, false);
             vision.updateAprilTags();
         } else {
             shooter.chill();
@@ -95,6 +94,7 @@ public class BackAuto extends OpMode {
     @Override
     public void init_loop() {
         follower.update();
+        vision.updateAprilTags();
         //shooter.aim(true);
     }
 

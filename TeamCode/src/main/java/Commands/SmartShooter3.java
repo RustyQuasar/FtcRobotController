@@ -72,7 +72,7 @@ public class SmartShooter3 {
         else {turretHead.setPosition(1);}
     }
 
-    public void aim(boolean auto) {
+    public void aim(boolean autoAim, boolean auto) {
         Vector2d targetPose;
         if (Constants.TEAM.equals("RED")){
             targetPose = Constants.OdometryConstants.targetPosRed;
@@ -101,8 +101,8 @@ public class SmartShooter3 {
         // Step through the list of detections and display info for each one.
             if (Vision.hasTarget()) {
                 double neckDeltaHeading = neckHeading - botHeading + Math.PI/2;
-                double[] limelightPos = new double[]{limelightToShooterCenter * Math.cos(neckDeltaHeading), limelightToShooterCenter * Math.sin(neckDeltaHeading)};
-                double[] shooterPos = new double[]{shooterToBotCenter * Math.cos(botHeading), shooterToBotCenter * Math.cos(botHeading)};
+                double[] limelightPos = new double[]{limelightToShooterCenter * Math.sin(neckDeltaHeading), limelightToShooterCenter * Math.cos(neckDeltaHeading)};
+                double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
                 totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
                 Vector2d llPos = Vision.getPose(neckHeading);
                 Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -118,7 +118,7 @@ public class SmartShooter3 {
             double angleToTurn = Math.toDegrees(neckHeading + headingTarget);
             // if (Constants.TEAM.equals("BLUE")) {angleToTurn -= 5; }
             //else {angleToTurn -= 2; }
-            aiming(distance, fv, sv, angleToTurn, auto);
+            aiming(distance, fv, sv, angleToTurn, autoAim, auto);
     }
     public void manualOffset(boolean leftTrigger, boolean rightTrigger){
         if (leftTrigger) offset -= 4;
@@ -148,9 +148,9 @@ public class SmartShooter3 {
         transferServo2.setPower(-transferServo.getPower());
     }
 
-    public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean auto) {
+    public void aiming(double distance, double frontV, double sideV, double angleToTurn, boolean autoAim, boolean auto) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = 5 + Math.min(Math.max(distance, 48), 148);
+        distance = 5 + Math.min(Math.max(distance, 55), 148);
         double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
         double g = -9.8;
         double distanceMeters = distance / 39.37;
@@ -161,7 +161,8 @@ public class SmartShooter3 {
         double t = Math.sqrt(H / -g);
         if (Double.isNaN(distance)) distance = 0;
         angle = distance * 0.3;
-        shooterVel = (distance - frontV * t) * 5.35437 + 739.28803;//equation that possibly maybe might work> 6.41536x+708.08256
+        shooterVel = (distance - frontV * t) * 5.45437 + 739.28803;
+        if (distance > 130) shooterVel -= 20;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -172,7 +173,7 @@ public class SmartShooter3 {
         if (Math.abs(targetNeckPos) > 1000) targetNeckPos = (int) (1000 * Math.signum(targetNeckPos));
         targetPos = (1 - Math.max(0, Math.min(0.8, angle / Constants.ShooterConstants.maxHeadAngle)));
         turretHead.setPosition(targetPos);
-        if (auto) {
+        if (autoAim) {
             turretNeckMotor.setPower(neckController.calculate(targetNeckPos, turretNeckMotor.getCurrentPosition()));
         } else {
             turretNeckMotor.setPower(neckController.calculate(offset, turretNeckMotor.getCurrentPosition()));

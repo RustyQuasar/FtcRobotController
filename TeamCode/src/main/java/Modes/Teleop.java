@@ -1,12 +1,9 @@
 package Modes;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
@@ -25,8 +22,6 @@ public class Teleop extends LinearOpMode {
     Vision Vision;
     ThreeDeadWheelLocalizer odometry;
     //Elevator Elevator;
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
     @Override
     public void runOpMode() {
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
@@ -51,7 +46,7 @@ public class Teleop extends LinearOpMode {
                 autoNeck = !autoNeck;
             }
             upLastState = gamepad1.dpad_up;
-            Shooter.aim(autoNeck);
+            Shooter.aim(autoNeck, false);
             //Shooter.aim(false);
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
@@ -78,10 +73,10 @@ public class Teleop extends LinearOpMode {
             //Mechanum.telemetry(telemetry);
             //Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
-            Vision.telemetry(telemetry);
-            odometry.telemetry(telemetry);
-            telemetry.update();
-            dashboard.updateConfig();
+            //Vision.telemetry(telemetry);
+            //odometry.telemetry(telemetry);
+            //telemetry.update();
+            //dashboard.updateConfig();
         }
     }
 }
