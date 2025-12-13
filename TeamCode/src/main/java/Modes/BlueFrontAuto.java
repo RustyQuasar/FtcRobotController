@@ -1,6 +1,7 @@
 package Modes;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -12,7 +13,7 @@ import Commands.SmartShooter3;
 import Subsystems.Vision;
 import Utilities.Constants;
 
-@Autonomous(name = "Blue Front Autonomous", group = "Auto")
+@Autonomous(name = "Blue No Gate Autonomous", group = "Blue Auto")
 public class BlueFrontAuto extends OpMode {
     public static Follower follower;
     SmartIntake intake;
@@ -169,6 +170,7 @@ public class BlueFrontAuto extends OpMode {
     public void start(){
         pathStartTime = System.currentTimeMillis();
         follower.followPath(path1);
+        shooter.aim(false, false);
     }
     @Override
     public void init() {
@@ -197,7 +199,7 @@ public class BlueFrontAuto extends OpMode {
         path3 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(90), 83.000), new Pose(x(118), 83.000))
+                        new BezierLine(new Pose(x(90), 83.000), new Pose(x(117), 83.000))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -205,7 +207,7 @@ public class BlueFrontAuto extends OpMode {
         path4 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(118), 83.000), new Pose(x(85), 95))
+                        new BezierLine(new Pose(x(117), 83.000), new Pose(x(85), 95))
                 )
                 .setLinearHeadingInterpolation(heading(180), heading(40))
                 .build();
@@ -221,7 +223,7 @@ public class BlueFrontAuto extends OpMode {
         path6 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(87), 54), new Pose(x(113), 54))
+                        new BezierLine(new Pose(x(87), 54), new Pose(x(109), 54))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -229,7 +231,10 @@ public class BlueFrontAuto extends OpMode {
         path7 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(120), 54), new Pose(x(85), 100))
+                        new BezierCurve(
+                                new Pose(x(120), 54),
+                                //new Pose(x(123), 69),
+                                new Pose(x(85), 100))
                 )
                 .setLinearHeadingInterpolation(heading(180), heading(40))
                 .build();
@@ -237,7 +242,7 @@ public class BlueFrontAuto extends OpMode {
         path8 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(85), 100), new Pose(x(80), 28))
+                        new BezierLine(new Pose(x(85), 100), new Pose(x(80), 27))
                 )
                 .setLinearHeadingInterpolation(heading(48), heading(180))
                 .build();
@@ -245,7 +250,7 @@ public class BlueFrontAuto extends OpMode {
         path9 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(80), 28), new Pose(x(114), 28))
+                        new BezierLine(new Pose(x(80), 27), new Pose(x(114), 27))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -253,17 +258,9 @@ public class BlueFrontAuto extends OpMode {
         path10 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(114), 28), new Pose(x(76), 130))
+                        new BezierLine(new Pose(x(114), 27), new Pose(x(73), 1200))
                 )
                 .setLinearHeadingInterpolation(heading(180), heading(0))
-                .build();
-
-        path11 = follower
-                .pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(x(74), 110), new Pose(x(120), 69))
-                )
-                .setLinearHeadingInterpolation(heading(30), heading(0))
                 .build();
     }
 

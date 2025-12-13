@@ -35,7 +35,7 @@ public class Teleop extends LinearOpMode {
         //Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());
         //Elevator = new Elevator(hardwareMap);
         boolean upLastState = false;
-        boolean autoNeck = false;
+        boolean autoNeck = true;
 
         waitForStart();
 

@@ -41,7 +41,7 @@ public final class ThreeDeadWheelLocalizer {
     private int lastPar0Pos, lastPar1Pos, lastPerpPos;
     private boolean initialized;
     BNO055IMU imu;
-    private double yawOffset;
+    private double yawOffset = 0;
     double startPerp, startPar0, startPar1;
     public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, Pose2d initialPose) {
 
@@ -77,6 +77,7 @@ public final class ThreeDeadWheelLocalizer {
     }
 
     public void resetYaw() {
+        yawOffset = getRawHeading();
         if (yawOffset > 2 * Math.PI) {
             yawOffset -= Math.PI * 2;
         } else if (yawOffset < 0) {

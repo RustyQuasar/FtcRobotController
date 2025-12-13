@@ -10,7 +10,7 @@ public final class Constants {
             //"BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
-    public static final int GoBildaMotorMax = 29;
+    public static final int GoBildaMotorMax = 28;
 
 
     public static final class ElevatorConstants {
