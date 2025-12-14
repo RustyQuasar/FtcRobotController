@@ -8,7 +8,6 @@ import com.pedropathing.paths.*;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
@@ -30,15 +29,6 @@ public class RedFrontAuto extends OpMode {
     double pathCooldown = 1000;
     @Override
     public void loop() {
-        telemetry.addData("Current path: ", currentPath);
-        telemetry.addData("Current time: ", System.currentTimeMillis());
-        telemetry.addData("Last time: ", lastTime);
-        telemetry.addData("Difference: ", System.currentTimeMillis() - lastTime);
-        telemetry.addData("Done shooting: ", System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime);
-        telemetry.addData("Done path: ", !follower.atParametricEnd() || !follower.isBusy());
-        telemetry.addData("Running: ", running);
-        telemetry.addData("Current pos: ", follower.getPose());
-        //shooter.telemetry(telemetry);
         follower.update();
         if (running) {
             //also mentions of follower.atParametricEnd() but idk how much to trust that
@@ -157,7 +147,6 @@ public class RedFrontAuto extends OpMode {
             intake.intake(false, false);
             shooter.transfer(false);
         }
-        telemetry.update();
     }
     @Override
     public void start(){
@@ -192,7 +181,7 @@ public class RedFrontAuto extends OpMode {
         path3 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(90), 83.000), new Pose(x(118), 83.000))
+                        new BezierLine(new Pose(x(90), 83.000), new Pose(x(117), 83.000))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -200,7 +189,7 @@ public class RedFrontAuto extends OpMode {
         path4 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(118), 83.000), new Pose(x(85), 95))
+                        new BezierLine(new Pose(x(117), 83.000), new Pose(x(85), 95))
                 )
                 .setLinearHeadingInterpolation(heading(180), heading(40))
                 .build();
@@ -216,7 +205,7 @@ public class RedFrontAuto extends OpMode {
         path6 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(87), 51), new Pose(x(104), 51))
+                        new BezierLine(new Pose(x(87), 51), new Pose(x(108), 55))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -225,8 +214,8 @@ public class RedFrontAuto extends OpMode {
                 .pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(110.000, 51.000),
-                                //new Pose(128, 69),
+                                new Pose(112, 55),
+                                new Pose(100, 69),
                                 new Pose(85.000, 100.000)
                         )
                 )
@@ -244,7 +233,7 @@ public class RedFrontAuto extends OpMode {
         path9 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(80), 28), new Pose(x(110), 27))
+                        new BezierLine(new Pose(x(80), 28), new Pose(x(110), 28))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();

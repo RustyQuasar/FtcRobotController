@@ -28,15 +28,6 @@ public class BlueFrontAuto extends OpMode {
     double pathCooldown = 1000;
     @Override
     public void loop() {
-        telemetry.addData("Current path: ", currentPath);
-        telemetry.addData("Current time: ", System.currentTimeMillis());
-        telemetry.addData("Last time: ", lastTime);
-        telemetry.addData("Difference: ", System.currentTimeMillis() - lastTime);
-        telemetry.addData("Done shooting: ", System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime);
-        telemetry.addData("Done path: ", !follower.atParametricEnd() || !follower.isBusy());
-        telemetry.addData("Running: ", running);
-        telemetry.addData("Current pos: ", follower.getPose());
-        //shooter.telemetry(telemetry);
         follower.update();
         if (running) {
             //also mentions of follower.atParametricEnd() but idk how much to trust that
@@ -164,7 +155,6 @@ public class BlueFrontAuto extends OpMode {
             intake.intake(false, false);
             shooter.transfer(false);
         }
-        telemetry.update();
     }
     @Override
     public void start(){
@@ -223,7 +213,7 @@ public class BlueFrontAuto extends OpMode {
         path6 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(87), 54), new Pose(x(109), 54))
+                        new BezierLine(new Pose(x(87), 53), new Pose(x(109), 53))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -233,10 +223,10 @@ public class BlueFrontAuto extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(x(120), 54),
-                                //new Pose(x(123), 69),
+                                //new Pose(x(100), 69),
                                 new Pose(x(85), 100))
                 )
-                .setLinearHeadingInterpolation(heading(180), heading(40))
+                .setLinearHeadingInterpolation(heading(180), heading(30))
                 .build();
 
         path8 = follower
@@ -244,13 +234,13 @@ public class BlueFrontAuto extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(x(85), 100), new Pose(x(80), 27))
                 )
-                .setLinearHeadingInterpolation(heading(48), heading(180))
+                .setLinearHeadingInterpolation(heading(30), heading(180))
                 .build();
 
         path9 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(80), 27), new Pose(x(114), 27))
+                        new BezierLine(new Pose(x(80), 26), new Pose(x(114), 26))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
@@ -258,7 +248,7 @@ public class BlueFrontAuto extends OpMode {
         path10 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(114), 27), new Pose(x(73), 1200))
+                        new BezierLine(new Pose(x(114), 26), new Pose(x(73), 123))
                 )
                 .setLinearHeadingInterpolation(heading(180), heading(0))
                 .build();
