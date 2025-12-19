@@ -1,5 +1,6 @@
 package Modes;
 
+import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
@@ -17,22 +18,24 @@ import Utilities.Constants;
 public final class AutoConstants {
     public static final double closeShootTime = 3000;
     public static final double farShootTime = 8000;
-    public static final double inPerTick =
+    public static double inPerTick =
             //58.25 / 100000;
-            5.959660158235999E-4 * (144.0 / 122) * (75.5 / 78);
+            0.0008414221034381905 * 53/68;
+    //1;
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(13.38)
-            .forwardZeroPowerAcceleration(-46.1818245724384)
-            .lateralZeroPowerAcceleration(-70.40489701170591)
+            .forwardZeroPowerAcceleration(-37.032228508506705)
+            .lateralZeroPowerAcceleration(-56.07771593470723)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.007, 0, 0, 0.001))
             .headingPIDFCoefficients(new PIDFCoefficients(-1, 0, 0, 0))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
             ;
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
     public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
             .forwardTicksToInches(inPerTick)
             .strafeTicksToInches(inPerTick)
-            .turnTicksToInches(0.7762012505734939)
+            .turnTicksToInches(-1)
             .leftPodY(-3/inPerTick)
             .rightPodY(3/inPerTick)
             .strafePodX(4.337/inPerTick)
@@ -43,8 +46,7 @@ public final class AutoConstants {
             .rightEncoderDirection(Encoder.FORWARD)
             .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
-            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD))
-            ;
+            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             .rightFrontMotorName("frontRight")
@@ -55,8 +57,8 @@ public final class AutoConstants {
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .xVelocity(76.66649715055927)
-            .yVelocity(61.6460503814876)
+            .xVelocity(61.90324583022347)
+            .yVelocity(47.311355927444446)
             ;
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
@@ -64,10 +66,5 @@ public final class AutoConstants {
                 .mecanumDrivetrain(driveConstants)
                 .threeWheelIMULocalizer(localizerConstants)
                 .build();
-    }
-
-    private static double heading(double angle) {
-        if (Constants.TEAM.equals("BLUE")) angle += (90-angle) * 2;
-        return Math.toRadians(angle);
     }
 }

@@ -1,9 +1,12 @@
 package Modes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
@@ -14,13 +17,15 @@ import Utilities.Constants;
 
 @TeleOp
 public class Teleop extends LinearOpMode {
-
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry telemetry = dashboard.getTelemetry();
     Gamepad activeGamepad1;
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter3 Shooter;
     Vision Vision;
     ThreeDeadWheelLocalizer odometry;
+    //int shooterVel = 800;
     //Elevator Elevator;
     @Override
     public void runOpMode() {
@@ -44,10 +49,10 @@ public class Teleop extends LinearOpMode {
             Vision.updateAprilTags();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
                 autoNeck = !autoNeck;
+                //shooterVel += 20;
             }
             upLastState = gamepad1.dpad_up;
             Shooter.aim(autoNeck, false);
-            //Shooter.aim(false);
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             Shooter.transfer(activeGamepad1.left_trigger > 0.3);
@@ -55,7 +60,7 @@ public class Teleop extends LinearOpMode {
             Shooter.manualOffset(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.manualNeckMotor(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.turretHeadTester(activeGamepad1.b);
-            //Shooter.shoot(activeGamepad1.left_trigger * 1040 + 1000);
+            //Shooter.shoot(shooterVel);
             Mechanum.drive(
                     -gamepad1.left_stick_y,
                     gamepad1.left_stick_x,
@@ -71,7 +76,7 @@ public class Teleop extends LinearOpMode {
                 Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
             }
             //Mechanum.telemetry(telemetry);
-            //Shooter.telemetry(telemetry);
+            Shooter.telemetry(telemetry);
             //Intake.telemetry(telemetry);
             //Vision.telemetry(telemetry);
             //odometry.telemetry(telemetry);

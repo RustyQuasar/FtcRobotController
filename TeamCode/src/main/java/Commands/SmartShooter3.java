@@ -20,7 +20,7 @@ import Utilities.Constants;
 
 public class SmartShooter3 {
     private final DcMotorEx leftShooter, rightShooter;
-    private final Servo flipServo, turretHead;
+    private final Servo turretHead;
     private final DcMotorEx turretNeckMotor;
     private final CRServo transferServo, transferServo2;
     Vision Vision;
@@ -45,7 +45,6 @@ public class SmartShooter3 {
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHeadServo);
-        flipServo = hardwareMap.get(Servo.class, Constants.ShooterConstants.flipServo);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -108,16 +107,18 @@ public class SmartShooter3 {
                 Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
                 //camPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
-        //+72 because negatives suck
-            xChange = (targetPose.x+72) - (Constants.OdometryConstants.fieldPos.position.x+72);
-            yChange = (targetPose.y+72) - (Constants.OdometryConstants.fieldPos.position.y+72);
+            xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x);
+            yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y);
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             //TOA in the indian princess' name
             headingTarget = Math.atan2(xChange, yChange);
-            double angleToTurn = Math.toDegrees(neckHeading + headingTarget);
-            // if (Constants.TEAM.equals("BLUE")) {angleToTurn -= 5; }
-            //else {angleToTurn -= 2; }
+            double angleToTurn;
+            if (Constants.TEAM.equals("RED")) {
+                angleToTurn = Math.toDegrees(headingTarget + neckHeading);
+            } else {
+                angleToTurn = Math.toDegrees(neckHeading + headingTarget);
+            }
             aiming(distance, fv, sv, angleToTurn, autoAim, auto);
     }
     public void manualOffset(boolean leftTrigger, boolean rightTrigger){
@@ -125,13 +126,11 @@ public class SmartShooter3 {
         if (rightTrigger) offset += 4;
     }
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 80)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 40)) {
         //if (!buttonPressed) {
-            flipServo.setPosition(0.1);
             transferServo.setPower(-0.2);
         } else {
-            flipServo.setPosition(0.25);
-            transferServo.setPower(0.2);
+            transferServo.setPower(1);
         }
         transferServo2.setPower(-transferServo.getPower());
     }
@@ -139,10 +138,9 @@ public class SmartShooter3 {
     public void overrideTransfer(boolean buttonPressed) {
         //if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 80)) {
         if (!buttonPressed) {
-                flipServo.setPosition(0.1);
                 transferServo.setPower(-0.2);
             } else {
-                flipServo.setPosition(0.25);
+
                 transferServo.setPower(0.2);
         }
         transferServo2.setPower(-transferServo.getPower());
@@ -161,7 +159,7 @@ public class SmartShooter3 {
         double t = Math.sqrt(H / -g);
         if (Double.isNaN(distance)) distance = 0;
         angle = distance * 0.3;
-        shooterVel = (distance - frontV * t + 2) * 5.45437 + 739.28803;
+        shooterVel = (distance - frontV * t) * 4.3 + 660;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -187,7 +185,7 @@ public class SmartShooter3 {
         //telemetry.addData("Left Shooter Power: ", leftShooter.getPower());
         //telemetry.addData("Right Shooter Power: ", rightShooter.getPower());
         //telemetry.addData("Turret neck pos: ", turretNeckMotor.getCurrentPosition());
-        //telemetry.addData("Turret heading: ", neckHeading);
+        telemetry.addData("Turret heading: ", neckHeading);
         //telemetry.addData("Turret head pos: ", targetPos);
         //telemetry.addData("Turret neck target pos:", actualTargetNeckPos);
         //telemetry.addData("Target neck heading: ", headingTarget);

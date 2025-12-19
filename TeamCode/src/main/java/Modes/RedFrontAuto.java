@@ -20,7 +20,7 @@ public class RedFrontAuto extends OpMode {
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
-    PathChain path1, path2, path3, path4, path5, path6, path7, path8, path9, path10;
+    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10;
     int currentPath = 1;
     double lastTime = 10;
     double pathStartTime = 0;
@@ -41,7 +41,7 @@ public class RedFrontAuto extends OpMode {
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime + 700) {
                             lastTimeSet = false;
-                            follower.followPath(path2);
+                            follower.followPath(Path2);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 2;
                             shooter.transfer(false);
@@ -54,13 +54,13 @@ public class RedFrontAuto extends OpMode {
 
                         case 2:
                             intake.intake(true, false);
-                        follower.followPath(path3);
+                        follower.followPath(Path3);
                         pathStartTime = System.currentTimeMillis();
                         currentPath = 3;
                         break;
                         case 3:
                             intake.intake(false, false);
-                        follower.followPath(path4);
+                        follower.followPath(Path4);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 4;
                         break;
@@ -72,7 +72,7 @@ public class RedFrontAuto extends OpMode {
                             if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                                 intake.intake(false, false);
                                 lastTimeSet = false;
-                                follower.followPath(path5);
+                                follower.followPath(Path5);
                                 pathStartTime = System.currentTimeMillis();
                                 currentPath = 5;
                                 shooter.transfer(false);
@@ -84,13 +84,13 @@ public class RedFrontAuto extends OpMode {
                         break;
                         case 5:
                             intake.intake(true, false);
-                        follower.followPath(path6);
+                        follower.followPath(Path6);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 6;
                         break;
                         case 6:
                             intake.intake(false, false);
-                        follower.followPath(path7);
+                        follower.followPath(Path7);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 7;
                         break;
@@ -102,7 +102,7 @@ public class RedFrontAuto extends OpMode {
                             if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                                 intake.intake(false, false);
                                 lastTimeSet = false;
-                                follower.followPath(path8);
+                                follower.followPath(Path8);
                                 pathStartTime = System.currentTimeMillis();
                                 currentPath = 8;
                                 shooter.transfer(false);
@@ -114,13 +114,13 @@ public class RedFrontAuto extends OpMode {
                         break;
                         case 8:
                             intake.intake(true, false);
-                        follower.followPath(path9);
+                        follower.followPath(Path9);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 9;
                         break;
                         case 9:
                             intake.intake(false, false);
-                        follower.followPath(path10);
+                        follower.followPath(Path10);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 10;
                         break;
@@ -151,7 +151,7 @@ public class RedFrontAuto extends OpMode {
     @Override
     public void start(){
         pathStartTime = System.currentTimeMillis();
-        follower.followPath(path1);
+        follower.followPath(Path1);
         shooter.aim(false, false);
     }
     @Override
@@ -162,86 +162,95 @@ public class RedFrontAuto extends OpMode {
         follower = AutoConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(x(110), 136, heading(0)));
 
-        path1 = follower
+        Path1 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(110), 136), new Pose(x(100.000), 105.000))
+                        new BezierLine(new Pose(x(111.000), 135.000), new Pose(x(111.000), 110.000))
                 )
-                .setLinearHeadingInterpolation(heading(0), heading(40))
+                .setLinearHeadingInterpolation(heading(0), heading(50))
                 .build();
 
-        path2 = follower
+        Path2 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(100.000), 105.000), new Pose(x(90), 83.000))
+                        new BezierLine(new Pose(x(111.000), 110.000), new Pose(x(100.000), 83.000))
                 )
-                .setLinearHeadingInterpolation(heading(40), heading(180))
+                .setLinearHeadingInterpolation(heading(50), heading(180))
                 .build();
 
-        path3 = follower
+        Path3 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(90), 83.000), new Pose(x(117), 83.000))
-                )
-                .setConstantHeadingInterpolation(heading(180))
-                .build();
-
-        path4 = follower
-                .pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(x(117), 83.000), new Pose(x(85), 95))
-                )
-                .setLinearHeadingInterpolation(heading(180), heading(40))
-                .build();
-
-        path5 = follower
-                .pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(x(85), 95), new Pose(x(87), 51))
-                )
-                .setLinearHeadingInterpolation(heading(40), heading(180))
-                .build();
-
-        path6 = follower
-                .pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(x(87), 51), new Pose(x(108), 55))
+                        new BezierLine(new Pose(x(100.000), 83.000), new Pose(x(126.000), 83.000))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
 
-        path7 = follower
+        Path4 = follower
                 .pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(112, 55),
-                                new Pose(100, 69),
-                                new Pose(85.000, 100.000)
+                                new Pose(x(126.000), 83.000),
+                                new Pose(x(105.000), 60.000),
+                                new Pose(x(141.000), 75.000),
+                                new Pose(x(111.000), 110.000)
                         )
                 )
-                .setLinearHeadingInterpolation(heading(180), heading(40))
+                .setLinearHeadingInterpolation(heading(180), heading(50))
                 .build();
 
-        path8 = follower
+        Path5 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(85), 100), new Pose(x(80), 28))
+                        new BezierLine(new Pose(x(111.000), 110.000), new Pose(x(100.000), 58.000))
                 )
-                .setLinearHeadingInterpolation(heading(40), heading(180))
+                .setLinearHeadingInterpolation(heading(50), heading(180))
                 .build();
 
-        path9 = follower
+        Path6 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(80), 28), new Pose(x(110), 28))
+                        new BezierLine(new Pose(x(100.000), 58.000), new Pose(x(136.000), 58.000))
                 )
                 .setConstantHeadingInterpolation(heading(180))
                 .build();
 
-        path10 = follower
+        Path7 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(x(110), 27), new Pose(x(76), 130))
+                        new BezierCurve(
+                                new Pose(x(136.000), 58.000),
+                                new Pose(x(95.000), 62.000),
+                                new Pose(x(111.000), 110.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(heading(180), heading(50))
+                .build();
+
+        Path8 = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(x(111.000), 110.000), new Pose(x(100.000), 30.000))
+                )
+                .setLinearHeadingInterpolation(heading(50), heading(180))
+                .build();
+
+        Path9 = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(x(100.000), 30.000), new Pose(x(135.000), 30.000))
+                )
+                .setConstantHeadingInterpolation(heading(180))
+                .build();
+
+        Path10 = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(x(135.000), 30.000),
+                                new Pose(x(90.000), 102.000),
+                                new Pose(x(90.000), 135.000)
+                        )
                 )
                 .setLinearHeadingInterpolation(heading(180), heading(0))
                 .build();
