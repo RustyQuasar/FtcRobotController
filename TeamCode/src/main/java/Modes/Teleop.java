@@ -1,6 +1,7 @@
 package Modes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -8,62 +9,79 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
-import Utilities.Odometry;
 import Commands.SmartIntake;
-import Commands.SmartShooter;
-import Commands.Vision;
+import Commands.SmartShooter3;
+import Subsystems.ThreeDeadWheelLocalizer;
+import Subsystems.Vision;
 import Utilities.Constants;
 
 @TeleOp
 public class Teleop extends LinearOpMode {
-
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry telemetry = dashboard.getTelemetry();
     Gamepad activeGamepad1;
     MechanumDrive Mechanum;
     SmartIntake Intake;
-    SmartShooter Shooter;
+    SmartShooter3 Shooter;
     Vision Vision;
-    Odometry Odometry;
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry telemetry = dashboard.getTelemetry(); //Comment this out before comps
+    ThreeDeadWheelLocalizer odometry;
+    //int shooterVel = 800;
+    //Elevator Elevator;
     @Override
     public void runOpMode() {
-        Odometry = new Odometry(hardwareMap);
+        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
+        //odometry.resetYaw();
+        odometry.update();
         activeGamepad1 = new Gamepad();
-        Mechanum = new MechanumDrive(hardwareMap, Odometry);
-        Vision = new Vision(hardwareMap, dashboard);
+        Mechanum = new MechanumDrive(hardwareMap);
+        Vision = new Vision(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
-        Shooter = new SmartShooter(hardwareMap, Constants.TEAM, Vision);
+        Shooter = new SmartShooter3(hardwareMap, Vision);
+        //Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());
+        //Elevator = new Elevator(hardwareMap);
+        boolean upLastState = false;
+        boolean autoNeck = true;
+
         waitForStart();
 
         while (opModeIsActive()) {
-            Odometry.updatePose();
-            Mechanum.updateHeading();
+            odometry.update();
             Vision.updateAprilTags();
-
-            activeGamepad1.copy(gamepad1);
-            Intake.intake(activeGamepad1.right_bumper);
-
-            if (activeGamepad1.right_trigger > 0.5) {
-                Shooter.transfer();
-                Intake.colorWipe();
+            if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
+                autoNeck = !autoNeck;
+                //shooterVel += 20;
             }
+            upLastState = gamepad1.dpad_up;
+            Shooter.aim(autoNeck, false);
+            activeGamepad1.copy(gamepad1);
+            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
+            Shooter.transfer(activeGamepad1.left_trigger > 0.3);
+            //Shooter.overrideTransfer(true);
+            Shooter.manualOffset(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
+            //Shooter.manualNeckMotor(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
+            //Shooter.turretHeadTester(activeGamepad1.b);
+            //Shooter.shoot(shooterVel);
             Mechanum.drive(
                     -gamepad1.left_stick_y,
                     gamepad1.left_stick_x,
-                    gamepad1.right_stick_x
+                    -gamepad1.right_stick_x
             );
             if (activeGamepad1.dpad_down) {
-                Mechanum.resetYaw();
+                odometry.resetYaw();
             }
-            if (activeGamepad1.left_trigger > 0.1) {
-                Shooter.shoot(activeGamepad1.left_trigger * 2040);
+            if (activeGamepad1.dpad_left) {
+                Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosBlue, Constants.OdometryConstants.fieldPos.heading);
             }
-            Shooter.aim(Odometry.getVelocity());
-            //Mechanum.periodic(telemetry, telemetryPacket);
-            Shooter.periodic(telemetry);
-            // Intake.periodic(telemetry, telemetryPacket);
-            telemetry.update();
-            dashboard.updateConfig();
+            if (activeGamepad1.dpad_right){
+                Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
+            }
+            //Mechanum.telemetry(telemetry);
+            Shooter.telemetry(telemetry);
+            //Intake.telemetry(telemetry);
+            //Vision.telemetry(telemetry);
+            //odometry.telemetry(telemetry);
+            //telemetry.update();
+            //dashboard.updateConfig();
         }
     }
 }
