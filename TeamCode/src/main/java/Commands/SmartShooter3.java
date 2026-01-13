@@ -104,7 +104,7 @@ public class SmartShooter3 {
                 double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
                 totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
                 Vector2d llPos = Vision.getPose(neckHeading);
-                Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
+                Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x + totalOffsets[0], llPos.y + totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
                 //camPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
             xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x);
@@ -157,9 +157,8 @@ public class SmartShooter3 {
         //This is the root form of the parabola dw, y = -9.8(AOS-0)(AOS-z)
         double H = Math.abs(g * Math.pow(AOS, 2));
         double t = Math.sqrt(H / -g);
-        if (Double.isNaN(distance)) distance = 0;
         angle = distance * 0.3;
-        shooterVel = (distance - frontV * t) * 4.3 + 660;
+        shooterVel = (distance - frontV * t) * 4.39622 + 621.90476;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, sideV, distance, t) + offset);
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -191,7 +190,7 @@ public class SmartShooter3 {
         //telemetry.addData("Target neck heading: ", headingTarget);
         //telemetry.addData("Offset: ", offset);
         telemetry.addData("Distance: ", distance);
-        //telemetry.addData("Camera Bot pos: ", camPos );
+        telemetry.addData("Camera Bot pos: ", Vision.getPose(neckHeading) );
         telemetry.addData("Target vel: ", shooterVel);
         telemetry.addData("Current vel", leftShooter.getVelocity());
         telemetry.update();
