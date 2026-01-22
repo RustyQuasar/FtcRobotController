@@ -149,7 +149,7 @@ public class BlueFrontAuto extends OpMode {
                     default: running = false;
                 }
             }
-            shooter.aim(false, false);
+            shooter.aim(false);
         } else {
             shooter.chill();
             intake.intake(false, false);
@@ -160,7 +160,7 @@ public class BlueFrontAuto extends OpMode {
     public void start(){
         pathStartTime = System.currentTimeMillis();
         follower.followPath(path1);
-        shooter.aim(false, false);
+        shooter.aim(false);
     }
     @Override
     public void init() {

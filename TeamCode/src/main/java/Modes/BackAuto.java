@@ -58,7 +58,7 @@ public class BackAuto extends OpMode {
                         break;
                 }
             }
-            shooter.aim(true, false);
+            shooter.aim(true);
             vision.updateAprilTags();
         } else {
             shooter.chill();

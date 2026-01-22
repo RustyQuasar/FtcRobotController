@@ -6,8 +6,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
     public static final String TEAM =
-            //"RED"
-            "BLUE"
+            "RED"
+            //"BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
@@ -39,6 +39,7 @@ public final class Constants {
         public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
+        public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
         public static final double turretNeckGearRatio = 19.2 * 197 / 35; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 50;
@@ -47,8 +48,8 @@ public final class Constants {
     public static final class OdometryConstants{
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field), -(Sizes.field));
-        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field), (Sizes.field));
+        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 3), -(Sizes.field));
+        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field - 3), (Sizes.field));
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field, 0);
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));

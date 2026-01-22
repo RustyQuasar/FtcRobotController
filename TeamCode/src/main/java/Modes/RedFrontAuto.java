@@ -141,7 +141,7 @@ public class RedFrontAuto extends OpMode {
                     default: running = false;
                 }
             }
-            shooter.aim(false, false);
+            shooter.aim(false);
         } else {
             shooter.chill();
             intake.intake(false, false);
@@ -152,7 +152,7 @@ public class RedFrontAuto extends OpMode {
     public void start(){
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
-        shooter.aim(false, false);
+        shooter.aim(false);
     }
     @Override
     public void init() {
