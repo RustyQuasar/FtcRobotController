@@ -48,8 +48,8 @@ public final class Constants {
     public static final class OdometryConstants{
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 3), -(Sizes.field));
-        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field - 3), (Sizes.field));
+        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 2), -(Sizes.field));
+        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field) - 2, (Sizes.field));
         public static final Vector2d targetPosMotif = new Vector2d(Sizes.field, 0);
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
@@ -64,7 +64,7 @@ public final class Constants {
         public static final double robotHeight = 18;
         public static final double robotLength = 17.496;
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 70;
+        public static final double field = 69;
         public static final double artifactRadius = 2.50;
     }
 
@@ -73,8 +73,8 @@ public final class Constants {
         public static double shooterCamDist =0;//inch
         public static double shooterCenterDist =0;//inch
         public static final String camera = "Webcam"; //USB port
-        public static final int resX = 640;
-        public static final int resY = 480;
+        public static final int resX = 320;
+        public static final int resY = 240;
         public static final int FOV = 54;
         public static final double inOffset = 4.798 + 0.5;
         public static String[] colours = {"N", "N", "N"};
