@@ -18,9 +18,10 @@ public class SmartIntake {
         telemetry.addData("Intaking: ", motorIntake.getPower() != 0);
     }
 
-    public void intake(boolean trigger, boolean a) {
-        double motorPower = 0.8;
+    public void intake(boolean trigger, boolean a, boolean shooting) {
+        double motorPower = 0.4;
         if (!trigger && a) motorPower *= -1;
+        if (shooting) motorPower = 1;
         boolean buttonPressed = trigger || a;
         if (buttonPressed) {
             motorIntake.setPower(motorPower);

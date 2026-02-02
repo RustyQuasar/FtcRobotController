@@ -54,8 +54,8 @@ public class Teleop extends LinearOpMode {
             upLastState = gamepad1.dpad_up;
             Shooter.aim(autoNeck);
             activeGamepad1.copy(gamepad1);
-            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
-            Shooter.transfer(activeGamepad1.left_trigger > 0.3);
+            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a, Shooter.transfer(activeGamepad1.left_trigger > 0.3));
+            //Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a, false);
             //Shooter.overrideTransfer(true);
             Shooter.manualOffset(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
             //Shooter.manualNeckMotor(activeGamepad1.left_bumper, activeGamepad1.right_bumper);

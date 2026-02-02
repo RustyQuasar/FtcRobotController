@@ -69,19 +69,18 @@ public class RedFrontAuto extends OpMode {
                             currentPath = 2;
                             shooter.transfer(false);
                         } else {
-                            shooter.transfer(true);
-                            intake.intake(true, false);
+                            intake.intake(false, false, shooter.transfer(true));
                         }
                         break;
 
                         case 2:
-                            intake.intake(true, false);
+                            intake.intake(true, false, false);
                         follower.followPath(Path3);
                         pathStartTime = System.currentTimeMillis();
                         currentPath = 3;
                         break;
                         case 3:
-                            intake.intake(false, false);
+                            intake.intake(false, false, false);
                         follower.followPath(Path4);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 4;
@@ -92,25 +91,24 @@ public class RedFrontAuto extends OpMode {
                                 lastTimeSet = true;
                             }
                             if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
-                                intake.intake(false, false);
+                                intake.intake(false, false, false);
                                 lastTimeSet = false;
                                 follower.followPath(Path5);
                                 pathStartTime = System.currentTimeMillis();
                                 currentPath = 5;
                                 shooter.transfer(false);
                             } else {
-                                shooter.transfer(true);
-                                intake.intake(true, true);
+                                intake.intake(false, false, shooter.transfer(true));
                             }
                         break;
                         case 5:
-                            intake.intake(true, false);
+                            intake.intake(true, false, false);
                         follower.followPath(Path6);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 6;
                         break;
                         case 6:
-                            intake.intake(false, false);
+                            intake.intake(false, false, false);
                         follower.followPath(Path7);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 7;
@@ -121,25 +119,24 @@ public class RedFrontAuto extends OpMode {
                                 lastTimeSet = true;
                             }
                             if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
-                                intake.intake(false, false);
+                                intake.intake(false, false, false);
                                 lastTimeSet = false;
                                 follower.followPath(Path8);
                                 pathStartTime = System.currentTimeMillis();
                                 currentPath = 8;
                                 shooter.transfer(false);
                             } else {
-                                shooter.transfer(true);
-                                intake.intake(true, true);
+                                intake.intake(false, false, shooter.transfer(true));
                             }
                         break;
                         case 8:
-                            intake.intake(true, false);
+                            intake.intake(true, false, false);
                         follower.followPath(Path9);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 9;
                         break;
                         case 9:
-                            intake.intake(false, false);
+                            intake.intake(false, false, false);
                         follower.followPath(Path10);
                             pathStartTime = System.currentTimeMillis();
                         currentPath = 10;
@@ -153,8 +150,7 @@ public class RedFrontAuto extends OpMode {
                                 lastTimeSet = false;
                                 currentPath = 11;
                             } else {
-                            shooter.transfer(true);
-                            intake.intake(true, true);
+                            intake.intake(false, false, shooter.transfer(true));
                             }
                         break;
                     default: running = false;
@@ -171,7 +167,7 @@ public class RedFrontAuto extends OpMode {
             }
         } else {
             shooter.chill();
-            intake.intake(false, false);
+            intake.intake(false, false, false);
             shooter.transfer(false);
         }
     }

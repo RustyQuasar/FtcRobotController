@@ -32,10 +32,9 @@ import messages.ThreeDeadWheelInputsMessage;
 public final class ThreeDeadWheelLocalizer {
     public static class Params {
         double inPerTick = AutoConstants.inPerTick;
-
-        public double par0YTicks = AutoConstants.par0YIn / inPerTick;
-        public double par1YTicks = AutoConstants.par1Yin / inPerTick;
-        public double perpXTicks = AutoConstants.perpXIn / inPerTick;
+        public double par0YTicks = 3/inPerTick; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks = -3/inPerTick; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks = 4.337/inPerTick; // x position of the perpendicular encoder (in tick units)
     }
     public static Params PARAMS = new Params();
     public final Encoder par0, par1, perp;
@@ -174,8 +173,7 @@ public final class ThreeDeadWheelLocalizer {
 
     public void telemetry(Telemetry telemetry){
         update();
-        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos.position);
-        telemetry.addData("Field vels: ", Constants.OdometryConstants.fieldVels);
+        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos);
         //telemetry.addData("Field heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
         //telemetry.addData("Field vel: ", Constants.OdometryConstants.fieldVels);
         //telemetry.addData("Par 0 position: ", par0.getPositionAndVelocity().position - startPar0);
