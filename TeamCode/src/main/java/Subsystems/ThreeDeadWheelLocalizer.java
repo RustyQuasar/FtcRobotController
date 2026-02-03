@@ -153,7 +153,7 @@ public final class ThreeDeadWheelLocalizer {
         double newY = Constants.OdometryConstants.fieldPos.position.y + gy;
 
 // compute new heading — prefer IMU if you want absolute heading, otherwise integrate:
-        double imuHeading = getRawHeading() - yawOffset;
+        double imuHeading = getRawHeading() - yawOffset + Constants.OdometryConstants.startHeading;
 // wrap imuHeading to [0, 2pi)
         while (imuHeading < 0) imuHeading += 2.0 * Math.PI;
         while (imuHeading >= 2.0 * Math.PI) imuHeading -= 2.0 * Math.PI;
@@ -173,7 +173,8 @@ public final class ThreeDeadWheelLocalizer {
 
     public void telemetry(Telemetry telemetry){
         update();
-        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos);
+        telemetry.addData("Field pos: ", Constants.OdometryConstants.fieldPos.position);
+        telemetry.addData("Field heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
         //telemetry.addData("Field heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
         //telemetry.addData("Field vel: ", Constants.OdometryConstants.fieldVels);
         //telemetry.addData("Par 0 position: ", par0.getPositionAndVelocity().position - startPar0);
