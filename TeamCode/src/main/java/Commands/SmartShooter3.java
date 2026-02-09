@@ -35,8 +35,8 @@ public class SmartShooter3 {
     double headingTarget;
     double targetPos;
     public double offset = 0;
-    double limelightToShooterCenter = 5.72;
-    double shooterToBotCenter = 1.680;
+    double limelightToShooterCenter = -5.446;
+    double shooterToBotCenter = 0.84;
     double[] totalOffsets;
     PIDController neckController;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
@@ -68,8 +68,8 @@ public class SmartShooter3 {
         rightShooter.setPower(leftShooter.getPower());
     }
     public void turretHeadTester(boolean pressed){
-        if (pressed) {turretHead.setPosition(0.2);}
-        else {turretHead.setPosition(1);}
+        if (pressed) {finger.setPosition(0.01);}
+        else {finger.setPosition(0.07407407407);}
     }
 
     public void aim(boolean autoAim) {
@@ -92,13 +92,13 @@ public class SmartShooter3 {
         double sin = Math.sin(botHeading);
 
         double fv =  Constants.OdometryConstants.fieldVels.linearVel.x * cos + Constants.OdometryConstants.fieldVels.linearVel.y * sin;
-        double sv = -Constants.OdometryConstants.fieldVels.linearVel.x * sin + Constants.OdometryConstants.fieldVels.linearVel.y * cos;
+        double sv = Constants.OdometryConstants.fieldVels.linearVel.x * sin + Constants.OdometryConstants.fieldVels.linearVel.y * cos;
 
         // Step through the list of detections and display info for each one.
         double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
         if (Vision.hasTarget()) {
                 double neckDeltaHeading = neckHeading - botHeading + Math.PI/2;
-                double[] limelightPos = new double[]{limelightToShooterCenter * Math.sin(neckDeltaHeading), limelightToShooterCenter * Math.cos(neckDeltaHeading)};
+                double[] limelightPos = new double[]{limelightToShooterCenter * Math.cos(neckDeltaHeading), limelightToShooterCenter * Math.sin(neckDeltaHeading)};
                 totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
                 Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
                 if (Constants.TEAM.equals("BLUE")) {
@@ -144,10 +144,10 @@ public class SmartShooter3 {
         }
         transferServo2.setPower(-transferServo.getPower());
 
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < -1)) {
-            finger.setPosition(0);
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 60)) {
+            finger.setPosition(0.01);
         } else {
-            finger.setPosition(0.25);
+            finger.setPosition(0.07407407407);
         }
     }
 
@@ -165,8 +165,7 @@ public class SmartShooter3 {
     public void aiming(double distance, double angleToTurn, boolean autoAim) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 55), 148);
-        double h = (38 - Constants.Sizes.robotHeight + Constants.Sizes.artifactRadius * 2 + 2) / 39.37; //2 is some buffer :P
-        angle = Math.max((distance - 20), 0) * 0.4;
+        angle = Math.max((distance - 30), 0) * 0.4;
         shooterVel = (distance) * 4.77143 + 604.85714;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
@@ -194,7 +193,7 @@ public class SmartShooter3 {
         //telemetry.addData("Target neck heading: ", headingTarget);
         telemetry.addData("Camera pos: ", Vision.getPose(neckHeading + offsetAngle));
         //telemetry.addData("Offset: ", offset);
-        //telemetry.addData("Distance: ", distance);
+        telemetry.addData("Distance: ", distance);
         //telemetry.addData("Target vel: ", shooterVel);
         //telemetry.addData("Current vel", leftShooter.getVelocity());
         telemetry.update();

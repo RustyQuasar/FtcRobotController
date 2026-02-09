@@ -38,7 +38,7 @@ public class Vision {
 
     public Vector2d getPose(double neckHeading) {
         limelight.updateRobotOrientation(Math.toDegrees(neckHeading));
-        Pose3D botpose = result.getBotpose();
+        Pose3D botpose = result.getBotpose_MT2();
         return new Vector2d(botpose.getPosition().x / 0.0254, botpose.getPosition().y / 0.0254);
     }
 
