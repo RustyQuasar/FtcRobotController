@@ -1,4 +1,4 @@
-package Modes;
+package Utilities;
 
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;

@@ -35,6 +35,7 @@ public final class Constants {
 
     public static final class ShooterConstants {
         public static final int hoodMax = 255;
+        public static final double flyWheelDiameter = 3;
         public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
         public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel

@@ -25,12 +25,9 @@ public class Teleop extends LinearOpMode {
     SmartShooter3 Shooter;
     Vision Vision;
     ThreeDeadWheelLocalizer odometry;
-    //int shooterVel = 800;
-    //Elevator Elevator;
     @Override
     public void runOpMode() {
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
-        //odometry.resetYaw();
         odometry.update();
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
@@ -38,7 +35,6 @@ public class Teleop extends LinearOpMode {
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter3(hardwareMap, Vision);
         //Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());
-        //Elevator = new Elevator(hardwareMap);
         boolean upLastState = false;
         boolean autoNeck = true;
 
@@ -49,7 +45,6 @@ public class Teleop extends LinearOpMode {
             Vision.updateAprilTags();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
                 autoNeck = !autoNeck;
-                //shooterVel += 20;
             }
             upLastState = gamepad1.dpad_up;
             Shooter.aim(autoNeck);

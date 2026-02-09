@@ -10,10 +10,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.Vision;
+import Utilities.AutoConstants;
 import Utilities.Constants;
 
 @Autonomous(name = "Back Autonomous", group = "Auto")
-public class BackAuto extends OpMode {
+public class Back3 extends OpMode {
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;

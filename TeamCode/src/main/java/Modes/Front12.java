@@ -2,7 +2,6 @@ package Modes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
@@ -20,10 +19,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.Vision;
+import Utilities.AutoConstants;
 import Utilities.Constants;
 
 @Autonomous(name = "Red No Gate Autonomous", group = "Red Auto")
-public class RedFrontAuto extends OpMode {
+public class Front12 extends OpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public static Follower follower;
     SmartIntake intake;

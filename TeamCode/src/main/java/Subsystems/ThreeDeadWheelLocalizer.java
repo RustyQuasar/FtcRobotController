@@ -24,7 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import Modes.AutoConstants;
+import Utilities.AutoConstants;
 import Utilities.Constants;
 import messages.ThreeDeadWheelInputsMessage;
 

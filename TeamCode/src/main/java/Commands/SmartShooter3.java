@@ -36,7 +36,7 @@ public class SmartShooter3 {
     double targetPos;
     public double offset = 0;
     double limelightToShooterCenter = -5.446;
-    double shooterToBotCenter = 0.84;
+    double shooterToBotCenter = 1.541;
     double[] totalOffsets;
     PIDController neckController;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
@@ -91,39 +91,28 @@ public class SmartShooter3 {
         double cos = Math.cos(botHeading);
         double sin = Math.sin(botHeading);
 
-        double fv =  Constants.OdometryConstants.fieldVels.linearVel.x * cos + Constants.OdometryConstants.fieldVels.linearVel.y * sin;
-        double sv = Constants.OdometryConstants.fieldVels.linearVel.x * sin + Constants.OdometryConstants.fieldVels.linearVel.y * cos;
+        double xv =  Constants.OdometryConstants.fieldVels.linearVel.x * cos + Constants.OdometryConstants.fieldVels.linearVel.y * sin;
+        double yv = Constants.OdometryConstants.fieldVels.linearVel.x * sin + Constants.OdometryConstants.fieldVels.linearVel.y * cos;
 
-        // Step through the list of detections and display info for each one.
-        double[] shooterPos = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
+        double[] shooterOffsets = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
         if (Vision.hasTarget()) {
-                double neckDeltaHeading = neckHeading - botHeading + Math.PI/2;
-                double[] limelightPos = new double[]{limelightToShooterCenter * Math.cos(neckDeltaHeading), limelightToShooterCenter * Math.sin(neckDeltaHeading)};
-                totalOffsets = new double[]{shooterPos[0] + limelightPos[0], shooterPos[1] + limelightPos[1]};
-                Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
-                if (Constants.TEAM.equals("BLUE")) {
-                    Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x + totalOffsets[0], llPos.y + totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
-                } else {
-                    Constants.OdometryConstants.fieldPos = new Pose2d(llPos.x - totalOffsets[0], llPos.y - totalOffsets[1], Constants.OdometryConstants.fieldPos.heading.toDouble());
-                }
-                if (Constants.TEAM.equals("BLUE")) {
-                    shooterCenterPos[0] = llPos.x + limelightPos[0];
-                    shooterCenterPos[1] = llPos.y + limelightPos[1];
-                } else {
-                    shooterCenterPos[0] = llPos.x - limelightPos[0];
-                    shooterCenterPos[1] = llPos.y - limelightPos[1];
-                }
-                xChange = targetPose.x - shooterCenterPos[0];
-                yChange = targetPose.y - shooterCenterPos[1];
-            } else {
-                xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x - shooterPos[0]);
-                yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y - shooterPos[1]);
+            double[] limelightOffsets = {limelightToShooterCenter * Math.sin(neckHeading), limelightToShooterCenter * Math.cos(neckHeading)};
+            Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
+
+            // Camera --> shooter
+            double botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
+            double botY = llPos.y + limelightOffsets[1] + limelightOffsets[1];
+
+            Constants.OdometryConstants.fieldPos =
+                    new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
+            xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x - shooterOffsets[0]);
+            yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y - shooterOffsets[1]);
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double time = Math.sqrt(Math.pow((distance - 20) / 39.37, 2) / 9.8) * 2;
-            xChange += fv * time;
-            yChange += sv * time;
+            xChange += xv * time;
+            yChange += yv * time;
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             if (Double.isNaN(distance)) return;
             //TOA in the indian princess' name
@@ -147,7 +136,7 @@ public class SmartShooter3 {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 60)) {
             finger.setPosition(0.01);
         } else {
-            finger.setPosition(0.07407407407);
+            finger.setPosition(0.09);
         }
     }
 
