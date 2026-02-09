@@ -100,8 +100,8 @@ public class SmartShooter3 {
             Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
 
             // Camera --> shooter
-            double botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
-            double botY = llPos.y + limelightOffsets[1] + limelightOffsets[1];
+            double botX = llPos.x + limelightOffsets[1] + shooterOffsets[0];
+            double botY = llPos.y + limelightOffsets[0] + limelightOffsets[1];
 
             Constants.OdometryConstants.fieldPos =
                     new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -112,7 +112,7 @@ public class SmartShooter3 {
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double time = Math.sqrt(Math.pow((distance - 20) / 39.37, 2) / 9.8) * 2;
             xChange += xv * time;
-            yChange += yv * time;
+            yChange += -yv * time;
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             if (Double.isNaN(distance)) return;
             //TOA in the indian princess' name
