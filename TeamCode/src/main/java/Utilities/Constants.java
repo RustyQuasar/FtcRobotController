@@ -6,8 +6,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
     public static final String TEAM =
-            //"RED"
-            "BLUE"
+            "RED"
+            //"BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;

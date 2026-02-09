@@ -63,7 +63,7 @@ public class SmartShooter3 {
     }
 
     public void shoot(double vel) {
-        leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(ConfigVariables.p, ConfigVariables.i, ConfigVariables.d, 0));
+        leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(ConfigVariables.p, ConfigVariables.i, ConfigVariables.d, ConfigVariables.f));
         leftShooter.setVelocity(vel);
         rightShooter.setPower(leftShooter.getPower());
     }
@@ -126,7 +126,7 @@ public class SmartShooter3 {
         if (rightTrigger) offset += 4;
     }
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 20)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 35)) {
             transferServo.setPower(-0.2);
         } else {
             transferServo.setPower(1);
@@ -184,7 +184,7 @@ public class SmartShooter3 {
         //telemetry.addData("Offset: ", offset);
         telemetry.addData("Distance: ", distance);
         //telemetry.addData("Target vel: ", shooterVel);
-        //telemetry.addData("Current vel", leftShooter.getVelocity());
+        telemetry.addData("Current vel", leftShooter.getVelocity());
         telemetry.update();
     }
     public void manualNeckMotor(boolean leftBumper, boolean rightBumper){
