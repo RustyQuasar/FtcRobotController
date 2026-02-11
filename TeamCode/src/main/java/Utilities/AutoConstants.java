@@ -18,17 +18,16 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Utilities.Constants;
 
 public final class AutoConstants {
-    public static final double closeShootTime = 3000;
-    public static final double farShootTime = 8000;
-    public static double inPerTick = 5.821839449595532E-4;
-
+    public static final double closeShootTime = 2000;
+    public static final double farShootTime = 4000;
+    public static double inPerTick = 5.993383352588739E-4;
     public static double par0YIn = 1.88; // y position of the first parallel encoder (in tick units)
     public static double par1Yin = -1.88; // y position of the second parallel encoder (in tick units)
     public static double perpXIn = 4.7905; // x position of the perpendicular encoder (in tick units)
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(13.8345673)
-            .forwardZeroPowerAcceleration(-35.95520021883105)
-            .lateralZeroPowerAcceleration(-66.04964580307788)
+            .mass(14.29)
+            .forwardZeroPowerAcceleration( -27.369131628964293)
+            .lateralZeroPowerAcceleration(  -50.83431009168295)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0.0001, 0, 0.001))
             .headingPIDFCoefficients(new PIDFCoefficients(-1, 0.001, 0, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
@@ -60,8 +59,8 @@ public final class AutoConstants {
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .xVelocity(57.61983042691041) //Forward vel
-            .yVelocity(44.164066192513644)
+            .xVelocity(62.339783684715904) //Forward vel
+            .yVelocity(46.41357453228209)
             ;
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

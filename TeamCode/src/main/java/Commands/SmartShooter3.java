@@ -68,8 +68,8 @@ public class SmartShooter3 {
         rightShooter.setPower(leftShooter.getPower());
     }
     public void turretHeadTester(boolean pressed){
-        if (pressed) {finger.setPosition(0.01);}
-        else {finger.setPosition(0.07407407407);}
+        if (pressed) {turretHead.setPosition(0.01);}
+        else {turretHead.setPosition(0.8);}
     }
 
     public void aim(boolean autoAim) {
@@ -100,8 +100,8 @@ public class SmartShooter3 {
             Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
 
             // Camera --> shooter
-            double botX = llPos.x + limelightOffsets[1] + shooterOffsets[0];
-            double botY = llPos.y + limelightOffsets[0] + limelightOffsets[1];
+            double botX = llPos.x - limelightOffsets[0] + shooterOffsets[0];
+            double botY = llPos.y - limelightOffsets[1] + shooterOffsets[1];
 
             Constants.OdometryConstants.fieldPos =
                     new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -111,8 +111,8 @@ public class SmartShooter3 {
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double time = Math.sqrt(Math.pow((distance - 20) / 39.37, 2) / 9.8) * 2;
-            xChange += xv * time;
-            yChange += -yv * time;
+            xChange -= xv * time;
+            yChange -= yv * time;
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             if (Double.isNaN(distance)) return;
             //TOA in the indian princess' name
@@ -126,14 +126,14 @@ public class SmartShooter3 {
         if (rightTrigger) offset += 4;
     }
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 35)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 30)) {
             transferServo.setPower(-0.2);
         } else {
             transferServo.setPower(1);
         }
         transferServo2.setPower(-transferServo.getPower());
 
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 60)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 50)) {
             finger.setPosition(0.01);
         } else {
             finger.setPosition(0.09);
@@ -155,7 +155,7 @@ public class SmartShooter3 {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 55), 148);
         angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.77143 + 604.85714;
+        shooterVel = (distance) * 4.97143 + 540.85714;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
