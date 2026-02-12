@@ -13,7 +13,7 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-@Autonomous(name = "Back Autonomous", group = "Auto")
+@Autonomous(name = "Back 3", group = "Auto")
 public class Back3 extends OpMode {
     public static Follower follower;
     SmartIntake intake;

@@ -18,8 +18,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Utilities.Constants;
 
 public final class AutoConstants {
-    public static final double closeShootTime = 2000;
+    public static final double closeShootTime = 1800;
     public static final double farShootTime = 4000;
+    public static final double gateHoldTime = 1000;
     public static double inPerTick = 5.993383352588739E-4;
     public static double par0YIn = 1.88; // y position of the first parallel encoder (in tick units)
     public static double par1Yin = -1.88; // y position of the second parallel encoder (in tick units)

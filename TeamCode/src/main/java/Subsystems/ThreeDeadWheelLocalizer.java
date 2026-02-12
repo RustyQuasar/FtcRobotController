@@ -154,7 +154,7 @@ public final class ThreeDeadWheelLocalizer {
         double newY = Constants.OdometryConstants.fieldPos.position.y + gy;
 
 // compute new heading — prefer IMU if you want absolute heading, otherwise integrate:
-        double imuHeading = getRawHeading() - yawOffset;
+        double imuHeading = getRawHeading() - yawOffset + Constants.OdometryConstants.startHeading;
 // wrap imuHeading to [0, 2pi)
         while (imuHeading < 0) imuHeading += 2.0 * Math.PI;
         while (imuHeading >= 2.0 * Math.PI) imuHeading -= 2.0 * Math.PI;

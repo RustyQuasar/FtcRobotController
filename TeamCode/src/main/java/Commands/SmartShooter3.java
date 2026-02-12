@@ -80,7 +80,7 @@ public class SmartShooter3 {
         } else {
             targetPose = Constants.OdometryConstants.targetPosBlue;
         }
-        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() + Constants.OdometryConstants.startHeading;
+        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble();
         double max = 2 * Math.PI;
         if (botHeading < 0) {
             botHeading += max;
@@ -91,20 +91,18 @@ public class SmartShooter3 {
         double cos = Math.cos(botHeading);
         double sin = Math.sin(botHeading);
 
-        double xv =  Constants.OdometryConstants.fieldVels.linearVel.x * cos + Constants.OdometryConstants.fieldVels.linearVel.y * sin;
+        double xv =  Constants.OdometryConstants.fieldVels.linearVel.x * cos - Constants.OdometryConstants.fieldVels.linearVel.y * sin;
         double yv = Constants.OdometryConstants.fieldVels.linearVel.x * sin + Constants.OdometryConstants.fieldVels.linearVel.y * cos;
 
         double[] shooterOffsets = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
         if (Vision.hasTarget()) {
-            double[] limelightOffsets = {limelightToShooterCenter * Math.sin(neckHeading), limelightToShooterCenter * Math.cos(neckHeading)};
+            double[] limelightOffsets = {limelightToShooterCenter * Math.sin(neckHeading - botHeading), limelightToShooterCenter * Math.cos(neckHeading - botHeading)};
             Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
 
-            // Camera --> shooter
             double botX = llPos.x - limelightOffsets[0] + shooterOffsets[0];
-            double botY = llPos.y - limelightOffsets[1] + shooterOffsets[1];
+            double botY = llPos.y + limelightOffsets[1] + shooterOffsets[1];
 
-            Constants.OdometryConstants.fieldPos =
-                    new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
+            Constants.OdometryConstants.fieldPos = new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
             xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x - shooterOffsets[0]);
             yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y - shooterOffsets[1]);
@@ -200,6 +198,8 @@ public class SmartShooter3 {
         leftShooter.setPower(0);
         rightShooter.setPower(0);
         turretNeckMotor.setPower(0);
+        transferServo.setPower(0);
+        transferServo2.setPower(0);
     }
     private double xTurn(double angleToTurnDeg, double velocity, double distance, double time) {
         double leadAngleDeg = Math.toDegrees(Math.acos(velocity / (distance / time)));

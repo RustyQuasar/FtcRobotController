@@ -22,8 +22,8 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-@Autonomous(name = "Front Omega Autonomous", group = "Red Auto")
-public class OmegaAuto extends OpMode {
+@Autonomous(name = "Front Sister", group = "Auto")
+public class SisterFrontAuto extends OpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public static Follower follower;
     SmartIntake intake;
@@ -42,12 +42,13 @@ public class OmegaAuto extends OpMode {
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) + Constants.OdometryConstants.startHeading);
+        Constants.OdometryConstants.fieldPos = new Pose2d(followerPose.getX(DistanceUnit.INCH), followerPose.getY(DistanceUnit.INCH), followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         vision.updateAprilTags();
         shooter.aim(true);
         if (running) {
             telemetry.addData("Pedro Pos: ", follower.getPose());
-            telemetry.addData("Bot pos: ", Constants.OdometryConstants.fieldPos);
+            telemetry.addData("Bot pos: ", Constants.OdometryConstants.fieldPos.position);
+            telemetry.addData("Bot heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
             telemetry.addData("Stage: ", currentPath);
             shooter.telemetry(telemetry);
             telemetry.update();
@@ -60,7 +61,7 @@ public class OmegaAuto extends OpMode {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime + 700) {
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
                             follower.followPath(Path2);
                             pathStartTime = System.currentTimeMillis();
@@ -81,16 +82,23 @@ public class OmegaAuto extends OpMode {
                         currentPath = 4;
                         break;
                     case 4:
+                        if (!lastTimeSet){
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.gateHoldTime) {
                             follower.followPath(Path5);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 5;
+                            lastTimeSet = false;
+                        }
                         break;
                     case 5:
                         if (!lastTimeSet) {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime + 700) {
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
                             follower.followPath(Path6);
                             pathStartTime = System.currentTimeMillis();
@@ -111,16 +119,23 @@ public class OmegaAuto extends OpMode {
                             currentPath = 8;
                         break;
                     case 8:
-                        follower.followPath(Path9);
-                        pathStartTime = System.currentTimeMillis();
-                        currentPath = 9;
+                        if (!lastTimeSet){
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.gateHoldTime) {
+                            follower.followPath(Path9);
+                            pathStartTime = System.currentTimeMillis();
+                            currentPath = 9;
+                            lastTimeSet = false;
+                        }
                         break;
                     case 9:
                         if (!lastTimeSet) {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime + 700) {
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
                             follower.followPath(Path10);
                             pathStartTime = System.currentTimeMillis();
@@ -145,7 +160,7 @@ public class OmegaAuto extends OpMode {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime + 700) {
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 13;
@@ -154,15 +169,6 @@ public class OmegaAuto extends OpMode {
                             shooter.transfer(true);
                         }
                     default: running = false;
-                }
-            }
-            if (vision.hasTarget()) {
-                if (!follower.isBusy() && System.currentTimeMillis() - pathStartTime > pathCooldown + 100 && System.currentTimeMillis() - lastVisionScan > 3000) {
-
-                    lastVisionScan = System.currentTimeMillis();
-                    //follower.setPose(PoseConverter.pose2DToPose(new Pose2D(DistanceUnit.INCH, Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y, AngleUnit.RADIANS, Constants.OdometryConstants.fieldPos.heading.toDouble()), PedroCoordinates.INSTANCE));
-                } else {
-                    Constants.OdometryConstants.fieldPos = new Pose2d(followerPose.getX(DistanceUnit.INCH), followerPose.getY(DistanceUnit.INCH), followerPose.getHeading(AngleUnit.RADIANS));
                 }
             }
         } else {
@@ -186,19 +192,19 @@ public class OmegaAuto extends OpMode {
         follower.setStartingPose(new Pose(x(29), 135, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(29, 135),
+                                new Pose(x(29.000), 135.000),
 
-                                new Pose(59.000, 84.000)
+                                new Pose(x(53.000), 84.000)
                         )
-                ).setLinearHeadingInterpolation(heading(144.046), heading(45))
+                ).setLinearHeadingInterpolation(heading(180), heading(45))
 
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(59.000, 84.000),
+                                new Pose(x(53.000), 84.000),
 
-                                new Pose(41.000, 84.000)
+                                new Pose(x(41.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -206,18 +212,18 @@ public class OmegaAuto extends OpMode {
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(41.000, 84.000),
+                                new Pose(x(41.000), 84.000),
 
-                                new Pose(14.000, 84.000)
+                                new Pose(x(14.000), 84.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(14.000, 84.000),
-                                new Pose(27.875, 79.121),
-                                new Pose(14.000, 77.000)
+                                new Pose(x(14.000), 84.000),
+                                new Pose(x(27.875), 79.121),
+                                new Pose(x(13.000), 77.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -225,9 +231,9 @@ public class OmegaAuto extends OpMode {
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(14.000, 77.000),
+                                new Pose(x(13.000), 77.000),
 
-                                new Pose(59.000, 84.000)
+                                new Pose(x(53.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -235,9 +241,9 @@ public class OmegaAuto extends OpMode {
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(59.000, 84.000),
+                                new Pose(x(53.000), 84.000),
 
-                                new Pose(41.000, 60)
+                                new Pose(x(41.000), 60.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -245,9 +251,9 @@ public class OmegaAuto extends OpMode {
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(41.000, 60),
+                                new Pose(x(41.000), 60.000),
 
-                                new Pose(8.000, 60)
+                                new Pose(x(8.000), 59.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -255,9 +261,9 @@ public class OmegaAuto extends OpMode {
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(8.000, 60),
-                                new Pose(31.040, 57.332),
-                                new Pose(14.000, 68.000)
+                                new Pose(x(8.000), 59.000),
+                                new Pose(x(31.040), 57.332),
+                                new Pose(x(12.500), 68.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -265,9 +271,9 @@ public class OmegaAuto extends OpMode {
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(14.000, 68.000),
+                                new Pose(x(12.500), 68.000),
 
-                                new Pose(59.000, 84.000)
+                                new Pose(x(53.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -275,9 +281,9 @@ public class OmegaAuto extends OpMode {
 
         Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(59.000, 84.000),
+                                new Pose(x(53.000), 84.000),
 
-                                new Pose(41.000, 36.000)
+                                new Pose(x(41.000), 36.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -285,18 +291,18 @@ public class OmegaAuto extends OpMode {
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(41.000, 36.000),
+                                new Pose(x(41.000), 36.000),
 
-                                new Pose(8.000, 36.000)
+                                new Pose(x(8.000), 36.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path12 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(8.000, 36.000),
-                                new Pose(46.012, 60.862),
-                                new Pose(58.306, 103.466)
+                                new Pose(x(8.000), 36.000),
+                                new Pose(x(46.012), 60.862),
+                                new Pose(x(50.306), 103.466)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
 
