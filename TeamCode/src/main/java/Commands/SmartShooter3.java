@@ -3,6 +3,7 @@ package Commands;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -96,10 +97,10 @@ public class SmartShooter3 {
 
         double[] shooterOffsets = new double[]{shooterToBotCenter * Math.sin(botHeading), shooterToBotCenter * Math.cos(botHeading)};
         if (Vision.hasTarget()) {
-            double[] limelightOffsets = {limelightToShooterCenter * Math.sin(neckHeading - botHeading), limelightToShooterCenter * Math.cos(neckHeading - botHeading)};
+            double[] limelightOffsets = {limelightToShooterCenter * Math.sin(neckHeading), limelightToShooterCenter * Math.cos(neckHeading)};
             Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
 
-            double botX = llPos.x - limelightOffsets[0] + shooterOffsets[0];
+            double botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
             double botY = llPos.y + limelightOffsets[1] + shooterOffsets[1];
 
             Constants.OdometryConstants.fieldPos = new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -109,8 +110,10 @@ public class SmartShooter3 {
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double time = Math.sqrt(Math.pow((distance - 20) / 39.37, 2) / 9.8) * 2;
+            if (distance <= 120){
             xChange -= xv * time;
             yChange -= yv * time;
+            }
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             if (Double.isNaN(distance)) return;
             //TOA in the indian princess' name
@@ -134,7 +137,7 @@ public class SmartShooter3 {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 50)) {
             finger.setPosition(0.01);
         } else {
-            finger.setPosition(0.09);
+            finger.setPosition(0.2);
         }
     }
 

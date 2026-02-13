@@ -64,7 +64,7 @@ public final class Constants {
         public static final double robotHeight = 18;
         public static final double robotLength = 17.496;
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 68;
+        public static final double field = 70;
         public static final double artifactRadius = 2.50;
     }
 
