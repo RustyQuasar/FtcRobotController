@@ -42,10 +42,10 @@ public class Back6 extends OpMode {
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) + Constants.OdometryConstants.startHeading);
+        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) + Constants.OdometryConstants.startHeading * 2);
         vision.updateAprilTags();
-        shooter.aim(true);
         if (running) {
+            shooter.aim(true);
             telemetry.addData("Pedro Pos: ", follower.getPose());
             telemetry.addData("Bot pos: ", Constants.OdometryConstants.fieldPos);
             telemetry.addData("Stage: ", currentPath);
@@ -62,7 +62,7 @@ public class Back6 extends OpMode {
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             lastTimeSet = false;
-                            follower.followPath(Path2);
+                            follower.followPath(Path1);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 2;
                             shooter.transfer(false);
@@ -71,23 +71,28 @@ public class Back6 extends OpMode {
                         }
                         break;
                     case 2:
-                        follower.followPath(Path3);
+                        follower.followPath(Path2);
                         pathStartTime = System.currentTimeMillis();
                         currentPath = 3;
                         break;
                     case 3:
-                        follower.followPath(Path4);
+                        follower.followPath(Path3);
                         pathStartTime = System.currentTimeMillis();
                         currentPath = 4;
                         break;
                     case 4:
+                        pathStartTime = System.currentTimeMillis();
+                        follower.followPath(Path4);
+                        currentPath = 5;
+                        break;
+                    case 5:
                         if (!lastTimeSet){
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             pathStartTime = System.currentTimeMillis();
-                            currentPath = 5;
+                            currentPath = 6;
                             lastTimeSet = false;
                         } else {
                             shooter.transfer(true);
@@ -104,9 +109,8 @@ public class Back6 extends OpMode {
     }
     @Override
     public void start(){
-        follower.setPose(new Pose(x(29), 135, heading(180)));
+        follower.setPose(new Pose(x(64), 9, heading(180)));
         pathStartTime = System.currentTimeMillis();
-        follower.followPath(Path1);
         shooter.aim(false);
     }
     @Override
@@ -115,49 +119,49 @@ public class Back6 extends OpMode {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(29), 135, heading(180)));
+        follower.setStartingPose(new Pose(x(64), 9, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(64.000, 9.000),
+                                new Pose(x(64.000), 9.000),
 
-                                new Pose(50.000, 20.000)
+                                new Pose(x(50.000), 20.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
+                ).setLinearHeadingInterpolation(heading(180), heading(0))
 
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 20.000),
+                                new Pose(x(50.000), 20.000),
 
-                                new Pose(15.000, 20.000)
+                                new Pose(x(25.000), 22.000)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                ).setLinearHeadingInterpolation(heading(0), heading(30))
 
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(15.000, 20.000),
+                                new Pose(x(25.000), 22.000),
 
-                                new Pose(9.000, 10.000)
+                                new Pose(x(10.000), 9.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                ).setLinearHeadingInterpolation(heading(30), heading(90))
 
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(9.000, 10.000),
+                                new Pose(x(10.000), 9.000),
 
-                                new Pose(62.000, 20.000)
+                                new Pose(x(58.000), 15.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                ).setLinearHeadingInterpolation(heading(90), heading(180))
 
                 .build();
     }
     private static double x(double offset){
-        if (Constants.TEAM.equals("RED")) offset += (72-offset) * 2;
+        if (Constants.TEAM.equals("RED")) offset = 145 - offset;
         return offset;
     }
     private static double heading(double angle) {

@@ -3,7 +3,6 @@ package Commands;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -14,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import Subsystems.PIDController;
+import Subsystems.PIDFController;
 import Subsystems.Vision;
 import Utilities.ConfigVariables;
 import Utilities.Constants;
@@ -39,7 +38,7 @@ public class SmartShooter3 {
     double limelightToShooterCenter = -5.446;
     double shooterToBotCenter = 1.541;
     double[] totalOffsets;
-    PIDController neckController;
+    PIDFController neckController;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
         leftShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.leftShooter);
         rightShooter = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.rightShooter);
@@ -48,7 +47,7 @@ public class SmartShooter3 {
         finger = hardwareMap.get(Servo.class, Constants.ShooterConstants.fingerServo);
         finger.setPosition(0);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turretNeckMotor.setTargetPosition(0);
         turretHead.setPosition(1);
@@ -59,12 +58,11 @@ public class SmartShooter3 {
         Vision = vision;
         transferServo = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo);
         transferServo2 = hardwareMap.get(CRServo.class, Constants.IntakeConstants.transferServo2);
-        neckController = new PIDController(ConfigVariables.neckp, ConfigVariables.necki, ConfigVariables.neckd);
-
+        neckController = new PIDFController(ConfigVariables.neckp, ConfigVariables.necki, ConfigVariables.neckd, 0);
+        leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(ConfigVariables.p, ConfigVariables.i, ConfigVariables.d, ConfigVariables.f));
     }
 
     public void shoot(double vel) {
-        leftShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(ConfigVariables.p, ConfigVariables.i, ConfigVariables.d, ConfigVariables.f));
         leftShooter.setVelocity(vel);
         rightShooter.setPower(leftShooter.getPower());
     }
@@ -99,14 +97,27 @@ public class SmartShooter3 {
         if (Vision.hasTarget()) {
             double[] limelightOffsets = {limelightToShooterCenter * Math.sin(neckHeading), limelightToShooterCenter * Math.cos(neckHeading)};
             Vector2d llPos = Vision.getPose(neckHeading + offsetAngle);
-
-            double botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
-            double botY = llPos.y + limelightOffsets[1] + shooterOffsets[1];
+            double botX;
+            double botY;
+            if (Constants.TEAM.equals("RED")) {
+                botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
+                botY = llPos.y + limelightOffsets[1] + shooterOffsets[1];
+            } else {
+                botX = llPos.x + limelightOffsets[1] + shooterOffsets[1];
+                botY = llPos.y + limelightOffsets[0] + shooterOffsets[0];
+            }
 
             Constants.OdometryConstants.fieldPos = new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
             }
-            xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x - shooterOffsets[0]);
-            yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y - shooterOffsets[1]);
+            xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x);
+            yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y);
+            if (Constants.TEAM.equals("RED")){
+                xChange -= shooterOffsets[0];
+                yChange -= shooterOffsets[1];
+            } else {
+                xChange -= shooterOffsets[1];
+                yChange -= shooterOffsets[0];
+            }
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
             double time = Math.sqrt(Math.pow((distance - 20) / 39.37, 2) / 9.8) * 2;
@@ -156,7 +167,7 @@ public class SmartShooter3 {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 55), 148);
         angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.97143 + 540.85714;
+        shooterVel = (distance) * 4.97143 + 480.85714;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));

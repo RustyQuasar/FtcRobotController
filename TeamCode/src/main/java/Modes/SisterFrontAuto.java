@@ -308,7 +308,7 @@ public class SisterFrontAuto extends OpMode {
                 .build();
     }
     private static double x(double offset){
-        if (Constants.TEAM.equals("RED")) offset = 144 - offset;
+        if (Constants.TEAM.equals("RED")) offset = 145 - offset;
         return offset;
     }
     private static double heading(double angle) {

@@ -80,8 +80,8 @@ public class Back3 extends OpMode {
         path = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(88.000, 8.000),
-                                new Pose(110.000, 8.000)
+                                new Pose(x(88.000), 8.000),
+                                new Pose(x(110.000), 8.000)
                         )
                 )
                 .setConstantHeadingInterpolation(follower.getHeading())
