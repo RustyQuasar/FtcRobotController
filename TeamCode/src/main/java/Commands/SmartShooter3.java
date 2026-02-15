@@ -115,7 +115,7 @@ public class SmartShooter3 {
                 xChange -= shooterOffsets[0];
                 yChange -= shooterOffsets[1];
             } else {
-                xChange -= shooterOffsets[1];
+                xChange += shooterOffsets[1];
                 yChange -= shooterOffsets[0];
             }
             //THEOREM OF PYTHAGORAS
@@ -167,7 +167,7 @@ public class SmartShooter3 {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 55), 148);
         angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.97143 + 480.85714;
+        shooterVel = (distance) * 4.67143 + 520.85714;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));

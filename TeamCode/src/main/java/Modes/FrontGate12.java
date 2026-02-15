@@ -22,14 +22,14 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-@Autonomous(name = "Front 12 FirstGate", group = "Auto")
+@Autonomous(name = "Front 1 Gate", group = "Auto")
 public class FrontGate12 extends OpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
-    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11;
+    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12;
     int currentPath = 1;
     double lastTime = 10;
     double pathStartTime = 0;
@@ -42,12 +42,13 @@ public class FrontGate12 extends OpMode {
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) + Constants.OdometryConstants.startHeading);
+        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         vision.updateAprilTags();
         shooter.aim(true);
         if (running) {
             telemetry.addData("Pedro Pos: ", follower.getPose());
-            telemetry.addData("Bot pos: ", Constants.OdometryConstants.fieldPos);
+            telemetry.addData("Bot pos: ", Constants.OdometryConstants.fieldPos.position);
+            telemetry.addData("Bot heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
             telemetry.addData("Stage: ", currentPath);
             shooter.telemetry(telemetry);
             telemetry.update();
@@ -76,21 +77,13 @@ public class FrontGate12 extends OpMode {
                         currentPath = 3;
                         break;
                     case 3:
-                        follower.followPath(Path4);
-                        pathStartTime = System.currentTimeMillis();
                         currentPath = 4;
                         break;
                     case 4:
-                        if (!lastTimeSet){
-                            lastTime = System.currentTimeMillis();
-                            lastTimeSet = true;
-                        }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.gateHoldTime) {
                             follower.followPath(Path5);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 5;
                             lastTimeSet = false;
-                        }
                         break;
                     case 5:
                         if (!lastTimeSet) {
@@ -118,30 +111,55 @@ public class FrontGate12 extends OpMode {
                         currentPath = 8;
                         break;
                     case 8:
+                        if (!lastTimeSet){
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.gateHoldTime) {
+                            follower.followPath(Path9);
+                            pathStartTime = System.currentTimeMillis();
+                            currentPath = 9;
+                            lastTimeSet = false;
+                        }
+                        break;
+                    case 9:
                         if (!lastTimeSet) {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
-                            follower.followPath(Path9);
+                            follower.followPath(Path10);
                             pathStartTime = System.currentTimeMillis();
-                            currentPath = 9;
+                            currentPath = 10;
                             shooter.transfer(false);
                         } else {
                             shooter.transfer(true);
                         }
-                        break;
-                    case 9:
-                        pathStartTime = System.currentTimeMillis();
-                        follower.followPath(Path10);
-                        currentPath = 10;
                         break;
                     case 10:
                         pathStartTime = System.currentTimeMillis();
                         follower.followPath(Path11);
                         currentPath = 11;
                         break;
+                    case 11:
+                        pathStartTime = System.currentTimeMillis();
+                        follower.followPath(Path12);
+                        currentPath = 12;
+                        break;
+                    case 12:
+                        if (!lastTimeSet) {
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
+                            lastTimeSet = false;
+                            pathStartTime = System.currentTimeMillis();
+                            currentPath = 13;
+                            shooter.transfer(false);
+                        } else {
+                            shooter.transfer(true);
+                        }
                     default: running = false;
                 }
             }
@@ -152,7 +170,7 @@ public class FrontGate12 extends OpMode {
     }
     @Override
     public void start(){
-        follower.setPose(new Pose(x(29), 135, heading(180)));
+        follower.setPose(new Pose(x(29), 134, heading(180)));
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
         shooter.aim(false);
@@ -163,12 +181,12 @@ public class FrontGate12 extends OpMode {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(29), 135, heading(180)));
+        follower.setStartingPose(new Pose(x(29), 134, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(29.000), 135.000),
+                                new Pose(x(29.000), 134.000),
 
-                                new Pose(x(59.000), 84.000)
+                                new Pose(x(50.000), 86.000)
                         )
                 ).setLinearHeadingInterpolation(heading(180), heading(45))
 
@@ -176,7 +194,7 @@ public class FrontGate12 extends OpMode {
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(59.000), 84.000),
+                                new Pose(x(50.000), 86.000),
 
                                 new Pose(x(41.000), 84.000)
                         )
@@ -188,26 +206,16 @@ public class FrontGate12 extends OpMode {
                         new BezierLine(
                                 new Pose(x(41.000), 84.000),
 
-                                new Pose(x(14.000), 84.000)
+                                new Pose(x(15.000), 84.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
-        Path4 = follower.pathBuilder().addPath(
-                        new BezierCurve(
-                                new Pose(x(14.000), 84.000),
-                                new Pose(x(27.875), 79.121),
-                                new Pose(x(14.000), 77.000)
-                        )
-                ).setLinearHeadingInterpolation(heading(0), heading(0))
-
-                .build();
-
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(14.000), 77.000),
+                                new Pose(x(15), 84),
 
-                                new Pose(x(59.000), 84.000)
+                                new Pose(x(50.000), 86.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -215,7 +223,7 @@ public class FrontGate12 extends OpMode {
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(59.000), 84.000),
+                                new Pose(x(50.000), 86.000),
 
                                 new Pose(x(41.000), 60.000)
                         )
@@ -227,7 +235,7 @@ public class FrontGate12 extends OpMode {
                         new BezierLine(
                                 new Pose(x(41.000), 60.000),
 
-                                new Pose(x(8.000), 60.000)
+                                new Pose(x(9.000), 59.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -235,45 +243,54 @@ public class FrontGate12 extends OpMode {
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(8.000), 60.000),
-                                new Pose(x(50.000), 60.000),
-                                new Pose(x(59.000), 84.000)
+                                new Pose(x(9.000), 59.000),
+                                new Pose(x(31.040), 57.332),
+                                new Pose(x(9.9), 70)
                         )
-                ).setLinearHeadingInterpolation(heading(0), heading(45))
+                ).setLinearHeadingInterpolation(heading(0), heading(0))
 
                 .build();
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(59.000), 84.000),
+                                new Pose(x(9.90), 70.000),
 
-                                new Pose(x(41.000), 36.000)
+                                new Pose(x(50.000), 86.000)
                         )
-                ).setLinearHeadingInterpolation(heading(45), heading(0))
+                ).setLinearHeadingInterpolation(heading(0), heading(45))
 
                 .build();
 
         Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 36.000),
+                                new Pose(x(50.000), 86.000),
 
-                                new Pose(x(8.000), 36.000)
+                                new Pose(x(41.000), 38.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(45), heading(0))
+
+                .build();
+
+        Path11 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(x(41.000), 38.000),
+
+                                new Pose(x(8.000), 38.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
-        Path11 = follower.pathBuilder().addPath(
+        Path12 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(8.000), 36.000),
-                                new Pose(x(46.012), 60.862),
-                                new Pose(x(58.306), 103.466)
+                                new Pose(x(8.000), 38.000),
+                                new Pose(x(50.306), 103.466)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
 
                 .build();
     }
     private static double x(double offset){
-        if (Constants.TEAM.equals("RED")) offset += (72-offset) * 2;
+        if (Constants.TEAM.equals("RED")) offset = 144 - offset;
         return offset;
     }
     private static double heading(double angle) {

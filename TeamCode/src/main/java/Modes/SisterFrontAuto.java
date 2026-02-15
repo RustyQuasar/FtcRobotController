@@ -178,7 +178,7 @@ public class SisterFrontAuto extends OpMode {
     }
     @Override
     public void start(){
-        follower.setPose(new Pose(x(29), 135, heading(180)));
+        follower.setPose(new Pose(x(29), 134, heading(180)));
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
         shooter.aim(false);
@@ -189,10 +189,10 @@ public class SisterFrontAuto extends OpMode {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(29), 135, heading(180)));
+        follower.setStartingPose(new Pose(x(29), 134, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(29.000), 135.000),
+                                new Pose(x(29.000), 134.000),
 
                                 new Pose(x(50.000), 86.000)
                         )
@@ -223,7 +223,7 @@ public class SisterFrontAuto extends OpMode {
                         new BezierCurve(
                                 new Pose(x(15.00), 84.000),
                                 new Pose(x(27.875), 79.121),
-                                new Pose(x(10.500), 77.000)
+                                new Pose(x(9.9), 77.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -231,7 +231,7 @@ public class SisterFrontAuto extends OpMode {
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(10.5000), 77.000),
+                                new Pose(x(9.9), 77.000),
 
                                 new Pose(x(50.000), 86.000)
                         )
@@ -253,7 +253,7 @@ public class SisterFrontAuto extends OpMode {
                         new BezierLine(
                                 new Pose(x(41.000), 60.000),
 
-                                new Pose(x(9.000), 61.000)
+                                new Pose(x(9.000), 59.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -263,7 +263,7 @@ public class SisterFrontAuto extends OpMode {
                         new BezierCurve(
                                 new Pose(x(9.000), 59.000),
                                 new Pose(x(31.040), 57.332),
-                                new Pose(x(12.50), 68.000)
+                                new Pose(x(9.9), 70)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -271,7 +271,7 @@ public class SisterFrontAuto extends OpMode {
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(12.500), 68.000),
+                                new Pose(x(9.90), 70.000),
 
                                 new Pose(x(50.000), 86.000)
                         )
@@ -283,7 +283,7 @@ public class SisterFrontAuto extends OpMode {
                         new BezierLine(
                                 new Pose(x(50.000), 86.000),
 
-                                new Pose(x(41.000), 34.000)
+                                new Pose(x(41.000), 38.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -291,16 +291,16 @@ public class SisterFrontAuto extends OpMode {
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 36.000),
+                                new Pose(x(41.000), 38.000),
 
-                                new Pose(x(8.000), 36.000)
+                                new Pose(x(8.000), 38.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path12 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(8.000), 36.000),
+                                new Pose(x(8.000), 38.000),
                                 new Pose(x(50.306), 103.466)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
@@ -308,7 +308,7 @@ public class SisterFrontAuto extends OpMode {
                 .build();
     }
     private static double x(double offset){
-        if (Constants.TEAM.equals("RED")) offset = 145 - offset;
+        if (Constants.TEAM.equals("RED")) offset = 144 - offset;
         return offset;
     }
     private static double heading(double angle) {
