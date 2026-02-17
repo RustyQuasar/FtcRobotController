@@ -103,8 +103,8 @@ public class SmartShooter3 {
                 botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
                 botY = llPos.y + limelightOffsets[1] + shooterOffsets[1];
             } else {
-                botX = llPos.x + limelightOffsets[1] + shooterOffsets[1];
-                botY = llPos.y + limelightOffsets[0] + shooterOffsets[0];
+                botX = llPos.x - limelightOffsets[1] - shooterOffsets[1];
+                botY = llPos.y - limelightOffsets[0] - shooterOffsets[0];
             }
 
             Constants.OdometryConstants.fieldPos = new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -116,7 +116,7 @@ public class SmartShooter3 {
                 yChange -= shooterOffsets[1];
             } else {
                 xChange += shooterOffsets[1];
-                yChange -= shooterOffsets[0];
+                yChange += shooterOffsets[0];
             }
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));

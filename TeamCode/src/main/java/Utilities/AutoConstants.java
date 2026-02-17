@@ -22,8 +22,8 @@ public final class AutoConstants {
     public static final double farShootTime = 4000;
     public static final double gateHoldTime = 500;
     public static double inPerTick = (5.856422408217959E-4 + 5.910703012522641E-4 + 5.803648488060199E-4 + 5.819446164942314E-4 + 5.831955874526663E-4 + 5.758567437351553E-4 + 5.838536067503198E-4) / 7;
-    public static double par0YIn = 1.88; // y position of the first parallel encoder (in tick units)
-    public static double par1Yin = -1.88; // y position of the second parallel encoder (in tick units)
+    public static double par0YIn = 1.6755; // y position of the first parallel encoder (in tick units)
+    public static double par1Yin = -1.6755; // y position of the second parallel encoder (in tick units)
     public static double perpXIn = 4.7905; // x position of the perpendicular encoder (in tick units)
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(14.29)

@@ -29,7 +29,7 @@ public class Back6 extends OpMode {
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
-    PathChain Path1, Path2, Path3, Path4;
+    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7;
     int currentPath = 1;
     double lastTime = 10;
     double pathStartTime = 0;
@@ -94,11 +94,35 @@ public class Back6 extends OpMode {
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 6;
                             lastTimeSet = false;
+                            follower.followPath(Path5);
                         } else {
                             shooter.transfer(true);
                             intake.intake(true, false);
                         }
                         break;
+                    case 6:
+                        pathStartTime = System.currentTimeMillis();
+                        follower.followPath(Path6);
+                        currentPath = 7;
+                        break;
+                    case 7:
+                        pathStartTime = System.currentTimeMillis();
+                        follower.followPath(Path7);
+                        currentPath = 8;
+                        break;
+                        case 8:
+                            if (!lastTimeSet){
+                                lastTime = System.currentTimeMillis();
+                                lastTimeSet = true;
+                            }
+                            if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
+                                pathStartTime = System.currentTimeMillis();
+                                currentPath = 9;
+                                lastTimeSet = false;
+                            } else {
+                                shooter.transfer(true);
+                                intake.intake(true, false);
+                            }
                     default: running = false;
                 }
             }
@@ -159,9 +183,38 @@ public class Back6 extends OpMode {
                 ).setLinearHeadingInterpolation(heading(90), heading(180))
 
                 .build();
+        Path5 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(x(58.000), 15.000),
+
+                                new Pose(x(56.000), 14.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(180), heading(0))
+
+                .build();
+
+        Path6 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(x(56.000), 14.000),
+
+                                new Pose(x(9.000), 10.000)
+                        )
+                ).setConstantHeadingInterpolation(heading(0))
+
+                .build();
+
+        Path7 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(x(9.000), 10.000),
+
+                                new Pose(x(58.000), 15.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(0), heading(180))
+
+                .build();
     }
     private static double x(double offset){
-        if (Constants.TEAM.equals("RED")) offset = 145 - offset;
+        if (Constants.TEAM.equals("RED")) offset = 144 - offset;
         return offset;
     }
     private static double heading(double angle) {
