@@ -45,7 +45,6 @@ public class SmartShooter3 {
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.ShooterConstants.turretNeckMotor);
         turretHead = hardwareMap.get(Servo.class, Constants.ShooterConstants.turretHeadServo);
         finger = hardwareMap.get(Servo.class, Constants.ShooterConstants.fingerServo);
-        finger.setPosition(0);
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -138,7 +137,7 @@ public class SmartShooter3 {
         if (rightTrigger) offset += 4;
     }
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 30)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 40)) {
             transferServo.setPower(-0.2);
         } else {
             transferServo.setPower(1);
@@ -148,7 +147,7 @@ public class SmartShooter3 {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 50)) {
             finger.setPosition(0.01);
         } else {
-            finger.setPosition(0.2);
+            finger.setPosition(0.6);
         }
     }
 
@@ -167,7 +166,7 @@ public class SmartShooter3 {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 55), 148);
         angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.67143 + 520.85714;
+        shooterVel = (distance) * 4.57143 + 580.85714;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));

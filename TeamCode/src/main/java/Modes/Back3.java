@@ -42,7 +42,7 @@ public class Back3 extends OpMode {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime < AutoConstants.farShootTime) {
+                        if (System.currentTimeMillis() - lastTime < AutoConstants.farShootTime + 1000) {
                             shooter.transfer(true);
                             intake.intake(true, true);
                         } else {

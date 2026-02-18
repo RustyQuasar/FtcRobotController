@@ -5,9 +5,9 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
-    public static final String TEAM =
-            //"RED"
-            "BLUE"
+    public static final String TEAM =  
+            "RED"
+            //"BLUE"
             ; //Has to be "RED" or "BLUE"
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
@@ -66,7 +66,7 @@ public final class Constants {
         public static final double robotHeight = 18;
         public static final double robotLength = 17.496;
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 68;
+        public static final double field = 69;
         public static final double artifactRadius = 2.50;
     }
 
