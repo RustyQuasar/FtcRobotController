@@ -34,7 +34,7 @@ public class MechanumDrive {
 
     public void drive(double driveY, double driveX, double rotation) {
         double offsetHeading =
-                Constants.OdometryConstants.startHeading;
+                Constants.heading(Math.PI/2);
                 //0;
         if (offsetHeading < 0) offsetHeading += 2 * Math.PI;
         double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() - offsetHeading;

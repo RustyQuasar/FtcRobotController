@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class AllianceFrontAutos {
-    @Autonomous(name = "Red Front 1 Gate", group = "Auto")
+    @Autonomous(name = "Red Close 1 Gate", group = "Close Auto")
     public static class RedFrontGate12 extends OpMode {
         Modes.FrontGate12 frontGate12 = new Modes.FrontGate12();
         @Override
@@ -20,7 +20,7 @@ public class AllianceFrontAutos {
             frontGate12.start();
         }
     }
-    @Autonomous(name = "Blue Front 1 Gate", group = "Auto")
+    @Autonomous(name = "Blue Close 1 Gate", group = "Close Auto")
     public static class BlueFrontGate12 extends OpMode {
         Modes.FrontGate12 frontGate12 = new Modes.FrontGate12();
         @Override
@@ -36,7 +36,7 @@ public class AllianceFrontAutos {
             frontGate12.start();
         }
     }
-    @Autonomous(name = "Red Front 2 Gate", group = "Auto")
+    @Autonomous(name = "Red Close 2 Gate", group = "Close Auto")
     public static class RedSister12 extends OpMode {
         Modes.SisterFrontAuto frontGate12 = new Modes.SisterFrontAuto();
         @Override
@@ -52,7 +52,7 @@ public class AllianceFrontAutos {
             frontGate12.start();
         }
     }
-    @Autonomous(name = "Blue Front 2 Gate", group = "Auto")
+    @Autonomous(name = "Blue Close 2 Gate", group = "Close Auto")
     public static class BlueSister12 extends OpMode {
         Modes.SisterFrontAuto frontGate12 = new Modes.SisterFrontAuto();
         @Override

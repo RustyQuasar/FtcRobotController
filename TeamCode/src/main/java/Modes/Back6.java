@@ -36,10 +36,10 @@ public class Back6 {
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) + Constants.OdometryConstants.startHeading * 2);
+        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) + Constants.heading(Math.PI/2) * 2);
         vision.updateAprilTags();
         if (running) {
-            shooter.aim(true);
+            shooter.aim(true, false);
             //also mentions of follower.atParametricEnd() but idk how much to trust that
             if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
                 switch(currentPath){

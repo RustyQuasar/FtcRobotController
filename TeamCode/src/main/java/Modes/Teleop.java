@@ -1,10 +1,12 @@
 package Modes;
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
 import Commands.SmartIntake;
@@ -13,7 +15,6 @@ import Subsystems.ThreeDeadWheelLocalizer;
 import Subsystems.Vision;
 import Utilities.Constants;
 
-@TeleOp
 public class Teleop {
     Gamepad activeGamepad1;
     MechanumDrive Mechanum;
@@ -25,7 +26,7 @@ public class Teleop {
     boolean autoNeck = true;
     public void init(HardwareMap hardwareMap, String team){
         Constants.TEAM = team;
-        odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
+        odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(new Vector2d(0, 0), Constants.heading(Math.PI/2)));
         odometry.update();
         activeGamepad1 = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
@@ -40,7 +41,7 @@ public class Teleop {
                 autoNeck = !autoNeck;
             }
             upLastState = gamepad1.dpad_up;
-            Shooter.aim(autoNeck);
+            Shooter.aim(autoNeck, false);
             activeGamepad1.copy(gamepad1);
             Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
             Shooter.transfer(activeGamepad1.left_trigger > 0.3);

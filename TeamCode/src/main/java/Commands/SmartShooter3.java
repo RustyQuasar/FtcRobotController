@@ -36,7 +36,7 @@ public class SmartShooter3 {
     double targetPos;
     public double offset = 0;
     double limelightToShooterCenter = -5.446;
-    double shooterToBotCenter = 1.541;
+    double shooterToBotCenter = 1.541 / 2;
     double[] totalOffsets;
     PIDFController neckController;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
@@ -69,9 +69,12 @@ public class SmartShooter3 {
         if (pressed) {turretHead.setPosition(0.01);}
         else {turretHead.setPosition(0.8);}
     }
+    public void turretFingerTester(boolean pressed){
+        if (pressed) {finger.setPosition(0.01);}
+        else {finger.setPosition(0.6);}
+    }
 
-    public void aim(boolean autoAim) {
-        double[] shooterCenterPos = new double[2];
+    public void aim(boolean autoAim, boolean shotTuning) {
         Vector2d targetPose;
         if (Constants.TEAM.equals("RED")){
             targetPose = Constants.OdometryConstants.targetPosRed;
@@ -130,7 +133,7 @@ public class SmartShooter3 {
             headingTarget = Math.atan2(xChange, yChange);
             double angleToTurn;
             angleToTurn = Math.toDegrees(headingTarget + neckHeading);
-            aiming(distance, angleToTurn, autoAim);
+            aiming(distance, angleToTurn, autoAim, shotTuning);
     }
     public void manualOffset(boolean leftTrigger, boolean rightTrigger){
         if (leftTrigger) offset -= 4;
@@ -162,11 +165,11 @@ public class SmartShooter3 {
         transferServo2.setPower(-transferServo.getPower());
     }
 
-    public void aiming(double distance, double angleToTurn, boolean autoAim) {
+    public void aiming(double distance, double angleToTurn, boolean autoAim, boolean shotTuning) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
-        distance = Math.min(Math.max(distance, 55), 148);
+        distance = Math.min(Math.max(distance, 0), 148);
         angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.57143 + 580.85714;
+        shooterVel = (distance) * 4.52941 + 662.47059;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -180,7 +183,9 @@ public class SmartShooter3 {
         } else {
             turretNeckMotor.setPower(neckController.calculate(offset, turretNeckMotor.getCurrentPosition()));
         }
-        shoot(shooterVel);
+        if (!shotTuning) {
+            //shoot(shooterVel);
+        }
     }
 
     public void telemetry(Telemetry telemetry) {

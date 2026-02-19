@@ -49,7 +49,7 @@ public class Back3 {
                         break;
                 }
             }
-            shooter.aim(true);
+            shooter.aim(true, false);
             vision.updateAprilTags();
         } else {
             shooter.chill();
@@ -59,7 +59,6 @@ public class Back3 {
 
     public void init(HardwareMap hardwareMap, String team) {
         Constants.TEAM = team;
-        Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.startPos;
         follower = AutoConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(88, 8));
         path = follower.pathBuilder()
