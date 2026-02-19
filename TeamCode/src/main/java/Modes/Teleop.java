@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -16,7 +17,7 @@ import Subsystems.Vision;
 import Utilities.Constants;
 
 @TeleOp
-public class Teleop extends LinearOpMode {
+public class Teleop {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry telemetry = dashboard.getTelemetry();
     Gamepad activeGamepad1;
@@ -25,8 +26,9 @@ public class Teleop extends LinearOpMode {
     SmartShooter3 Shooter;
     Vision Vision;
     ThreeDeadWheelLocalizer odometry;
-    @Override
-    public void runOpMode() {
+    boolean upLastState = false;
+    boolean autoNeck = true;
+    public void init(HardwareMap hardwareMap, String team){
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, Constants.OdometryConstants.endPos);
         odometry.update();
         activeGamepad1 = new Gamepad();
@@ -34,13 +36,10 @@ public class Teleop extends LinearOpMode {
         Vision = new Vision(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter3(hardwareMap, Vision);
-        //Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position.x, Constants.OdometryConstants.fieldPos.position.y + 12 * Math.signum(Constants.OdometryConstants.fieldPos.position.y), Constants.OdometryConstants.fieldPos.heading.toDouble());
-        boolean upLastState = false;
-        boolean autoNeck = true;
-
-        waitForStart();
-
-        while (opModeIsActive()) {
+        Constants.TEAM = team;
+    }
+    public void run(boolean opModeIsActive, Gamepad gamepad1) {
+        if (opModeIsActive) {
             odometry.update();
             Vision.updateAprilTags();
             if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {

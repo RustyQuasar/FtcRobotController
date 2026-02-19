@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
-    public static final String TEAM =  
+    public static String TEAM =
             "RED"
             //"BLUE"
             ; //Has to be "RED" or "BLUE"
