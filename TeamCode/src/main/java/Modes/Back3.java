@@ -4,8 +4,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
@@ -13,27 +12,18 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-@Autonomous(name = "Back 3", group = "Auto")
-public class Back3 extends OpMode {
+public class Back3 {
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
-    //ThreeDeadWheelLocalizer odometry;
     Vision vision;
-
     PathChain path;
-
     int currentPath = 1;
     boolean running = true;
     boolean lastTimeSet = false;
     double lastTime = 0;
 
-    @Override
     public void loop() {
-        //odometry.update();
-        shooter.telemetry(telemetry);
-        telemetry.update();
-        follower.update();
         if (running) {
             if (!follower.isBusy()) {
                 switch (currentPath) {
@@ -67,13 +57,8 @@ public class Back3 extends OpMode {
         }
     }
 
-    @Override
-    public void start() {
-        //follower.followPath(path);
-    }
-
-    @Override
-    public void init() {
+    public void init(HardwareMap hardwareMap, String team) {
+        Constants.TEAM = team;
         Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.startPos;
         follower = AutoConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(88, 8));
@@ -92,11 +77,9 @@ public class Back3 extends OpMode {
         //odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72 - 8, 72 - x(88), Constants.OdometryConstants.startHeading));
     }
 
-    @Override
     public void init_loop() {
         follower.update();
         vision.updateAprilTags();
-        //shooter.aim(true);
     }
 
     public static double x(double offset) {

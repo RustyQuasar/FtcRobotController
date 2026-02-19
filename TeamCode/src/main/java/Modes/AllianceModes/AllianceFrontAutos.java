@@ -1,0 +1,71 @@
+package Modes.AllianceModes;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+public class AllianceFrontAutos {
+    @Autonomous(name = "Red Front 1 Gate", group = "Auto")
+    public static class RedFrontGate12 extends OpMode {
+        Modes.FrontGate12 frontGate12 = new Modes.FrontGate12();
+        @Override
+        public void init(){
+            frontGate12.init(hardwareMap, "RED");
+        }
+        @Override
+        public void loop(){
+            frontGate12.loop();
+        }
+        @Override
+        public void start(){
+            frontGate12.start();
+        }
+    }
+    @Autonomous(name = "Blue Front 1 Gate", group = "Auto")
+    public static class BlueFrontGate12 extends OpMode {
+        Modes.FrontGate12 frontGate12 = new Modes.FrontGate12();
+        @Override
+        public void init(){
+            frontGate12.init(hardwareMap, "BLUE");
+        }
+        @Override
+        public void loop(){
+            frontGate12.loop();
+        }
+        @Override
+        public void start(){
+            frontGate12.start();
+        }
+    }
+    @Autonomous(name = "Red Front 2 Gate", group = "Auto")
+    public static class RedSister12 extends OpMode {
+        Modes.SisterFrontAuto frontGate12 = new Modes.SisterFrontAuto();
+        @Override
+        public void init(){
+            frontGate12.init(hardwareMap, "RED");
+        }
+        @Override
+        public void loop(){
+            frontGate12.loop();
+        }
+        @Override
+        public void start(){
+            frontGate12.start();
+        }
+    }
+    @Autonomous(name = "Blue Front 2 Gate", group = "Auto")
+    public static class BlueSister12 extends OpMode {
+        Modes.SisterFrontAuto frontGate12 = new Modes.SisterFrontAuto();
+        @Override
+        public void init(){
+            frontGate12.init(hardwareMap, "BLUE");
+        }
+        @Override
+        public void loop(){
+            frontGate12.loop();
+        }
+        @Override
+        public void start(){
+            frontGate12.start();
+        }
+    }
+}

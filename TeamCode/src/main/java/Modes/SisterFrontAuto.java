@@ -1,19 +1,15 @@
 package Modes;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.*;
 import com.pedropathing.paths.*;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import Commands.SmartIntake;
@@ -22,9 +18,7 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-@Autonomous(name = "Front 2 Gate", group = "Auto")
-public class SisterFrontAuto extends OpMode {
-    FtcDashboard dashboard = FtcDashboard.getInstance();
+public class SisterFrontAuto {
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
@@ -37,8 +31,6 @@ public class SisterFrontAuto extends OpMode {
     boolean running = true;
     double pathCooldown = 1000;
     long lastVisionScan = 0;
-    Telemetry telemetry = dashboard.getTelemetry();
-    @Override
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
@@ -46,12 +38,6 @@ public class SisterFrontAuto extends OpMode {
         vision.updateAprilTags();
         shooter.aim(true);
         if (running) {
-            telemetry.addData("Pedro Pos: ", follower.getPose());
-            telemetry.addData("Bot pos: ", Constants.OdometryConstants.fieldPos.position);
-            telemetry.addData("Bot heading: ", Constants.OdometryConstants.fieldPos.heading.toDouble());
-            telemetry.addData("Stage: ", currentPath);
-            shooter.telemetry(telemetry);
-            telemetry.update();
             //also mentions of follower.atParametricEnd() but idk how much to trust that
             if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
                 switch(currentPath){
@@ -176,15 +162,14 @@ public class SisterFrontAuto extends OpMode {
             shooter.transfer(true);
         }
     }
-    @Override
     public void start(){
         follower.setPose(new Pose(x(29), 135, heading(180)));
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
         shooter.aim(false);
     }
-    @Override
-    public void init() {
+    public void init(HardwareMap hardwareMap, String team) {
+        Constants.TEAM = team;
         vision = new Vision(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);

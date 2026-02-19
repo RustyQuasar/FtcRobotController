@@ -1,31 +1,32 @@
 package Modes.AllianceModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import Utilities.Constants;
 public class AllianceTeleop {
     @TeleOp(name = "Red TeleOp", group = "Teleop")
-    static class RedTeleop extends LinearOpMode {
+    public static class RedTeleop extends OpMode {
         Modes.Teleop teleop = new Modes.Teleop();
-
         @Override
-        public void runOpMode() {
+        public void init(){
             teleop.init(hardwareMap, "RED");
-            waitForStart();
-            teleop.run(opModeIsActive(), gamepad1);
+        }
+        @Override
+        public void loop() {
+            teleop.run(gamepad1);
         }
     }
 
     @TeleOp(name = "Blue TeleOp", group = "Teleop")
-    class BlueTeleop extends LinearOpMode {
+    public static class BlueTeleop extends OpMode {
         Modes.Teleop teleop = new Modes.Teleop();
-
         @Override
-        public void runOpMode() {
-            teleop.init(hardwareMap, "RED");
-            waitForStart();
-            teleop.run(opModeIsActive(), gamepad1);
+        public void init(){
+            teleop.init(hardwareMap, "BLUE");
+        }
+        @Override
+        public void loop() {
+            teleop.run(gamepad1);
         }
     }
 }
