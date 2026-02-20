@@ -82,6 +82,6 @@ public final class Constants {
     }
     public static double heading(double angle) {
         if (TEAM.equals("BLUE")) angle *= -1;
-        return angle;
+                                                                                                                                                                                                              return angle;
     }
 }

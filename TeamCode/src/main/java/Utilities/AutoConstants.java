@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Utilities.Constants;
 
 public final class AutoConstants {
-    public static final double closeShootTime = 1800;
+    public static final double closeShootTime = 1600;
     public static final double farShootTime = 2000;
     public static final double gateHoldTime = 500;
     public static double inPerTick = (5.856422408217959E-4 + 5.910703012522641E-4 + 5.803648488060199E-4 + 5.819446164942314E-4 + 5.831955874526663E-4 + 5.758567437351553E-4 + 5.838536067503198E-4) / 7;

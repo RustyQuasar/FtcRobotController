@@ -168,8 +168,8 @@ public class SmartShooter3 {
     public void aiming(double distance, double angleToTurn, boolean autoAim, boolean shotTuning) {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 0), 148);
-        angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.52941 + 590;
+        angle = Math.max((distance - 30), 0) * 0.45;
+        shooterVel = (distance) * 4.52941 + 580;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
