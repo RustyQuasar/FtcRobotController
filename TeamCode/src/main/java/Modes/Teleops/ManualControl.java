@@ -1,4 +1,4 @@
-package Modes;
+package Modes.Teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;

@@ -1,12 +1,10 @@
-package Modes;
+package Modes.Teleops;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Commands.MechanumDrive;
 import Commands.SmartIntake;

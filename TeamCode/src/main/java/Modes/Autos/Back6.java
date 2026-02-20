@@ -1,6 +1,5 @@
-package Modes;
+package Modes.Autos;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.FTCCoordinates;
@@ -31,8 +30,8 @@ public class Back6 {
     boolean lastTimeSet = false;
     boolean running = true;
     double pathCooldown = 1000;
-    long lastVisionScan = 0;
-
+    final int loops = 2;
+    int loopsComplete = 1;
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
@@ -80,6 +79,7 @@ public class Back6 {
                             lastTimeSet = true;
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
+                            shooter.transfer(false);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 6;
                             lastTimeSet = false;
@@ -105,13 +105,20 @@ public class Back6 {
                                 lastTimeSet = true;
                             }
                             if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
+                                shooter.transfer(false);
                                 pathStartTime = System.currentTimeMillis();
-                                currentPath = 9;
+                                if (loopsComplete < loops) {
+                                    currentPath = 6;
+                                    loopsComplete++;
+                                } else {
+                                    currentPath = 9;
+                                }
                                 lastTimeSet = false;
                             } else {
                                 shooter.transfer(true);
                                 intake.intake(true, false);
                             }
+                            break;
                     default: running = false;
                 }
             }
@@ -157,7 +164,7 @@ public class Back6 {
                         new BezierLine(
                                 new Pose(x(25.000), 22.000),
 
-                                new Pose(x(10.000), 9.000)
+                                new Pose(x(10.5), 9.000)
                         )
                 ).setLinearHeadingInterpolation(heading(30), heading(90))
 
@@ -165,7 +172,7 @@ public class Back6 {
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(10.000), 9.000),
+                                new Pose(x(10.5), 9.000),
 
                                 new Pose(x(58.000), 15.000)
                         )
@@ -186,7 +193,7 @@ public class Back6 {
                         new BezierLine(
                                 new Pose(x(56.000), 14.000),
 
-                                new Pose(x(9.000), 10.000)
+                                new Pose(x(14), 10.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
 
@@ -194,7 +201,7 @@ public class Back6 {
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(9.000), 10.000),
+                                new Pose(x(14), 10.000),
 
                                 new Pose(x(58.000), 15.000)
                         )

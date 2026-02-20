@@ -36,7 +36,7 @@ public class SmartShooter3 {
     double targetPos;
     public double offset = 0;
     double limelightToShooterCenter = -5.446;
-    double shooterToBotCenter = 1.541 / 2;
+    double shooterToBotCenter = 1.541;
     double[] totalOffsets;
     PIDFController neckController;
     public SmartShooter3(HardwareMap hardwareMap, Vision vision) {
@@ -169,7 +169,7 @@ public class SmartShooter3 {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 0), 148);
         angle = Math.max((distance - 30), 0) * 0.4;
-        shooterVel = (distance) * 4.52941 + 662.47059;
+        shooterVel = (distance) * 4.52941 + 612.47059;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));
@@ -184,7 +184,7 @@ public class SmartShooter3 {
             turretNeckMotor.setPower(neckController.calculate(offset, turretNeckMotor.getCurrentPosition()));
         }
         if (!shotTuning) {
-            //shoot(shooterVel);
+            shoot(shooterVel);
         }
     }
 

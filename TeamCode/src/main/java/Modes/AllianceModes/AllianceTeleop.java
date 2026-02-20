@@ -4,11 +4,14 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import Modes.Teleops.ManualControl;
+import Modes.Teleops.Teleop;
+
 public class AllianceTeleop {
     static FtcDashboard dashboard = FtcDashboard.getInstance();
     @TeleOp(name = "Red TeleOp", group = "Teleop")
     public static class RedTeleop extends OpMode {
-        Modes.Teleop teleop = new Modes.Teleop();
+        Teleop teleop = new Teleop();
         @Override
         public void init(){
             teleop.init(hardwareMap, "RED");
@@ -21,7 +24,7 @@ public class AllianceTeleop {
 
     @TeleOp(name = "Blue TeleOp", group = "Teleop")
     public static class BlueTeleop extends OpMode {
-        Modes.Teleop teleop = new Modes.Teleop();
+        Teleop teleop = new Teleop();
         @Override
         public void init(){
             teleop.init(hardwareMap, "BLUE");
@@ -34,7 +37,7 @@ public class AllianceTeleop {
 
     @TeleOp(name = "Red Tuning", group = "Tuning")
     public static class RedTuning extends OpMode {
-        Modes.ManualControl teleop = new Modes.ManualControl();
+        ManualControl teleop = new ManualControl();
         @Override
         public void init(){
             teleop.init(hardwareMap, "RED");
@@ -47,7 +50,7 @@ public class AllianceTeleop {
 
     @TeleOp(name = "Blue Tuning", group = "Tuning")
     public static class BlueTuning extends OpMode {
-        Modes.ManualControl teleop = new Modes.ManualControl();
+        ManualControl teleop = new ManualControl();
         @Override
         public void init(){
             teleop.init(hardwareMap, "BLUE");

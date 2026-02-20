@@ -1,4 +1,4 @@
-package Modes;
+package Modes.Autos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;

@@ -1,4 +1,4 @@
-package Modes;
+package Modes.Autos;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
@@ -18,12 +18,12 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-public class SisterFrontAuto {
+public class FrontGate12 {
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
-    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12;
+    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11;
     int currentPath = 1;
     double lastTime = 10;
     double pathStartTime = 0;
@@ -68,7 +68,7 @@ public class SisterFrontAuto {
                         currentPath = 4;
                         break;
                     case 4:
-                        if (!lastTimeSet){
+                        if (!lastTimeSet) {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
@@ -78,6 +78,7 @@ public class SisterFrontAuto {
                             currentPath = 5;
                             lastTimeSet = false;
                         }
+
                         break;
                     case 5:
                         if (!lastTimeSet) {
@@ -100,16 +101,16 @@ public class SisterFrontAuto {
                         currentPath = 7;
                         break;
                     case 7:
-                            follower.followPath(Path8);
-                            pathStartTime = System.currentTimeMillis();
-                            currentPath = 8;
+                        follower.followPath(Path8);
+                        pathStartTime = System.currentTimeMillis();
+                        currentPath = 8;
                         break;
                     case 8:
                         if (!lastTimeSet){
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.gateHoldTime) {
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             follower.followPath(Path9);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 9;
@@ -117,19 +118,10 @@ public class SisterFrontAuto {
                         }
                         break;
                     case 9:
-                        if (!lastTimeSet) {
-                            lastTime = System.currentTimeMillis();
-                            lastTimeSet = true;
-                        }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
                             follower.followPath(Path10);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 10;
-                            shooter.transfer(false);
-                        } else {
-                            shooter.transfer(true);
-                        }
                         break;
                     case 10:
                         pathStartTime = System.currentTimeMillis();
@@ -137,11 +129,6 @@ public class SisterFrontAuto {
                         currentPath = 11;
                         break;
                     case 11:
-                        pathStartTime = System.currentTimeMillis();
-                        follower.followPath(Path12);
-                        currentPath = 12;
-                        break;
-                    case 12:
                         if (!lastTimeSet) {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
@@ -149,7 +136,7 @@ public class SisterFrontAuto {
                         if (System.currentTimeMillis() - lastTime > AutoConstants.closeShootTime) {
                             lastTimeSet = false;
                             pathStartTime = System.currentTimeMillis();
-                            currentPath = 13;
+                            currentPath = 12;
                             shooter.transfer(false);
                         } else {
                             shooter.transfer(true);
@@ -167,13 +154,15 @@ public class SisterFrontAuto {
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
     }
+
     public void init(HardwareMap hardwareMap, String team) {
         Constants.TEAM = team;
+        Constants.OdometryConstants.fieldPos = new Pose2d(-72, 0, Constants.heading(Math.PI/2));
         vision = new Vision(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(30), 135, heading(180)));
+        follower.setStartingPose(new Pose(x(29), 135, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(x(30), 135.000),
@@ -243,19 +232,10 @@ public class SisterFrontAuto {
 
                 .build();
 
+
         Path8 = follower.pathBuilder().addPath(
-                        new BezierCurve(
-                                new Pose(x(13), 60),
-                                new Pose(x(31.040), 57.332),
-                                new Pose(x(10.5), 72)
-                        )
-                ).setLinearHeadingInterpolation(heading(0), heading(0))
-
-                .build();
-
-        Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(10.5), 72.000),
+                                new Pose(x(13), 60),
 
                                 new Pose(x(50.000), 86.000)
                         )
@@ -263,7 +243,7 @@ public class SisterFrontAuto {
 
                 .build();
 
-        Path10 = follower.pathBuilder().addPath(
+        Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(x(50.000), 86.000),
 
@@ -273,7 +253,7 @@ public class SisterFrontAuto {
 
                 .build();
 
-        Path11 = follower.pathBuilder().addPath(
+        Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(x(41.000), 40),
                                 new Pose(x(11.000), 38)
@@ -281,7 +261,7 @@ public class SisterFrontAuto {
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
-        Path12 = follower.pathBuilder().addPath(
+        Path11 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(x(11.000), 38.000),
                                 new Pose(x(50.306), 103.466)

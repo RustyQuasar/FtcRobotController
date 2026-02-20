@@ -3,10 +3,13 @@ package Modes.AllianceModes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import Modes.Autos.FrontGate12;
+import Modes.Autos.SisterFrontAuto;
+
 public class AllianceFrontAutos {
     @Autonomous(name = "Red Close 1 Gate", group = "Close Auto")
     public static class RedFrontGate12 extends OpMode {
-        Modes.FrontGate12 frontGate12 = new Modes.FrontGate12();
+        FrontGate12 frontGate12 = new FrontGate12();
         @Override
         public void init(){
             frontGate12.init(hardwareMap, "RED");
@@ -22,7 +25,7 @@ public class AllianceFrontAutos {
     }
     @Autonomous(name = "Blue Close 1 Gate", group = "Close Auto")
     public static class BlueFrontGate12 extends OpMode {
-        Modes.FrontGate12 frontGate12 = new Modes.FrontGate12();
+        FrontGate12 frontGate12 = new FrontGate12();
         @Override
         public void init(){
             frontGate12.init(hardwareMap, "BLUE");
@@ -38,7 +41,7 @@ public class AllianceFrontAutos {
     }
     @Autonomous(name = "Red Close 2 Gate", group = "Close Auto")
     public static class RedSister12 extends OpMode {
-        Modes.SisterFrontAuto frontGate12 = new Modes.SisterFrontAuto();
+        SisterFrontAuto frontGate12 = new SisterFrontAuto();
         @Override
         public void init(){
             frontGate12.init(hardwareMap, "RED");
@@ -54,7 +57,7 @@ public class AllianceFrontAutos {
     }
     @Autonomous(name = "Blue Close 2 Gate", group = "Close Auto")
     public static class BlueSister12 extends OpMode {
-        Modes.SisterFrontAuto frontGate12 = new Modes.SisterFrontAuto();
+        SisterFrontAuto frontGate12 = new SisterFrontAuto();
         @Override
         public void init(){
             frontGate12.init(hardwareMap, "BLUE");
