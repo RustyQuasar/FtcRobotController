@@ -38,7 +38,7 @@ public final class Constants {
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
-        public static final double turretNeckGearRatio = 19.2 * 197 / 35; //Gear multiplier
+        public static final double turretNeckGearRatio = 19.2 * 197 / 36; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 50;
         public static final double maxNeckAngle = 90;
@@ -59,7 +59,7 @@ public final class Constants {
         public static final double robotHeight = 18;
         public static final double robotLength = 17.496;
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 68;
+        public static final double field = 69;
         public static final double artifactRadius = 2.50;
     }
 

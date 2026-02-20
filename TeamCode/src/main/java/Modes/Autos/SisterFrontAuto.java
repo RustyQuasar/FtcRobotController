@@ -177,10 +177,10 @@ public class SisterFrontAuto {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(30), 134, heading(180)));
+        follower.setStartingPose(new Pose(x(29), 134, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(30), 135.000),
+                                new Pose(x(29), 134.000),
 
                                 new Pose(x(50.000), 86.000)
                         )
@@ -190,9 +190,9 @@ public class SisterFrontAuto {
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(50), 86.000),
+                                new Pose(x(50.000), 86.000),
 
-                                new Pose(x(41.000), 84.000)
+                                new Pose(x(48), 86.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -200,18 +200,18 @@ public class SisterFrontAuto {
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 84.000),
+                                new Pose(x(48), 86.000),
 
-                                new Pose(x(19), 84.000)
+                                new Pose(x(23), 86.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(19.00), 84.000),
-                                new Pose(x(35), 79.121),
-                                new Pose(x(11), 78)
+                                new Pose(x(23), 86.000),
+                                new Pose(x(45), 79.121),
+                                new Pose(x(21), 74.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -219,9 +219,8 @@ public class SisterFrontAuto {
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(11), 78),
-
-                                new Pose(x(50.000), 86.000)
+                                new Pose(x(21), 74.000),
+                                new Pose(x(55), 86.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -229,9 +228,9 @@ public class SisterFrontAuto {
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(50.000), 86.000),
+                                new Pose(x(55), 86.000),
 
-                                new Pose(x(41.000), 62)
+                                new Pose(x(45.000), 62.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -239,18 +238,19 @@ public class SisterFrontAuto {
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 62),
+                                new Pose(x(45.000), 62.000),
 
-                                new Pose(x(15), 60)
+                                new Pose(x(25), 59.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
+
                 .build();
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(15), 60),
-                                new Pose(x(50), 57.332),
-                                new Pose(x(10.5), 76)
+                                new Pose(x(25), 59.000),
+                                new Pose(x(45), 57.332),
+                                new Pose(x(25), 76)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -258,9 +258,9 @@ public class SisterFrontAuto {
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(10.5), 76),
+                                new Pose(x(20), 72),
 
-                                new Pose(x(50.000), 86.000)
+                                new Pose(x(60), 86.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -270,7 +270,7 @@ public class SisterFrontAuto {
                         new BezierLine(
                                 new Pose(x(50.000), 86.000),
 
-                                new Pose(x(41.000), 40)
+                                new Pose(x(50), 42)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -278,15 +278,16 @@ public class SisterFrontAuto {
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 40),
-                                new Pose(x(16), 38)
+                                new Pose(x(50), 42),
+
+                                new Pose(x(35), 42)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path12 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(16), 38.000),
+                                new Pose(x(20), 42),
                                 new Pose(x(50.306), 103.466)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))

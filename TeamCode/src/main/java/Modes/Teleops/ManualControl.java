@@ -47,7 +47,7 @@ public class ManualControl {
         upLastState = gamepad1.dpad_up;
         Intake.intake(true, false);
 
-        if (false) {
+        if (true) {
             telemetry.addData("State: ", "Servos overriden");
             Shooter.turretHeadTester(activeGamepad1.b);
             Shooter.turretFingerTester(activeGamepad1.y);

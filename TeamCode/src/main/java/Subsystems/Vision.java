@@ -27,7 +27,7 @@ public class Vision {
         return result;
     }
     public boolean hasTarget(){
-        return result.isValid() && limelight.isConnected();
+        return result.isValid() && limelight.isConnected() && limelight.isRunning();
     }
 
     public void updateAprilTags() {
