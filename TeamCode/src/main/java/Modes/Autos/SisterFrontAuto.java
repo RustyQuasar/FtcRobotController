@@ -47,7 +47,7 @@ public class SisterFrontAuto {
                 }
             }
             //also mentions of follower.atParametricEnd() but idk how much to trust that
-            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
+            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown || (System.currentTimeMillis() - pathStartTime> 3000)) {
                 switch(currentPath){
                     case 1:
                         intake.intake(true, false);
@@ -180,7 +180,7 @@ public class SisterFrontAuto {
         }
     }
     public void start(){
-        follower.setPose(new Pose( x(30), 135, heading(180)));
+        follower.setPose(new Pose( x( 30), 133, heading(180)));
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
     }
@@ -191,12 +191,12 @@ public class SisterFrontAuto {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose( x(30), 135, heading(180)));
+        follower.setStartingPose(new Pose( x( 30), 133, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(30), 135),
+                                new Pose( x(30), 133.000),
 
-                                new Pose( x(60), 90)
+                                new Pose( x(59.000), 90.000)
                         )
                 ).setLinearHeadingInterpolation(heading(180), heading(45))
 
@@ -204,9 +204,9 @@ public class SisterFrontAuto {
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(53.000), 84.000),
+                                new Pose( x(55.000), 84.000),
 
-                                new Pose( x(48), 84.000)
+                                new Pose( x(47), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -214,18 +214,18 @@ public class SisterFrontAuto {
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(48), 84.000),
+                                new Pose( x(45), 84.000),
 
-                                new Pose( x(23), 84.000)
+                                new Pose( x(20), 84.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose( x(16.5), 84.000),
-                                new Pose( x(50), 84),
-                                new Pose( x(16.5), 74)
+                                new Pose( x(18), 84.000),
+                                new Pose( x(40), 79.121),
+                                new Pose( x(17), 76)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -233,7 +233,7 @@ public class SisterFrontAuto {
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(16.5), 74),
+                                new Pose( x(15.500), 76),
 
                                 new Pose( x(53.000), 84.000)
                         )
@@ -245,7 +245,7 @@ public class SisterFrontAuto {
                         new BezierLine(
                                 new Pose( x(53.000), 84.000),
 
-                                new Pose( x(43.000), 60.000)
+                                new Pose( x(45), 60.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -253,9 +253,9 @@ public class SisterFrontAuto {
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(43.000), 60.000),
+                                new Pose( x(45), 60.000),
 
-                                new Pose( x(20), 59.000)
+                                new Pose( x(18), 59.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -263,7 +263,7 @@ public class SisterFrontAuto {
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose( x(14), 59.000),
+                                new Pose( x(18), 59.000),
                                 new Pose( x(40.000), 65.000),
                                 new Pose( x(17), 70.000)
                         )
@@ -273,7 +273,7 @@ public class SisterFrontAuto {
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(15.500), 70.000),
+                                new Pose( x(17), 70.000),
 
                                 new Pose( x(53.000), 84.000)
                         )
@@ -285,7 +285,7 @@ public class SisterFrontAuto {
                         new BezierLine(
                                 new Pose( x(53.000), 84.000),
 
-                                new Pose( x(43.000), 36.000)
+                                new Pose( x(45), 33)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -293,18 +293,18 @@ public class SisterFrontAuto {
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(43.000), 36.000),
+                                new Pose( x(45), 33),
 
-                                new Pose( x(12.000), 36.000)
+                                new Pose( x(20), 33)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path12 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose( x(12.000), 36.000),
+                                new Pose( x(20), 33),
 
-                                new Pose( x(50.000), 105)
+                                new Pose( x(55), 115.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
 
