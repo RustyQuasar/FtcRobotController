@@ -30,7 +30,7 @@ public final class AutoConstants {
             .forwardZeroPowerAcceleration(-27.369131628964293)
             .lateralZeroPowerAcceleration(-50.83431009168295)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0.0001, 0, 0.001))
-            .headingPIDFCoefficients(new PIDFCoefficients(-0.9, 0.001, 0, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(-0.9, 0.0006, 0, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
             ;
 
