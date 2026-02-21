@@ -219,6 +219,10 @@ public class SmartShooter3 {
         transferServo.setPower(0);
         transferServo2.setPower(0);
     }
+    public void lockMotors(){
+        shoot(shooterVel);
+        turretNeckMotor.setPower(neckController.calculate(targetNeckPos + offset, turretNeckMotor.getCurrentPosition()));
+    }
     private double xTurn(double angleToTurnDeg, double velocity, double distance, double time) {
         double leadAngleDeg = Math.toDegrees(Math.acos(velocity / (distance / time)));
         if (leadAngleDeg < 0) leadAngleDeg += 360;

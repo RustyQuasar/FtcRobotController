@@ -30,14 +30,21 @@ public class FrontGate12 {
     boolean lastTimeSet = false;
     boolean running = true;
     double pathCooldown = 1000;
-    long lastVisionScan = 0;
+    boolean shooting = true;
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         vision.updateAprilTags();
-        shooter.aim(true, false);
-        if (running) {
+        if (shooting) {
+            shooter.aim(true, false);
+        } else {
+            if (currentPath >= 10){
+                shooter.aim(false, false);
+            } else {
+                shooter.lockMotors();
+            }
+        }        if (running) {
             //also mentions of follower.atParametricEnd() but idk how much to trust that
             if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
                 switch(currentPath){
@@ -53,8 +60,10 @@ public class FrontGate12 {
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 2;
                             shooter.transfer(false);
+                            shooting = false;
                         } else {
                             shooter.transfer(true);
+                            shooting = true;
                         }
                         break;
                     case 2:
@@ -91,8 +100,10 @@ public class FrontGate12 {
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 6;
                             shooter.transfer(false);
+                            shooting = false;
                         } else {
                             shooter.transfer(true);
+                            shooting = true;
                         }
                         break;
                     case 6:
@@ -140,6 +151,7 @@ public class FrontGate12 {
                             shooter.transfer(false);
                         } else {
                             shooter.transfer(true);
+                            shooting = true;
                         }
                     default: running = false;
                 }
@@ -150,7 +162,7 @@ public class FrontGate12 {
         }
     }
     public void start(){
-        follower.setPose(new Pose(x(29), 135, heading(180)));
+        follower.setPose(new Pose( x(29), 135, heading(180)));
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
     }
@@ -162,12 +174,12 @@ public class FrontGate12 {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(29), 135, heading(180)));
+        follower.setStartingPose(new Pose( x(29), 135, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(30), 135.000),
+                                new Pose( x(33.000), 136.000),
 
-                                new Pose(x(50.000), 86.000)
+                                new Pose( x(59.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(180), heading(45))
 
@@ -175,9 +187,9 @@ public class FrontGate12 {
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(50), 86.000),
+                                new Pose( x(59.000), 84.000),
 
-                                new Pose(x(41.000), 84.000)
+                                new Pose( x(43.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -185,18 +197,18 @@ public class FrontGate12 {
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 84.000),
+                                new Pose( x(43.000), 84.000),
 
-                                new Pose(x(18), 84.000)
+                                new Pose( x(17.000), 84.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(x(15.00), 84.000),
-                                new Pose(x(35), 79.121),
-                                new Pose(x(11), 78)
+                                new Pose( x(17.000), 84.000),
+                                new Pose( x(27.875), 79.121),
+                                new Pose( x(15.000), 77.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
@@ -204,9 +216,9 @@ public class FrontGate12 {
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(11), 78),
+                                new Pose( x(15.000), 77.000),
 
-                                new Pose(x(50.000), 86.000)
+                                new Pose( x(59.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -214,9 +226,9 @@ public class FrontGate12 {
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(50.000), 86.000),
+                                new Pose( x(59.000), 84.000),
 
-                                new Pose(x(41.000), 62)
+                                new Pose( x(43.000), 60.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -224,20 +236,19 @@ public class FrontGate12 {
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 62),
+                                new Pose( x(43.000), 60.000),
 
-                                new Pose(x(13), 60)
+                                new Pose( x(12.000), 60.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(0))
 
                 .build();
 
-
         Path8 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(x(13), 60),
-
-                                new Pose(x(50.000), 86.000)
+                        new BezierCurve(
+                                new Pose( x(12.000), 60.000),
+                                new Pose( x(50.000), 60.000),
+                                new Pose( x(59.000), 84.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(45))
 
@@ -245,9 +256,9 @@ public class FrontGate12 {
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(50.000), 86.000),
+                                new Pose( x(59.000), 84.000),
 
-                                new Pose(x(41.000), 40)
+                                new Pose( x(43.000), 36.000)
                         )
                 ).setLinearHeadingInterpolation(heading(45), heading(0))
 
@@ -255,16 +266,18 @@ public class FrontGate12 {
 
         Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(41.000), 40),
-                                new Pose(x(11.000), 38)
+                                new Pose( x(43.000), 36.000),
+
+                                new Pose( x(12.000), 36.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
                 .build();
 
         Path11 = follower.pathBuilder().addPath(
-                        new BezierCurve(
-                                new Pose(x(11.000), 38.000),
-                                new Pose(x(50.306), 103.466)
+                        new BezierLine(
+                                new Pose(12.000, 36.000),
+
+                                new Pose(55.000, 110.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
 
