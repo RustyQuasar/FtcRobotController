@@ -151,22 +151,21 @@ public class Back6 {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(54), 9, heading(180)));
+        follower.setStartingPose(new Pose(x(64), 9, heading(180)));
         Path1 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(x(54), 9.000),
-
-                                new Pose(x(50.000), 20.000)
-                        )
-                ).setLinearHeadingInterpolation(heading(180), heading(0))
-
+                new BezierCurve(
+                        new Pose(x(64.000), 9.000),
+                        new Pose(x(60.000), 30.000),
+                        new Pose(x(50.000), 20.000)
+                )
+            ).setLinearHeadingInterpolation(heading(180), heading(0))
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(x(50.000), 20.000),
 
-                                new Pose(x(25.000), 22.000)
+                                new Pose(x(20), 22.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(30))
 
@@ -176,7 +175,7 @@ public class Back6 {
                         new BezierLine(
                                 new Pose(x(25.000), 22.000),
 
-                                new Pose(x(12), 9.000)
+                                new Pose(x(20), 9.000)
                         )
                 ).setLinearHeadingInterpolation(heading(30), heading(90))
 
@@ -184,7 +183,7 @@ public class Back6 {
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(12), 9.000),
+                                new Pose(x(20), 9.000),
 
                                 new Pose(x(58.000), 15.000)
                         )
@@ -215,7 +214,7 @@ public class Back6 {
                         new BezierLine(
                                 new Pose(x(14), 10.000),
 
-                                new Pose(x(58.000), 15.000)
+                                new Pose(x(58.000), 10)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
 
