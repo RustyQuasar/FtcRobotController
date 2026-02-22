@@ -48,7 +48,7 @@ public final class Constants {
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
         public static PoseVelocity2d fieldAccel = new PoseVelocity2d(new Vector2d(0, 0), 0);
 
-        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field), -(Sizes.field));
+        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field), -(Sizes.field + 4));
         public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field), (Sizes.field));
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
@@ -59,7 +59,7 @@ public final class Constants {
         public static final double robotHeight = 18;
         public static final double robotLength = 17.496;
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 69;
+        public static final double field = 64;
         public static final double artifactRadius = 2.50;
     }
 
@@ -76,12 +76,8 @@ public final class Constants {
         public static int cameraAngle = 11;
         public static int pipeline = 0;
     }
-    public static double y(double offset){
-        if (TEAM.equals("BLUE")) offset *= -1;
-        return offset;
-    }
     public static double heading(double angle) {
         if (TEAM.equals("BLUE")) angle *= -1;
-                                                                                                                                                                                                              return angle;
+        return angle;
     }
 }

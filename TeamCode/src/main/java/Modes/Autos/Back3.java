@@ -1,10 +1,16 @@
 package Modes.Autos;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
@@ -24,6 +30,9 @@ public class Back3 {
     double lastTime = 0;
 
     public void loop() {
+        follower.update();
+        Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
+        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         if (running) {
             if (!follower.isBusy()) {
                 switch (currentPath) {
@@ -41,7 +50,7 @@ public class Back3 {
                         }
                         break;
                     case 2:
-                        follower.followPath(path, true);
+                        follower.followPath(path);
                         currentPath = 3;
                         break;
                     default:
@@ -59,21 +68,21 @@ public class Back3 {
 
     public void init(HardwareMap hardwareMap, String team) {
         Constants.TEAM = team;
+        Constants.OdometryConstants.fieldPos = new Pose2d(72, 0, Constants.heading(Math.PI/2));
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(88, 8));
+        follower.setStartingPose(new Pose(88, 8, heading(0)));
         path = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
                                 new Pose(x(88.000), 8.000),
-                                new Pose(x(110.000), 8.000)
+                                new Pose(x(120), 8.000)
                         )
                 )
-                .setConstantHeadingInterpolation(follower.getHeading())
+                .setConstantHeadingInterpolation(heading(0))
                 .build();
         vision = new Vision(hardwareMap);
         intake = new SmartIntake(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
-        //odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72 - 8, 72 - x(88), Constants.OdometryConstants.startHeading));
     }
 
     public void init_loop() {

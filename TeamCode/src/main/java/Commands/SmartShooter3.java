@@ -102,11 +102,11 @@ public class SmartShooter3 {
             double botX;
             double botY;
             if (Constants.TEAM.equals("RED")) {
-                botX = llPos.x + limelightOffsets[0] + shooterOffsets[0];
-                botY = llPos.y + limelightOffsets[1] + shooterOffsets[1];
+                botX = llPos.x + limelightOffsets[0] - shooterOffsets[0];
+                botY = llPos.y + limelightOffsets[1] - shooterOffsets[1];
             } else {
-                botX = llPos.x - limelightOffsets[1] - shooterOffsets[1];
-                botY = llPos.y - limelightOffsets[0] - shooterOffsets[0];
+                botX = llPos.x - limelightOffsets[1] + shooterOffsets[1];
+                botY = llPos.y - limelightOffsets[0] + shooterOffsets[0];
             }
 
             Constants.OdometryConstants.fieldPos = new Pose2d(botX, botY, Constants.OdometryConstants.fieldPos.heading.toDouble());
@@ -114,11 +114,11 @@ public class SmartShooter3 {
             xChange = (targetPose.x) - (Constants.OdometryConstants.fieldPos.position.x);
             yChange = (targetPose.y) - (Constants.OdometryConstants.fieldPos.position.y);
             if (Constants.TEAM.equals("RED")){
-                xChange -= shooterOffsets[0];
-                yChange -= shooterOffsets[1];
+                xChange += shooterOffsets[0];
+                yChange += shooterOffsets[1];
             } else {
-                xChange += shooterOffsets[1];
-                yChange += shooterOffsets[0];
+                xChange -= shooterOffsets[1];
+                yChange -= shooterOffsets[0];
             }
             //THEOREM OF PYTHAGORAS
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
@@ -140,7 +140,7 @@ public class SmartShooter3 {
         if (rightTrigger) offset += 4;
     }
     public void transfer(boolean buttonPressed) {
-        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 40)) {
+        if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 35)) {
             transferServo.setPower(-0.4);
         } else {
             transferServo.setPower(1);
@@ -169,7 +169,7 @@ public class SmartShooter3 {
         //SO MUCH METH MATH THE CRACKHEADS ARE JEALOUS
         distance = Math.min(Math.max(distance, 0), 148);
         angle = Math.max((distance - 30), 0) * 0.45;
-        shooterVel = (distance) * 4.52941 + 580;
+        shooterVel = (distance) * 4.55 + 600;
         double totalTicks = Constants.ShooterConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
         targetNeckPos = (int) (turretNeckMotor.getCurrentPosition() + xTurn(angleToTurn, 0, distance, 0));
         targetNeckPos -= (int) (Math.floor(Math.abs(targetNeckPos / totalTicks)) * totalTicks * Math.signum(targetNeckPos));

@@ -7,6 +7,7 @@ import Modes.Autos.FrontGate12;
 import Modes.Autos.SisterFrontAuto;
 
 public class AllianceFrontAutos {
+    /*
     @Autonomous(name = "Red Close 1 Gate", group = "Close Auto")
     public static class RedFrontGate12 extends OpMode {
         FrontGate12 frontGate12 = new FrontGate12();
@@ -39,6 +40,7 @@ public class AllianceFrontAutos {
             frontGate12.start();
         }
     }
+     */
     @Autonomous(name = "Red Close 2 Gate", group = "Close Auto")
     public static class RedSister12 extends OpMode {
         SisterFrontAuto frontGate12 = new SisterFrontAuto();

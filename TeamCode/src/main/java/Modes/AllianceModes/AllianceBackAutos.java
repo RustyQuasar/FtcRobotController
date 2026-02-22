@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import Modes.Autos.Back3;
 import Modes.Autos.Back6;
+import Modes.Autos.Back9;
 
 public class AllianceBackAutos {
     @Autonomous(name = "Red Far 3", group = "Far Auto")
@@ -69,6 +70,38 @@ public class AllianceBackAutos {
         @Override
         public void init_loop(){
             back6.init_loop();
+        }
+    }
+    @Autonomous(name = "Red Far 9", group = "Far Auto")
+    public static class RedBack9 extends OpMode {
+        Back9 back9 = new Back9();
+        @Override
+        public void init(){
+            back9.init(hardwareMap, "RED");
+        }
+        @Override
+        public void loop(){
+            back9.loop();
+        }
+        @Override
+        public void init_loop(){
+            back9.init_loop();
+        }
+    }
+    @Autonomous(name = "Blue Far 9", group = "Far Auto")
+    public static class BlueBack9 extends OpMode {
+        Back9 back9 = new Back9();
+        @Override
+        public void init(){
+            back9.init(hardwareMap, "BLUE");
+        }
+        @Override
+        public void loop(){
+            back9.loop();
+        }
+        @Override
+        public void init_loop(){
+            back9.init_loop();
         }
     }
 }

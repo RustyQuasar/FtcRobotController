@@ -18,20 +18,18 @@ import Subsystems.Vision;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 
-public class Back6 {
+public class Back9 {
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
-    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7;
+    PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10;
     int currentPath = 1;
     double lastTime = 10;
     double pathStartTime = 0;
     boolean lastTimeSet = false;
     boolean running = true;
     double pathCooldown = 1000;
-    final int loops = 2;
-    int loopsComplete = 1;
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
@@ -56,7 +54,6 @@ public class Back6 {
                             shooter.transfer(false);
                         } else {
                             shooter.transfer(true);
-                            Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, Constants.OdometryConstants.fieldPos.heading.toDouble());
                         }
                         break;
                     case 2:
@@ -70,11 +67,6 @@ public class Back6 {
                         currentPath = 4;
                         break;
                     case 4:
-                        pathStartTime = System.currentTimeMillis();
-                        follower.followPath(Path4);
-                        currentPath = 5;
-                        break;
-                    case 5:
                         if (!lastTimeSet){
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
@@ -82,13 +74,18 @@ public class Back6 {
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             shooter.transfer(false);
                             pathStartTime = System.currentTimeMillis();
-                            currentPath = 6;
+                            currentPath = 5;
                             lastTimeSet = false;
-                            follower.followPath(Path5);
+                            follower.followPath(Path4);
                         } else {
                             shooter.transfer(true);
                             intake.intake(true, false);
                         }
+                        break;
+                    case 5:
+                        follower.followPath(Path5);
+                        pathStartTime = System.currentTimeMillis();
+                        currentPath = 6;
                         break;
                     case 6:
                         pathStartTime = System.currentTimeMillis();
@@ -96,30 +93,47 @@ public class Back6 {
                         currentPath = 7;
                         break;
                     case 7:
-                        pathStartTime = System.currentTimeMillis();
-                        follower.followPath(Path7);
-                        currentPath = 8;
+                        if (!lastTimeSet){
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
+                            shooter.transfer(false);
+                            pathStartTime = System.currentTimeMillis();
+                            currentPath = 8;
+                            lastTimeSet = false;
+                            follower.followPath(Path7);
+                        } else {
+                            shooter.transfer(true);
+                            intake.intake(true, false);
+                        }
                         break;
-                        case 8:
-                            if (!lastTimeSet){
-                                lastTime = System.currentTimeMillis();
-                                lastTimeSet = true;
-                            }
-                            if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
-                                shooter.transfer(false);
-                                pathStartTime = System.currentTimeMillis();
-                                if (loopsComplete < loops) {
-                                    currentPath = 6;
-                                    loopsComplete++;
-                                } else {
-                                    currentPath = 9;
-                                }
-                                lastTimeSet = false;
-                            } else {
-                                shooter.transfer(true);
-                                intake.intake(true, false);
-                            }
-                            break;
+                    case 8:
+                        pathStartTime = System.currentTimeMillis();
+                        follower.followPath(Path8);
+                        currentPath = 9;
+                        break;
+                    case 9:
+                        pathStartTime = System.currentTimeMillis();
+                        follower.followPath(Path9);
+                        currentPath = 10;
+                        break;
+                    case 10:
+                        if (!lastTimeSet){
+                            lastTime = System.currentTimeMillis();
+                            lastTimeSet = true;
+                        }
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
+                            shooter.transfer(false);
+                            pathStartTime = System.currentTimeMillis();
+                            currentPath = 11;
+                            lastTimeSet = false;
+                            follower.followPath(Path10);
+                        } else {
+                            shooter.transfer(true);
+                            intake.intake(true, false);
+                        }
+                        break;
                     default: running = false;
                 }
             }
@@ -136,17 +150,16 @@ public class Back6 {
 
     public void init(HardwareMap hardwareMap, String team) {
         Constants.TEAM = team;
-        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, Constants.heading(Math.PI));
         vision = new Vision(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(54), 9, heading(180)));
+        follower.setStartingPose(new Pose( x(64), 9, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(54), 9.000),
+                                new Pose( x(64.000), 9.000),
 
-                                new Pose(x(50.000), 20.000)
+                                new Pose( x(50.000), 35.000)
                         )
                 ).setLinearHeadingInterpolation(heading(180), heading(0))
 
@@ -154,60 +167,91 @@ public class Back6 {
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(50.000), 20.000),
+                                new Pose( x(50.000), 35.000),
 
-                                new Pose(x(25.000), 22.000)
-                        )
-                ).setLinearHeadingInterpolation(heading(0), heading(30))
-
-                .build();
-
-        Path3 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(x(25.000), 22.000),
-
-                                new Pose(x(12), 9.000)
-                        )
-                ).setLinearHeadingInterpolation(heading(30), heading(90))
-
-                .build();
-
-        Path4 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(x(12), 9.000),
-
-                                new Pose(x(58.000), 15.000)
-                        )
-                ).setLinearHeadingInterpolation(heading(90), heading(180))
-
-                .build();
-        Path5 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(x(58.000), 15.000),
-
-                                new Pose(x(56.000), 14.000)
-                        )
-                ).setLinearHeadingInterpolation(heading(180), heading(0))
-
-                .build();
-
-        Path6 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(x(56.000), 14.000),
-
-                                new Pose(x(14), 10.000)
+                                new Pose( x(14.000), 36.000)
                         )
                 ).setConstantHeadingInterpolation(heading(0))
 
                 .build();
 
+        Path6 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose( x(14.000), 36.000),
+
+                                new Pose( x(62.000), 20.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(0), heading(10))
+
+                .build();
+
+        Path5 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose( x(62.000), 20.000),
+
+                                new Pose( x(35.000), 28.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(10), heading(-20))
+
+                .build();
+
+        Path3 = follower.pathBuilder().addPath(
+                        new BezierCurve(
+                                new Pose( x(35.000), 28.000),
+                                new Pose( x(10.000), 30.000),
+                                new Pose( x(10.000), 10.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(-20), heading(90))
+
+                .build();
+
+        Path4 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose( x(10.000), 10.000),
+
+                                new Pose( x(60.000), 15.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(90), heading(45))
+
+                .build();
+
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(14), 10.000),
+                                new Pose( x(60.000), 15.000),
 
-                                new Pose(x(58.000), 15.000)
+                                new Pose( x(42.000), 15.000)
+                        )
+                ).setLinearHeadingInterpolation(heading(45), heading(0))
+
+                .build();
+
+        Path8 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose( x(42.000), 15.000),
+
+                                new Pose( x(12.000), 10.000)
+                        )
+                ).setConstantHeadingInterpolation(heading(0))
+
+                .build();
+
+        Path9 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose( x(12.000), 10.000),
+
+                                new Pose( x(60.000), 18.000)
                         )
                 ).setLinearHeadingInterpolation(heading(0), heading(180))
+
+                .build();
+
+        Path10 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose( x(60.000), 18.000),
+
+                                new Pose( x(40.000), 18.000)
+                        )
+                ).setConstantHeadingInterpolation(180)
 
                 .build();
     }

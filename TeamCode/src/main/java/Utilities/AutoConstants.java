@@ -30,14 +30,14 @@ public final class AutoConstants {
             .forwardZeroPowerAcceleration(-27.369131628964293)
             .lateralZeroPowerAcceleration(-50.83431009168295)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0.0001, 0, 0.001))
-            .headingPIDFCoefficients(new PIDFCoefficients(-1, 0, 0.001, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(-0.8, 0, 0.001, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
             ;
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 10, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 10, 0.736, 1);
     public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
             .forwardTicksToInches(inPerTick)
-            .strafeTicksToInches(inPerTick)
+            .strafeTicksToInches(6.122E-4)
             .turnTicksToInches(0)
             .leftPodY(par1Yin)
             .rightPodY(par0YIn)
