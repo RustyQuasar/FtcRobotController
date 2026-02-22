@@ -32,13 +32,18 @@ public class Back6 {
     double pathCooldown = 1000;
     final int loops = 2;
     int loopsComplete = 1;
+    boolean shooting = true;
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         vision.updateAprilTags();
         if (running) {
-            shooter.aim(true, false);
+            if (shooting) {
+                shooter.aim(true, false);
+            } else {
+                shooter.lockMotors();
+            }
             //also mentions of follower.atParametricEnd() but idk how much to trust that
             if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown || (System.currentTimeMillis() - pathStartTime> 3000)) {
                 switch(currentPath){
@@ -48,15 +53,16 @@ public class Back6 {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
+                        if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime + 1000) {
                             lastTimeSet = false;
                             follower.followPath(Path1);
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 2;
                             shooter.transfer(false);
+                            shooting = false;
                         } else {
                             shooter.transfer(true);
-                            Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, Constants.OdometryConstants.fieldPos.heading.toDouble());
+                            shooting = true;
                         }
                         break;
                     case 2:
@@ -81,6 +87,7 @@ public class Back6 {
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             shooter.transfer(false);
+                            shooting = false;
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 6;
                             lastTimeSet = false;
@@ -88,6 +95,7 @@ public class Back6 {
                         } else {
                             shooter.transfer(true);
                             intake.intake(true, false);
+                            shooting = true;
                         }
                         break;
                     case 6:
@@ -108,6 +116,7 @@ public class Back6 {
                             if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                                 shooter.transfer(false);
                                 pathStartTime = System.currentTimeMillis();
+                                shooting = false;
                                 if (loopsComplete < loops) {
                                     currentPath = 6;
                                     loopsComplete++;
@@ -118,6 +127,7 @@ public class Back6 {
                             } else {
                                 shooter.transfer(true);
                                 intake.intake(true, false);
+                                shooting = true;
                             }
                             break;
                     default: running = false;

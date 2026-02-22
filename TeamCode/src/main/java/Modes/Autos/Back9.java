@@ -30,14 +30,18 @@ public class Back9 {
     boolean lastTimeSet = false;
     boolean running = true;
     double pathCooldown = 1000;
+    boolean shooting = true;
     public void loop() {
         follower.update();
         Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         vision.updateAprilTags();
         if (running) {
-            shooter.aim(true, false);
-            //also mentions of follower.atParametricEnd() but idk how much to trust that
+            if (shooting) {
+                shooter.aim(true, false);
+            } else {
+                shooter.lockMotors();
+            }            //also mentions of follower.atParametricEnd() but idk how much to trust that
             if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown || (System.currentTimeMillis() - pathStartTime> 3000)) {
                 switch(currentPath){
                     case 1:
@@ -52,8 +56,10 @@ public class Back9 {
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 2;
                             shooter.transfer(false);
+                            shooting = false;
                         } else {
                             shooter.transfer(true);
+                            shooting = true;
                         }
                         break;
                     case 2:
@@ -73,12 +79,14 @@ public class Back9 {
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             shooter.transfer(false);
+                            shooting = false;
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 5;
                             lastTimeSet = false;
                             follower.followPath(Path4);
                         } else {
                             shooter.transfer(true);
+                            shooting = true;
                             intake.intake(true, false);
                         }
                         break;
@@ -99,12 +107,14 @@ public class Back9 {
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             shooter.transfer(false);
+                            shooting = false;
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 8;
                             lastTimeSet = false;
                             follower.followPath(Path7);
                         } else {
                             shooter.transfer(true);
+                            shooting = true;
                             intake.intake(true, false);
                         }
                         break;
@@ -125,6 +135,7 @@ public class Back9 {
                         }
                         if (System.currentTimeMillis() - lastTime > AutoConstants.farShootTime) {
                             shooter.transfer(false);
+                            shooting = false;
                             pathStartTime = System.currentTimeMillis();
                             currentPath = 11;
                             lastTimeSet = false;
@@ -132,6 +143,7 @@ public class Back9 {
                         } else {
                             shooter.transfer(true);
                             intake.intake(true, false);
+                            shooting = true;
                         }
                         break;
                     default: running = false;

@@ -177,7 +177,7 @@ public class FrontGate12 {
         }
     }
     public void start(){
-        follower.setPose(new Pose(x(29), 135, heading(180)));
+        follower.setPose(new Pose(x(27), 135, heading(180)));
         pathStartTime = System.currentTimeMillis();
         follower.followPath(Path1);
     }
@@ -189,10 +189,10 @@ public class FrontGate12 {
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(x(29), 135, heading(180)));
+        follower.setStartingPose(new Pose(x(27), 135, heading(180)));
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(32.000), 136.000),
+                                new Pose(x(27), 136.000),
 
                                 new Pose(x(53.000), 84.000)
                         )
