@@ -46,7 +46,7 @@ public class FrontGate12 {
             }
         }        if (running) {
             //also mentions of follower.atParametricEnd() but idk how much to trust that
-            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
+            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown || (System.currentTimeMillis() - pathStartTime> 3000)) {
                 switch(currentPath){
                     case 1:
                         intake.intake(true, false);

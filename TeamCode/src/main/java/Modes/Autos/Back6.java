@@ -40,7 +40,7 @@ public class Back6 {
         if (running) {
             shooter.aim(true, false);
             //also mentions of follower.atParametricEnd() but idk how much to trust that
-            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown) {
+            if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown || (System.currentTimeMillis() - pathStartTime> 3000)) {
                 switch(currentPath){
                     case 1:
                         intake.intake(true, false);
@@ -164,7 +164,7 @@ public class Back6 {
                         new BezierLine(
                                 new Pose(x(25.000), 22.000),
 
-                                new Pose(x(10.5), 9.000)
+                                new Pose(x(12), 9.000)
                         )
                 ).setLinearHeadingInterpolation(heading(30), heading(90))
 
@@ -172,7 +172,7 @@ public class Back6 {
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(x(10.5), 9.000),
+                                new Pose(x(12), 9.000),
 
                                 new Pose(x(58.000), 15.000)
                         )

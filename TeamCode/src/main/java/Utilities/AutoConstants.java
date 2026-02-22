@@ -21,7 +21,7 @@ public final class AutoConstants {
     public static final double closeShootTime = 1300;
     public static final double farShootTime = 2000;
     public static final double gateHoldTime = 500;
-    public static double inPerTick = (5.856422408217959E-4 + 5.910703012522641E-4 + 5.803648488060199E-4 + 5.819446164942314E-4 + 5.831955874526663E-4 + 5.758567437351553E-4 + 5.838536067503198E-4) / 7;
+    public static double inPerTick = (6.039002650352243E-4 + 5.876961416916444E-4 + 5.881017982674494E-4) / 3;
     public static double par0YIn = 1.922; // y position of the first parallel encoder (in tick units)
     public static double par1Yin = -1.922; // y position of the second parallel encoder (in tick units)
     public static double perpXIn = 4.222; // x position of the perpendicular encoder (in tick units)
@@ -30,7 +30,7 @@ public final class AutoConstants {
             .forwardZeroPowerAcceleration(-27.369131628964293)
             .lateralZeroPowerAcceleration(-50.83431009168295)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0.0001, 0, 0.001))
-            .headingPIDFCoefficients(new PIDFCoefficients(-0.9, 0.0006, 0, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(-1, 0, 0.001, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
             ;
 
@@ -38,7 +38,7 @@ public final class AutoConstants {
     public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
             .forwardTicksToInches(inPerTick)
             .strafeTicksToInches(inPerTick)
-            .turnTicksToInches(-0.001809168299744426)
+            .turnTicksToInches(0)
             .leftPodY(par1Yin)
             .rightPodY(par0YIn)
             .strafePodX(perpXIn)

@@ -71,7 +71,7 @@ public class SmartShooter3 {
     }
     public void turretFingerTester(boolean pressed){
         if (pressed) {finger.setPosition(0.01);}
-        else {finger.setPosition(0.6);}
+        else {finger.setPosition(0.8);}
     }
 
     public void aim(boolean autoAim, boolean shotTuning) {
@@ -141,7 +141,7 @@ public class SmartShooter3 {
     }
     public void transfer(boolean buttonPressed) {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 40)) {
-            transferServo.setPower(-0.2);
+            transferServo.setPower(-0.4);
         } else {
             transferServo.setPower(1);
         }
@@ -150,7 +150,7 @@ public class SmartShooter3 {
         if (!buttonPressed || !(Math.abs(leftShooter.getVelocity() - shooterVel) < 50)) {
             finger.setPosition(0.01);
         } else {
-            finger.setPosition(0.6);
+            finger.setPosition(0.8);
         }
     }
 

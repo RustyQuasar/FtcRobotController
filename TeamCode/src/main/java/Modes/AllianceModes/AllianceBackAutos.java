@@ -7,7 +7,6 @@ import Modes.Autos.Back3;
 import Modes.Autos.Back6;
 
 public class AllianceBackAutos {
-    /*
     @Autonomous(name = "Red Far 3", group = "Far Auto")
     public static class RedBack3 extends OpMode {
         Back3 back3 = new Back3();
@@ -40,8 +39,6 @@ public class AllianceBackAutos {
             back3.init_loop();
         }
     }
-
-     */
     @Autonomous(name = "Red Far 6", group = "Far Auto")
     public static class RedBack6 extends OpMode {
         Back6 back6 = new Back6();
