@@ -19,10 +19,10 @@ public class SmartIntake {
     }
 
     public void intake(boolean trigger, boolean a, boolean shooting) {
-        double motorPower = 1;
+        double motorPower = 0.4;
         if (!trigger && a) motorPower *= -1;
         if (shooting) motorPower = 1;
-        boolean buttonPressed = trigger || a || shooting;
+        boolean buttonPressed = trigger || a;
         if (buttonPressed) {
             motorIntake.setPower(motorPower);
         } else {
