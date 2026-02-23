@@ -1,38 +1,38 @@
-package Modes;
+package Modes.Autos;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import Commands.SmartIntake;
 import Commands.SmartShooter3;
 import Subsystems.Vision;
+import Utilities.AutoConstants;
 import Utilities.Constants;
 
-@Autonomous(name = "Back Autonomous", group = "Auto")
-public class BackAuto extends OpMode {
+public class Back3 {
     public static Follower follower;
     SmartIntake intake;
     SmartShooter3 shooter;
-    //ThreeDeadWheelLocalizer odometry;
     Vision vision;
-
     PathChain path;
-
     int currentPath = 1;
     boolean running = true;
     boolean lastTimeSet = false;
     double lastTime = 0;
 
-    @Override
     public void loop() {
-        //odometry.update();
-        shooter.telemetry(telemetry);
-        telemetry.update();
         follower.update();
+        Pose2D followerPose = PoseConverter.poseToPose2D(follower.getPose(), FTCCoordinates.INSTANCE);
+        Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         if (running) {
             if (!follower.isBusy()) {
                 switch (currentPath) {
@@ -41,7 +41,7 @@ public class BackAuto extends OpMode {
                             lastTime = System.currentTimeMillis();
                             lastTimeSet = true;
                         }
-                        if (System.currentTimeMillis() - lastTime < AutoConstants.farShootTime) {
+                        if (System.currentTimeMillis() - lastTime < AutoConstants.farShootTime + 1000) {
                             shooter.transfer(true);
                             intake.intake(true, true);
                         } else {
@@ -50,7 +50,7 @@ public class BackAuto extends OpMode {
                         }
                         break;
                     case 2:
-                        follower.followPath(path, true);
+                        follower.followPath(path);
                         currentPath = 3;
                         break;
                     default:
@@ -58,7 +58,7 @@ public class BackAuto extends OpMode {
                         break;
                 }
             }
-            shooter.aim(true);
+            shooter.aim(true, false);
             vision.updateAprilTags();
         } else {
             shooter.chill();
@@ -66,36 +66,28 @@ public class BackAuto extends OpMode {
         }
     }
 
-    @Override
-    public void start() {
-        //follower.followPath(path);
-    }
-
-    @Override
-    public void init() {
-        Constants.OdometryConstants.fieldPos = Constants.OdometryConstants.startPos;
+    public void init(HardwareMap hardwareMap, String team) {
+        Constants.TEAM = team;
+        Constants.OdometryConstants.fieldPos = new Pose2d(72, 0, Constants.heading(Math.PI/2));
         follower = AutoConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(88, 8));
+        follower.setStartingPose(new Pose(88, 8, heading(0)));
         path = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(88.000, 8.000),
-                                new Pose(110.000, 8.000)
+                                new Pose(x(88.000), 8.000),
+                                new Pose(x(120), 8.000)
                         )
                 )
-                .setConstantHeadingInterpolation(follower.getHeading())
+                .setConstantHeadingInterpolation(heading(0))
                 .build();
         vision = new Vision(hardwareMap);
         intake = new SmartIntake(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
-        //odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(72 - 8, 72 - x(88), Constants.OdometryConstants.startHeading));
     }
 
-    @Override
     public void init_loop() {
         follower.update();
         vision.updateAprilTags();
-        //shooter.aim(true);
     }
 
     public static double x(double offset) {

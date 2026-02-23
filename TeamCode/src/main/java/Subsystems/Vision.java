@@ -27,7 +27,7 @@ public class Vision {
         return result;
     }
     public boolean hasTarget(){
-        return result.isValid();
+        return result.isValid() && limelight.isConnected() && limelight.isRunning();
     }
 
     public void updateAprilTags() {
@@ -39,7 +39,7 @@ public class Vision {
     public Vector2d getPose(double neckHeading) {
         limelight.updateRobotOrientation(Math.toDegrees(neckHeading));
         Pose3D botpose = result.getBotpose_MT2();
-        return new Vector2d(botpose.getPosition().x / 0.0254, botpose.getPosition().y / 0.0254);
+        return new Vector2d(botpose.getPosition().x * 39.37007874, botpose.getPosition().y * 39.37007874);
     }
 
     public String[] setColours() {

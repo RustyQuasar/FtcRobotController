@@ -1,4 +1,4 @@
-package Modes;
+package Utilities;
 
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
@@ -18,27 +18,27 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Utilities.Constants;
 
 public final class AutoConstants {
-    public static final double closeShootTime = 3000;
-    public static final double farShootTime = 8000;
-    public static double inPerTick = 5.821839449595532E-4;
-
-    public static double par0YIn = 1.6755; // y position of the first parallel encoder (in tick units)
-    public static double par1Yin = -1.6755; // y position of the second parallel encoder (in tick units)
-    public static double perpXIn = 4.7905; // x position of the perpendicular encoder (in tick units)
+    public static final double closeShootTime = 1300;
+    public static final double farShootTime = 2000;
+    public static final double gateHoldTime = 500;
+    public static double inPerTick = (6.039002650352243E-4 + 5.876961416916444E-4 + 5.881017982674494E-4) / 3;
+    public static double par0YIn = 1.922; // y position of the first parallel encoder (in tick units)
+    public static double par1Yin = -1.922; // y position of the second parallel encoder (in tick units)
+    public static double perpXIn = 4.222; // x position of the perpendicular encoder (in tick units)
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(13.8345673)
-            .forwardZeroPowerAcceleration(-35.95520021883105)
-            .lateralZeroPowerAcceleration(-66.04964580307788)
+            .mass(14.74175)
+            .forwardZeroPowerAcceleration(-27.369131628964293)
+            .lateralZeroPowerAcceleration(-50.83431009168295)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0.0001, 0, 0.001))
-            .headingPIDFCoefficients(new PIDFCoefficients(-1, 0.001, 0, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(-0.8, 0, 0.001, 0))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
             ;
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 10, 0.736, 1);
     public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
             .forwardTicksToInches(inPerTick)
-            .strafeTicksToInches(inPerTick)
-            .turnTicksToInches(-0.001809168299744426)
+            .strafeTicksToInches(6.122E-4)
+            .turnTicksToInches(0)
             .leftPodY(par1Yin)
             .rightPodY(par0YIn)
             .strafePodX(perpXIn)
@@ -60,8 +60,8 @@ public final class AutoConstants {
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .xVelocity(57.61983042691041) //Forward vel
-            .yVelocity(44.164066192513644)
+            .xVelocity(62.339783684715904) //Forward vel
+            .yVelocity(46.41357453228209)
             ;
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

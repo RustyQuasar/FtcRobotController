@@ -5,10 +5,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 public final class Constants {
-    public static final String TEAM =
-            "RED"
-            //"BLUE"
-            ; //Has to be "RED" or "BLUE"
+    public static String TEAM;
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
 
@@ -35,12 +32,13 @@ public final class Constants {
 
     public static final class ShooterConstants {
         public static final int hoodMax = 255;
+        public static final double flyWheelDiameter = 3;
         public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
         public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
-        public static final double turretNeckGearRatio = 19.2 * 197 / 35; //Gear multiplier
+        public static final double turretNeckGearRatio = 19.2 * 197 / 36; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public static final double maxHeadAngle = 50;
         public static final double maxNeckAngle = 90;
@@ -48,15 +46,12 @@ public final class Constants {
     public static final class OdometryConstants{
         public static Pose2d fieldPos = new Pose2d(0, 0, 0);
         public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field - 2), -(Sizes.field));
-        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field) - 2, (Sizes.field));
-        public static final Vector2d targetPosMotif = new Vector2d(Sizes.field, 0);
+        public static PoseVelocity2d fieldAccel = new PoseVelocity2d(new Vector2d(0, 0), 0);
+
+        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field), -(Sizes.field + 4));
+        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field), (Sizes.field));
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
-        public static double startHeading = heading(Math.PI/2);
-        public static Pose2d startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset * 2), startHeading);
-
-        public static Pose2d endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset + 12), startHeading);
         public static boolean[] directions = new boolean[2];
     }
     public static final class Sizes {
@@ -64,7 +59,7 @@ public final class Constants {
         public static final double robotHeight = 18;
         public static final double robotLength = 17.496;
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 69;
+        public static final double field = 66;
         public static final double artifactRadius = 2.50;
     }
 
@@ -81,11 +76,7 @@ public final class Constants {
         public static int cameraAngle = 11;
         public static int pipeline = 0;
     }
-    public static double y(double offset){
-        if (TEAM.equals("BLUE")) offset *= -1;
-        return offset;
-    }
-    private static double heading(double angle) {
+    public static double heading(double angle) {
         if (TEAM.equals("BLUE")) angle *= -1;
         return angle;
     }
