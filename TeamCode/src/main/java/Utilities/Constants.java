@@ -54,7 +54,7 @@ public final class Constants {
         public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
         public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
         public static double startHeading = heading(Math.PI/2);
-        public static Pose2d startPos = new Pose2d(-72, 0, startHeading);
+        public static Pose2d startPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset * 2), startHeading);
 
         public static Pose2d endPos = new Pose2d(Constants.OdometryConstants.resetPosBlue.x, y(Sizes.robotOffset + 12), startHeading);
         public static boolean[] directions = new boolean[2];

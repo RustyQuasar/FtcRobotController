@@ -42,7 +42,8 @@ public class BackAuto extends OpMode {
                             lastTimeSet = true;
                         }
                         if (System.currentTimeMillis() - lastTime < AutoConstants.farShootTime) {
-                            intake.intake(false, false, shooter.transfer(true));
+                            shooter.transfer(true);
+                            intake.intake(true, true);
                         } else {
                             shooter.transfer(false);
                             currentPath = 2;
@@ -61,7 +62,7 @@ public class BackAuto extends OpMode {
             vision.updateAprilTags();
         } else {
             shooter.chill();
-            intake.intake(false, false, false);
+            intake.intake(false, false);
         }
     }
 
