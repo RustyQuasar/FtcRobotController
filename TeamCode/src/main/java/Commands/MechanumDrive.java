@@ -33,22 +33,7 @@ public class MechanumDrive {
     }
 
     public void drive(double driveY, double driveX, double rotation) {
-        double offsetHeading =
-                Constants.heading(Math.PI/2);
-                //0;
-        if (offsetHeading < 0) offsetHeading += 2 * Math.PI;
-        double botHeading = Constants.OdometryConstants.fieldPos.heading.toDouble() - offsetHeading;
-
-        if (driveY > 0){
-            Constants.OdometryConstants.directions[0] = true;
-        } else if (driveY < 0) {
-            Constants.OdometryConstants.directions[0] = false;
-        }
-        if (driveX > 0){
-            Constants.OdometryConstants.directions[1] = true;
-        } else if (driveX < 0) {
-            Constants.OdometryConstants.directions[1] = false;
-        }
+        double botHeading = 0;
 
         // Rotate the movement direction counter to the bot's rotation
         double sin = Math.sin(-botHeading);
@@ -72,7 +57,6 @@ public class MechanumDrive {
 
     public void telemetry(Telemetry telemetry) {
         telemetry.addLine("Drive train");
-        telemetry.addData("Heading: ", Math.toDegrees(Constants.OdometryConstants.fieldPos.heading.toDouble()));
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());

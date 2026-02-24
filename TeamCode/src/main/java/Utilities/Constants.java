@@ -9,10 +9,6 @@ public final class Constants {
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
 
-
-    public static final class ElevatorConstants {
-        public static final String elevator = "elevator"; //Control hub Servo port 1
-    }//TEST
     public static final class DriveTrainConstants {
 
         //Wheel constants (Studica Mavericks)
@@ -23,37 +19,6 @@ public final class Constants {
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
     }
-
-    public static final class IntakeConstants {
-        public static final String intake = "intake"; //Expansion hub Motor port 0
-        public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
-        public static final String transferServo2 = "transferServo2"; //Expansion hub Servo port 3
-    }
-
-    public static final class ShooterConstants {
-        public static final int hoodMax = 255;
-        public static final double flyWheelDiameter = 3;
-        public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
-        public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
-        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
-        public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
-        public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
-        public static final double turretNeckGearRatio = 19.2 * 197 / 36; //Gear multiplier
-        public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
-        public static final double maxHeadAngle = 50;
-        public static final double maxNeckAngle = 90;
-    }
-    public static final class OdometryConstants{
-        public static Pose2d fieldPos = new Pose2d(0, 0, 0);
-        public static PoseVelocity2d fieldVels = new PoseVelocity2d(new Vector2d(0, 0), 0);
-        public static PoseVelocity2d fieldAccel = new PoseVelocity2d(new Vector2d(0, 0), 0);
-
-        public static final Vector2d targetPosBlue = new Vector2d(-(Sizes.field), -(Sizes.field + 4));
-        public static final Vector2d targetPosRed = new Vector2d(-(Sizes.field), (Sizes.field));
-        public static final Vector2d resetPosRed = new Vector2d((Sizes.field - Sizes.robotOffset), (Sizes.field - Sizes.robotOffset));
-        public static final Vector2d resetPosBlue = new Vector2d((Sizes.field - Sizes.robotOffset), -(Sizes.field - Sizes.robotOffset));
-        public static boolean[] directions = new boolean[2];
-    }
     public static final class Sizes {
         public static final double robotWidth = 15.586;
         public static final double robotHeight = 18;
@@ -61,20 +26,6 @@ public final class Constants {
         public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
         public static final double field = 66;
         public static final double artifactRadius = 2.50;
-    }
-
-    public static final class VisionConstants {
-        //Webcam
-        public static double shooterCamDist =0;//inch
-        public static double shooterCenterDist =0;//inch
-        public static final String camera = "Webcam"; //USB port
-        public static final int resX = 320;
-        public static final int resY = 240;
-        public static final int FOV = 54;
-        public static final double inOffset = 4.798 + 0.5;
-        public static String[] colours = {"N", "N", "N"};
-        public static int cameraAngle = 11;
-        public static int pipeline = 0;
     }
     public static double heading(double angle) {
         if (TEAM.equals("BLUE")) angle *= -1;
