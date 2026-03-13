@@ -1,5 +1,6 @@
 package Commands;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,6 +12,8 @@ import Utilities.Constants;
 public class MechanumDrive {
 
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
+    private final BNO055IMU imu;
+    private double headingOffset = 0;
     public MechanumDrive(HardwareMap hardwareMap) {
         frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
         frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
@@ -30,10 +33,24 @@ public class MechanumDrive {
         frontRight1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
 
+        imu = hardwareMap.get(BNO055IMU.class, Constants.DriveTrainConstants.imu);
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        imu.initialize(parameters);
+        
+    }
+    public double getRawHeading() {
+        return imu.getAngularOrientation().firstAngle;
+    }
+    public void resetIMU() {
+        headingOffset = getRawHeading();
+    }
+    public double getHeading() {
+        return getRawHeading() - headingOffset + Constants.heading(Math.PI/2);
+    }
     public void drive(double driveY, double driveX, double rotation) {
-        double botHeading = 0;
+        double botHeading = getHeading() - Constants.heading(Math.PI/2);
 
         // Rotate the movement direction counter to the bot's rotation
         double sin = Math.sin(-botHeading);
@@ -56,7 +73,6 @@ public class MechanumDrive {
     }
 
     public void telemetry(Telemetry telemetry) {
-        telemetry.addLine("Drive train");
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());

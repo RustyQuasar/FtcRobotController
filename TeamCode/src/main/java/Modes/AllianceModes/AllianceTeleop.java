@@ -1,10 +1,9 @@
 package Modes.AllianceModes;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import Modes.Teleops.Teleop;
+import Modes.Ops.Teleop;
 
 public class AllianceTeleop {
     @TeleOp(name = "Red TeleOp", group = "Teleop")
@@ -16,7 +15,7 @@ public class AllianceTeleop {
         }
         @Override
         public void loop() {
-            teleop.run(gamepad1);
+            teleop.run(gamepad1, gamepad2);
         }
     }
 
@@ -29,7 +28,7 @@ public class AllianceTeleop {
         }
         @Override
         public void loop() {
-            teleop.run(gamepad1);
+            teleop.run(gamepad1, gamepad2);
         }
     }
 }
