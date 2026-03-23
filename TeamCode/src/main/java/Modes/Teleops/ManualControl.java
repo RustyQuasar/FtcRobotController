@@ -55,7 +55,7 @@ public class ManualControl {
         } else {
             telemetry.addData("State: ", "Shot tuning");
             Shooter.overrideTransfer(true);
-            Shooter.aim(false, true);
+            Shooter.calculateAim(false, true);
             if (gamepad1.right_bumper) {
                 shooterVel += 4;
             } else if (gamepad1.left_bumper) {

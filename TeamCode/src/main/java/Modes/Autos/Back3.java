@@ -58,7 +58,7 @@ public class Back3 {
                         break;
                 }
             }
-            shooter.aim(true, false);
+            shooter.calculateAim(true, false);
             vision.updateAprilTags();
         } else {
             shooter.chill();

@@ -38,9 +38,9 @@ public class Back9 {
         vision.updateAprilTags();
         if (running) {
             if (shooting) {
-                shooter.aim(true, false);
+                shooter.calculateAim(true, false);
             } else {
-                shooter.lockMotors();
+                shooter.updateHardware();
             }            //also mentions of follower.atParametricEnd() but idk how much to trust that
             if ((!follower.isBusy()) && System.currentTimeMillis() - pathStartTime > pathCooldown || (System.currentTimeMillis() - pathStartTime> 3000)) {
                 switch(currentPath){

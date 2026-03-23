@@ -13,8 +13,9 @@ import Subsystems.ThreeDeadWheelLocalizer;
 import Subsystems.Vision;
 import Utilities.Constants;
 
-public class Teleop {
-    Gamepad activeGamepad1;
+public class Teleop{
+    Runnable shooterCalculations;
+    Gamepad driver;
     MechanumDrive Mechanum;
     SmartIntake Intake;
     SmartShooter3 Shooter;
@@ -26,37 +27,47 @@ public class Teleop {
         Constants.TEAM = team;
         odometry = new ThreeDeadWheelLocalizer(hardwareMap, new Pose2d(new Vector2d(0, 0), Constants.heading(Math.PI/2)));
         odometry.update();
-        activeGamepad1 = new Gamepad();
+        driver = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
         Vision = new Vision(hardwareMap);
         Intake = new SmartIntake(hardwareMap);
         Shooter = new SmartShooter3(hardwareMap, Vision);
+        shooterCalculations = new Runnable() {
+            @Override
+            public void run() {
+                Shooter.calculateAim(autoNeck, false);
+                Vision.updateAprilTags();
+            }
+        };
     }
-    public void run(Gamepad gamepad1) {
-            odometry.update();
-            Vision.updateAprilTags();
-            if (gamepad1.dpad_up != upLastState && gamepad1.dpad_up) {
-                autoNeck = !autoNeck;
-            }
-            upLastState = gamepad1.dpad_up;
-            Shooter.aim(autoNeck, false);
-            activeGamepad1.copy(gamepad1);
-            Intake.intake(activeGamepad1.right_trigger > 0.5, activeGamepad1.a);
-            Shooter.transfer(activeGamepad1.left_trigger > 0.3);
-            Shooter.manualOffset(activeGamepad1.left_bumper, activeGamepad1.right_bumper);
-            Mechanum.drive(
-                    -gamepad1.left_stick_y,
-                    gamepad1.left_stick_x,
-                    -gamepad1.right_stick_x
-            );
-            if (activeGamepad1.dpad_down) {
-                odometry.resetYaw();
-            }
-            if (activeGamepad1.dpad_left) {
-                Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosBlue, Constants.OdometryConstants.fieldPos.heading);
-            }
-            if (activeGamepad1.dpad_right){
-                Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
-            }
+    public void run(Gamepad newDriver){
+        Shooter.updateVariables();
+        shooterCalculations.run();
+        Shooter.updateHardware();
+        driver.copy(newDriver);
+        odometry.update();
+        if (driver.dpad_up != upLastState && driver.dpad_up) {
+            autoNeck = !autoNeck;
+        }
+        upLastState = driver.dpad_up;
+        driver.copy(driver);
+        Intake.intake(driver.right_trigger > 0.5, driver.a);
+        Shooter.transfer(driver.left_trigger > 0.3);
+        Shooter.manualOffset(driver.left_bumper, driver.right_bumper);
+        Mechanum.drive(
+                -driver.left_stick_y,
+                driver.left_stick_x,
+                -driver.right_stick_x
+        );
+        if (driver.dpad_down) {
+            odometry.resetYaw();
+        }
+        if (driver.dpad_left) {
+            Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosBlue, Constants.OdometryConstants.fieldPos.heading);
+        }
+        if (driver.dpad_right){
+            Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.resetPosRed, Constants.OdometryConstants.fieldPos.heading);
+        }
     }
+ 
 }

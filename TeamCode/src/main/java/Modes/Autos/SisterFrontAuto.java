@@ -20,6 +20,7 @@ import Utilities.Constants;
 
 public class SisterFrontAuto {
     public static Follower follower;
+    Runnable shooterCalculations;
     SmartIntake intake;
     SmartShooter3 shooter;
     Vision vision;
@@ -38,12 +39,11 @@ public class SisterFrontAuto {
         vision.updateAprilTags();
         if (running) {
             if (shooting) {
-                shooter.aim(true, false);
+                shooterCalculations.run();
             } else {
                 if (currentPath >= 10){
-                    shooter.aim(false, false);
-                } else {
-                    shooter.lockMotors();
+                    shooter.calculateAim(false, false);
+                    shooter.updateHardware();
                 }
             }
             //also mentions of follower.atParametricEnd() but idk how much to trust that
@@ -190,6 +190,13 @@ public class SisterFrontAuto {
         vision = new Vision(hardwareMap);
         shooter = new SmartShooter3(hardwareMap, vision);
         intake = new SmartIntake(hardwareMap);
+        shooterCalculations = new Runnable() {
+            @Override
+            public void run() {
+                shooter.calculateAim(true, false);
+                vision.updateAprilTags();
+            }
+        };
         follower = AutoConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose( x( 30), 136, heading(180)));
         Path1 = follower.pathBuilder().addPath(

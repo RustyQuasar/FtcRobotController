@@ -37,12 +37,12 @@ public class FrontGate12 {
         Constants.OdometryConstants.fieldPos = new Pose2d(Constants.OdometryConstants.fieldPos.position, followerPose.getHeading(AngleUnit.RADIANS) - Math.PI);
         vision.updateAprilTags();
         if (shooting) {
-            shooter.aim(true, false);
+            shooter.calculateAim(true, false);
         } else {
             if (currentPath >= 10){
-                shooter.aim(false, false);
+                shooter.calculateAim(false, false);
             } else {
-                shooter.lockMotors();
+                shooter.updateHardware();
             }
         }        if (running) {
             //also mentions of follower.atParametricEnd() but idk how much to trust that
