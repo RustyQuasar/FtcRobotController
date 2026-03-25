@@ -49,6 +49,9 @@ public class MechanumDrive {
     public double getHeading() {
         return getRawHeading() - headingOffset + Constants.heading(Math.PI/2);
     }
+    public boolean at1Meter(){
+        return backRight3.getCurrentPosition() < -220;
+    }
     public void drive(double driveY, double driveX, double rotation) {
         double botHeading = getHeading() - Constants.heading(Math.PI/2);
 
@@ -73,6 +76,7 @@ public class MechanumDrive {
     }
 
     public void telemetry(Telemetry telemetry) {
+        telemetry.addData("Position: ", backRight3.getCurrentPosition());
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());

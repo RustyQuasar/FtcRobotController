@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import Commands.Collector;
 import Commands.Elevator;
 import Commands.MechanumDrive;
 import Utilities.Constants;
@@ -18,13 +19,15 @@ public class Teleop {
     Gamepad driver, operator;
     MechanumDrive Mechanum;
     Elevator Elevator;
-    boolean aLastState = true;
+    Collector Collector;
+    boolean aLastState, bLastState = true;
     public void init(HardwareMap hardwareMap, String team){
         Constants.TEAM = team;
         driver = new Gamepad();
         operator = new Gamepad();
         Mechanum = new MechanumDrive(hardwareMap);
         Elevator = new Elevator(hardwareMap);
+        Collector = new Collector(hardwareMap);
         Mechanum.resetIMU();
     }
     public void run(Gamepad gamepad1, Gamepad gamepad2) {
@@ -35,15 +38,14 @@ public class Teleop {
                     driver.left_stick_x,
                     -driver.right_stick_x
             );
-            if (operator.right_bumper || operator.left_bumper) {
-                Elevator.control(operator.left_bumper, operator.right_bumper);
-            } else if (operator.a && !aLastState) {
-                Elevator.swapState();
-            }
+            Collector.raiseControl(operator.left_bumper, operator.right_bumper);
+            Elevator.swapElevation(operator.a && !aLastState);
+            Collector.clawSwitchState(operator.b && !bLastState);
             if (driver.dpad_down){
                 Mechanum.resetIMU();
             }
             aLastState = operator.a;
+            bLastState = operator.b;
         Mechanum.telemetry(telemetry);
         telemetry.addData("Joystick values: ", driver.left_stick_x + " " + driver.left_stick_y);
         telemetry.update();
