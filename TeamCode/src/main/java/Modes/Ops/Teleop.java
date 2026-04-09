@@ -36,11 +36,11 @@ public class Teleop {
             Mechanum.drive(
                     -driver.left_stick_y,
                     driver.left_stick_x,
-                    -driver.right_stick_x
+                    driver.right_stick_x
             );
             Collector.raiseControl(operator.left_bumper, operator.right_bumper);
             Elevator.swapElevation(operator.a && !aLastState);
-            Collector.clawSwitchState(operator.b && !bLastState);
+            Collector.collect(operator.b && !bLastState);
             if (driver.dpad_down){
                 Mechanum.resetIMU();
             }

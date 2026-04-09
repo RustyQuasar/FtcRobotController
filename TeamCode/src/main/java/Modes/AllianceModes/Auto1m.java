@@ -8,7 +8,7 @@ import Modes.Ops.OneMeterAuto;
 import Modes.Ops.Teleop;
 
 public class Auto1m {
-    @Autonomous(name = "1 meter Auto", group = "Teleop")
+    @Autonomous(name = "Bad Auto", group = "Teleop")
     public static class OneMAuto extends OpMode {
         OneMeterAuto auto = new OneMeterAuto();
         @Override
