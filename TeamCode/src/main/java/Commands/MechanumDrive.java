@@ -1,6 +1,7 @@
 package Commands;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,13 +13,18 @@ import Utilities.Constants;
 public class MechanumDrive {
 
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
+    private final RevColorSensorV3 leftSensor, rightSensor;
     private final BNO055IMU imu;
     private double headingOffset = 0;
+    private boolean leftActive = false;
     public MechanumDrive(HardwareMap hardwareMap) {
         frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
         frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
         backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor);
         backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor);
+        leftSensor = hardwareMap.get(RevColorSensorV3.class, Constants.DriveTrainConstants.leftSensor);
+        rightSensor = hardwareMap.get(RevColorSensorV3.class, Constants.DriveTrainConstants.rightSensor);
+
         frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft2.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -39,6 +45,7 @@ public class MechanumDrive {
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
 
+        leftActive = Constants.TEAM.equals("RED");
     }
     public double getRawHeading() {
         return imu.getAngularOrientation().firstAngle;
@@ -72,6 +79,13 @@ public class MechanumDrive {
         frontRight1.setPower(frontRightPower);
         backLeft2.setPower(backLeftPower);
         backRight3.setPower(backRightPower);
+    }
+
+    public boolean coneBeside(){
+        if (leftActive) {
+            return leftSensor.red() > 100;
+        }
+        return rightSensor.red() > 100;
     }
 
     public void telemetry(Telemetry telemetry) {

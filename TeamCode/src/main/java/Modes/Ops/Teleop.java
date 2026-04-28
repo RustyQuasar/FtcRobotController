@@ -39,8 +39,9 @@ public class Teleop {
                     driver.right_stick_x
             );
             Collector.raiseControl(operator.left_bumper, operator.right_bumper);
-            Elevator.swapElevation(operator.a && !aLastState);
+            Elevator.raiseControl(operator.dpad_up, operator.dpad_down);
             Collector.collect(operator.b && !bLastState);
+            Collector.armControl(operator.left_stick_x, -operator.left_stick_y);
             if (driver.dpad_down){
                 Mechanum.resetIMU();
             }
@@ -48,6 +49,8 @@ public class Teleop {
             bLastState = operator.b;
         Mechanum.telemetry(telemetry);
         telemetry.addData("Joystick values: ", driver.left_stick_x + " " + driver.left_stick_y);
+        Collector.telemetry(telemetry);
+        Elevator.telemetry(telemetry);
         telemetry.update();
     }
 }

@@ -7,6 +7,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.ftc.localization.constants.TwoWheelConstants;
 import com.pedropathing.paths.PathConstraints;
@@ -28,8 +29,7 @@ public final class AutoConstants {
             .lateralZeroPowerAcceleration(-50.83431009168295)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0.0001, 0, 0.001))
             .headingPIDFCoefficients(new PIDFCoefficients(-0.8, 0, 0.001, 0))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01))
-            ;
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.00001, 0.6, 0.01));
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 10, 0.736, 1);
     public static TwoWheelConstants localizerConstants = new TwoWheelConstants()

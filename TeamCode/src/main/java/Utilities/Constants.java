@@ -18,14 +18,25 @@ public final class Constants {
         public static final String backRightMotor = "backRight"; //Control hub Motor port 3
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
+        //Sensors
+        public static final String leftSensor = "leftSensor";
+        public static final String rightSensor = "rightSensor";
+
+    }
+    public static final class CollectorConstants {
+        public static final String claw = "claw";
+        public static final String elevator = "elevator";
+        public static final String collectorHeight = "collectorHeight";
+        public static final String arm = "arm";
+        public static final double armRatio = 2;
+        public static final double armServoDeg = 180;
     }
     public static final class Sizes {
-        public static final double robotWidth = 15.586;
-        public static final double robotHeight = 18;
-        public static final double robotLength = 17.496;
-        public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
-        public static final double field = 66;
-        public static final double artifactRadius = 2.50;
+        public static final double armLength = 10;
+    }
+    public static final class ElevatorConstants {
+        public static final String elevator = "climber";
+        public static final double elevatorServoDeg = 180;
     }
     public static double heading(double angle) {
         if (TEAM.equals("BLUE")) angle *= -1;
