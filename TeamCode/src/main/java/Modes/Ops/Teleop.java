@@ -48,9 +48,9 @@ public class Teleop {
             aLastState = operator.a;
             bLastState = operator.b;
         Mechanum.telemetry(telemetry);
-        telemetry.addData("Joystick values: ", driver.left_stick_x + " " + driver.left_stick_y);
-        Collector.telemetry(telemetry);
-        Elevator.telemetry(telemetry);
+        //telemetry.addData("Joystick values: ", driver.left_stick_x + " " + driver.left_stick_y);
+        //Collector.telemetry(telemetry);
+        //Elevator.telemetry(telemetry);
         telemetry.update();
     }
 }

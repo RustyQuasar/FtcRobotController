@@ -5,9 +5,12 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import Subsystems.HeadingPIDVController;
+import Utilities.ConfigVariables;
 import Utilities.Constants;
 
 public class MechanumDrive {
@@ -15,8 +18,9 @@ public class MechanumDrive {
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
     private final RevColorSensorV3 leftSensor, rightSensor;
     private final BNO055IMU imu;
-    private double headingOffset = 0;
+    private double headingOffset = 0, headingTarget;
     private boolean leftActive = false;
+    HeadingPIDVController autoAlignment;
     public MechanumDrive(HardwareMap hardwareMap) {
         frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
         frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
@@ -46,6 +50,7 @@ public class MechanumDrive {
         imu.initialize(parameters);
 
         leftActive = Constants.TEAM.equals("RED");
+        autoAlignment = new HeadingPIDVController(ConfigVariables.autoAlignmentP, ConfigVariables.autoAlignmentI, ConfigVariables.autoAlignmentD, ConfigVariables.autoAlignmentF);
     }
     public double getRawHeading() {
         return imu.getAngularOrientation().firstAngle;
@@ -54,14 +59,23 @@ public class MechanumDrive {
         headingOffset = getRawHeading();
     }
     public double getHeading() {
-        return getRawHeading() - headingOffset + Constants.heading(Math.PI/2);
+        return getRawHeading() - headingOffset;
     }
     public void drive(double driveY, double driveX, double rotation) {
         double botHeading =
-                getHeading() - Constants.heading(Math.PI/2);
+                getHeading();
                 //0;
+        double driverRotation = rotation;
 
-        // Rotate the movement direction counter to the bot's rotation
+        // update target from driver input
+        //headingTarget += driverRotation * 0.01;
+        headingTarget += Range.clip(driverRotation, -0.5, 0.5) * 0.01;
+
+        // PID correction ONLY
+        double correction = autoAlignment.calculate(headingTarget, getHeading(), imu.getAngularVelocity().zRotationRate);
+
+        // combine them
+        rotation = correction;        // Rotate the movement direction counter to the bot's rotation
         double sin = Math.sin(-botHeading);
         double cos = Math.cos(-botHeading);
 
@@ -93,5 +107,7 @@ public class MechanumDrive {
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());
         telemetry.addData("Back Right Power: ", backRight3.getPower());
+        telemetry.addData("Target heading: ",  headingTarget);
+        telemetry.addData("Current heading: ", getRawHeading());
     }
 }

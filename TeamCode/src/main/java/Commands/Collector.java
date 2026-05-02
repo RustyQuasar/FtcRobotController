@@ -15,6 +15,8 @@ public class Collector {
     private final Servo elevator;
     private final DistanceSensor collectorHeight;
     private boolean collecting = false;
+    private long lastLoop = 0, lastCommand = 0;
+    private double lastPos = 0;
     public Collector(HardwareMap hardwareMap) {
         elevator = hardwareMap.get(Servo.class, Constants.CollectorConstants.elevator);
         arm = hardwareMap.get(Servo.class, Constants.CollectorConstants.arm);
@@ -22,11 +24,17 @@ public class Collector {
         collectorHeight = hardwareMap.get(DistanceSensor.class, Constants.CollectorConstants.collectorHeight);
         arm.setPosition(0);
         claw.setPosition(0);
+        lastLoop = System.currentTimeMillis();
+        lastPos = claw.getPosition();
+        lastCommand = System.currentTimeMillis();
     }
     public void collect(boolean swap){
-        if (swap) collecting = !collecting;
-        if (collecting) claw.setPosition(1);
-        else claw.setPosition(0);
+        if (swap) {
+            collecting = !collecting;
+            if (collecting) claw.setPosition(1);
+            else claw.setPosition(0);
+        }
+        if (atRest()) claw.setPosition(claw.getPosition());
     }
     public void armControl(double x, double y) {
         if (Math.sqrt(x*x + y*y) < 0.5) return;
@@ -35,6 +43,9 @@ public class Collector {
     public void raiseControl(boolean raise, boolean lower ) {
         if (raise && !lower && collectorHeight.getDistance(DistanceUnit.INCH) < 10) elevator.setPosition(elevator.getPosition() + 0.01);
         else if (lower && !raise && collectorHeight.getDistance(DistanceUnit.INCH) > 4) elevator.setPosition(elevator.getPosition() - 0.01);
+    }
+    public boolean atRest() {
+        return Math.abs(claw.getPosition() - lastPos) / (System.currentTimeMillis() - lastLoop) < 0.1 && lastCommand - System.currentTimeMillis() > 500;
     }
     public void telemetry(Telemetry telemetry) {
         telemetry.addData("Arm position: ", arm.getPosition());
