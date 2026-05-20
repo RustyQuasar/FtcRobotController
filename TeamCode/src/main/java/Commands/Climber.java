@@ -4,15 +4,14 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import Utilities.Constants;
 
-public class Elevator {
+public class Climber {
     private final CRServo elevator;
     private boolean raised = false;
-    public Elevator(HardwareMap hardwareMap) {
-        elevator = hardwareMap.get(CRServo.class, Constants.ElevatorConstants.elevator);
+    public Climber(HardwareMap hardwareMap) {
+        elevator = hardwareMap.get(CRServo.class, Constants.ClimberConstants.elevator);
         elevator.setPower(0);
     }
     public void raiseControl(boolean raise, boolean lower ) {

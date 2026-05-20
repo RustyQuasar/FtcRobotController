@@ -21,8 +21,8 @@ import Utilities.Constants;
 
 public final class AutoConstants {
     public static double inPerTick = (6.039002650352243E-4 + 5.876961416916444E-4 + 5.881017982674494E-4) / 3;
-    public static double parYIn = 1.922; // y position of the first parallel encoder (in tick units)
-    public static double perpXIn = 4.222; // x position of the perpendicular encoder (in tick units)
+    public static double parYIn = 1.922; // y position of the parallel deadwheel (in tick units)
+    public static double perpXIn = 4.222; // x position of the perpendicular deadwheel (in tick units)
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(14.74175)
             .forwardZeroPowerAcceleration(-27.369131628964293)
@@ -34,7 +34,7 @@ public final class AutoConstants {
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 10, 0.736, 1);
     public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
             .forwardTicksToInches(inPerTick)
-            .strafeTicksToInches(6.122E-4)
+            .strafeTicksToInches(inPerTick)
             .strafePodX(perpXIn)
             .forwardPodY(parYIn)
             .forwardEncoder_HardwareMapName("frontRight")

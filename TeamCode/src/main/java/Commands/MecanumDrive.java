@@ -1,36 +1,28 @@
 package Commands;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import Subsystems.HeadingPIDVController;
-import Utilities.ConfigVariables;
 import Utilities.Constants;
 
-public class MechanumDrive {
+public class MecanumDrive {
 
     private final DcMotor frontLeft0, frontRight1, backLeft2, backRight3;
-    private final RevColorSensorV3 leftSensor, rightSensor;
     private final BNO055IMU imu;
-    private double headingOffset = 0, headingTarget;
+    private double headingOffset = 0;
     private boolean leftActive = false;
-    HeadingPIDVController autoAlignment;
-    public MechanumDrive(HardwareMap hardwareMap) {
+    public MecanumDrive(HardwareMap hardwareMap) {
         frontLeft0 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontLeftMotor);
         frontRight1 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.frontRightMotor);
         backLeft2 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backLeftMotor);
         backRight3 = hardwareMap.get(DcMotor.class, Constants.DriveTrainConstants.backRightMotor);
-        leftSensor = hardwareMap.get(RevColorSensorV3.class, Constants.DriveTrainConstants.leftSensor);
-        rightSensor = hardwareMap.get(RevColorSensorV3.class, Constants.DriveTrainConstants.rightSensor);
 
-        frontLeft0.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRight1.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeft0.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight1.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft2.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight3.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -49,33 +41,13 @@ public class MechanumDrive {
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
 
-        leftActive = Constants.TEAM.equals("RED");
-        autoAlignment = new HeadingPIDVController(ConfigVariables.autoAlignmentP, ConfigVariables.autoAlignmentI, ConfigVariables.autoAlignmentD, ConfigVariables.autoAlignmentF);
     }
-    public double getRawHeading() {
-        return imu.getAngularOrientation().firstAngle;
-    }
-    public void resetIMU() {
-        headingOffset = getRawHeading();
-    }
-    public double getHeading() {
-        return getRawHeading() - headingOffset;
-    }
+    public double getRawHeading() {return imu.getAngularOrientation().firstAngle; }
+    public void resetIMU() {headingOffset = getRawHeading(); }
+    public double getHeading() {return getRawHeading() - headingOffset; }
     public void drive(double driveY, double driveX, double rotation) {
-        double botHeading =
-                getHeading();
-                //0;
-        double driverRotation = rotation;
+        double botHeading = getHeading();
 
-        // update target from driver input
-        //headingTarget += driverRotation * 0.01;
-        headingTarget += Range.clip(driverRotation, -0.5, 0.5) * 0.01;
-
-        // PID correction ONLY
-        double correction = autoAlignment.calculate(headingTarget, getHeading(), imu.getAngularVelocity().zRotationRate);
-
-        // combine them
-        rotation = correction;        // Rotate the movement direction counter to the bot's rotation
         double sin = Math.sin(-botHeading);
         double cos = Math.cos(-botHeading);
 
@@ -95,19 +67,11 @@ public class MechanumDrive {
         backRight3.setPower(backRightPower);
     }
 
-    public boolean coneBeside(){
-        if (leftActive) {
-            return leftSensor.red() > 100;
-        }
-        return rightSensor.red() > 100;
-    }
-
     public void telemetry(Telemetry telemetry) {
         telemetry.addData("Front Left Power: ", frontLeft0.getPower());
         telemetry.addData("Front Right Power: ", frontRight1.getPower());
         telemetry.addData("Back Left Power: ", backLeft2.getPower());
         telemetry.addData("Back Right Power: ", backRight3.getPower());
-        telemetry.addData("Target heading: ",  headingTarget);
         telemetry.addData("Current heading: ", getRawHeading());
     }
 }
