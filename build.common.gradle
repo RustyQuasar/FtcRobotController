@@ -17,9 +17,11 @@
 
 import java.util.regex.Pattern
 
+apply plugin: 'com.android.application'
+
 android {
 
-    compileSdkVersion 30
+    compileSdkVersion 34
 
     signingConfigs {
         release {
@@ -104,12 +106,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    packagingOptions {
-        pickFirst '**/*.so'
-    }
     ndkVersion '21.3.6528147'
 }
 
 repositories {
+    mavenCentral()
 }
 
