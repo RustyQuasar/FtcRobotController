@@ -18,6 +18,7 @@ public final class Constants {
         public static double autoAlignmentI = 0.2;
         public static double autoAlignmentD = 0.05;
         public static double autoAlignmentF = 0.25;
+        public static double autoAlignmentTolerance = 1.0/20;
 
     }
     public static final class CollectorConstants {
