@@ -1,5 +1,7 @@
 package Commands;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import Subsystems.PIDFController;
 import Subsystems.Vision;
 import Utilities.ConfigVariables;
@@ -7,17 +9,14 @@ import Utilities.Constants;
 
 public class Turret {
     private PIDFController neckController;
-    double shooterToBotCenter = 1.541, neckHeading, offsetAngle = 0;
-    double targetNeckPos;
+    private double shooterToBotCenter = 1.541, offsetAngle = 0, neckHeading;
     final double totalTicks = Constants.TurretConstants.turretNeckGearRatio * Constants.GoBildaMotorMax;
     final double radianMax = 2 * Math.PI;
     int lastOffset = 0;
-    boolean visionUpdate;
-    Vision vision;
+    boolean visionUpdate = true;
 
-    public Turret(Vision vision) {
+    public Turret(HardwareMap hardwareMap) {
         neckController = new PIDFController(ConfigVariables.neckp, ConfigVariables.necki, ConfigVariables.neckd, ConfigVariables.neckf, 0);
-        this.vision = vision;
     }
 
     public double aim(double xChange, double yChange, double neckCurrentPos, int offset) {
@@ -27,12 +26,6 @@ public class Turret {
         }
 
         neckHeading = (botHeading - (neckCurrentPos / totalTicks * radianMax)) % radianMax;
-
-        if (visionUpdate) {
-            if (offset != lastOffset) offsetAngle = (offset / totalTicks * radianMax);
-            Constants.OdometryConstants.fieldPos = vision.getPose(neckHeading + offsetAngle);
-
-        }
 
         double headingTarget = Math.atan2(xChange, yChange);
         double targetNeckPos = (int) (neckCurrentPos + wrapHeading(headingTarget + neckHeading)) % totalTicks;
@@ -45,6 +38,10 @@ public class Turret {
 
     public double calculateNeckPower(double targetNeckPos, double neckCurrentPos) {
         return neckController.calculate(targetNeckPos, neckCurrentPos);
+    }
+
+    public double getNeckHeading(){
+        return neckHeading;
     }
 
     private double wrapHeading(double angleToTurnDeg) {

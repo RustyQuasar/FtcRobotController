@@ -1,11 +1,6 @@
 package Utilities;
 
-import com.arcrobotics.ftclib.geometry.Pose2d;
-import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.pedropathing.geometry.Pose;
-
-import java.util.Vector;
 
 public final class Constants {
     public static boolean onRed;
@@ -28,16 +23,19 @@ public final class Constants {
         public static double autoAlignmentTolerance = 1.0/20;
     }
 
-    public static final class ShooterConstants {
+    public static final class FlywheelConstants {
         public static final int hoodMax = 255;
-        public static final double flyWheelDiameter = 3;
         public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
         public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
-        public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
-        public static final double maxHeadAngle = 50;
-        public static final double maxNeckAngle = 90;
+        public enum FlywheelState {
+            SCORE,
+            PASS,
+            FLOWER,
+        }
+
+
     }
 
     public static final class OdometryConstants{
@@ -49,6 +47,13 @@ public final class Constants {
     public static final class TurretConstants {
         public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final double turretNeckGearRatio = 19.2 * 197 / 36; //Gear multiplier
+        public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
+        public enum TurretState {
+            AUTO,
+            LOCKED,
+            MANUAL,
+        }
+
     }
 
     public static final class IntakeConstants {

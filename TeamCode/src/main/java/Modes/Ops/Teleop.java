@@ -9,22 +9,29 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import Commands.Intake;
 import Commands.MecanumDrive;
+import Commands.Shooter;
 import Utilities.Constants;
 
 public class Teleop {
     //Sample teleop, shows how this all should be structured
     Telemetry telemetry = FtcDashboard.getInstance().getTelemetry();
     MecanumDrive Mecanum;
-    boolean clawOpen = false;
     ElapsedTime controlLoopTimer;
     //List<LynxModule> allHubs;
     Gamepad lastDriver = new Gamepad(), lastOperator = new Gamepad();
+    Shooter shooter;
+    Intake intake;
+    Constants.TurretConstants.TurretState turretState = Constants.TurretConstants.TurretState.AUTO;
+    Constants.FlywheelConstants.FlywheelState flywheelState = Constants.FlywheelConstants.FlywheelState.SCORE;
 
     public void init(HardwareMap hardwareMap, boolean onRed) {
         Constants.onRed = onRed;
         Mecanum = new MecanumDrive(hardwareMap);
         controlLoopTimer = new ElapsedTime();
+        shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
         /*
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
@@ -43,6 +50,9 @@ public class Teleop {
         if (driver.dpadDownWasReleased()) {
             Mecanum.resetIMU();
         }
+
+        if (shooter.aim(flywheelState, turretState, operator.left_stick_x, operator.left_stick_y)) shooter.updateFlywheelHardware();
+        shooter.updateTurretHardware();
 
         lastOperator.copy(operator);
         lastDriver.copy(driver);

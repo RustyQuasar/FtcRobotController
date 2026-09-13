@@ -47,21 +47,8 @@ public class Vision {
         return PoseConverter.pose2DToPose(new Pose2D(DistanceUnit.INCH, botpose.getPosition().x * 39.37007874, botpose.getPosition().y * 39.37007874, AngleUnit.RADIANS,0), FTCCoordinates.INSTANCE);
     }
 
-    public String[] setColours() {
-        if (result.isValid()) {
-            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                switch (fr.getFiducialId()) {
-                    case 21:
-                        return new String[]{"G", "P", "P"};
-                    case 22:
-                        return new String[]{"P", "G", "P"};
-                    case 23:
-                        return new String[]{"P", "P", "G"};
-                }
-            }
-        }
-        return new String[]{"N", "N", "N"};
+    public int tiltedSide(){
+
     }
 
     public void telemetry(Telemetry telemetry) {
