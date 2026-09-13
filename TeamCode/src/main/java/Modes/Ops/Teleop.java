@@ -9,29 +9,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import Commands.Collector;
 import Commands.MecanumDrive;
 import Utilities.Constants;
-
-import com.qualcomm.hardware.lynx.LynxModule;
-
-import java.util.List;
 
 public class Teleop {
     //Sample teleop, shows how this all should be structured
     Telemetry telemetry = FtcDashboard.getInstance().getTelemetry();
     MecanumDrive Mecanum;
-    Collector collector;
     boolean clawOpen = false;
     ElapsedTime controlLoopTimer;
     //List<LynxModule> allHubs;
     Gamepad lastDriver = new Gamepad(), lastOperator = new Gamepad();
 
-    public void init(HardwareMap hardwareMap, String team) {
-        Constants.TEAM = team;
+    public void init(HardwareMap hardwareMap, boolean onRed) {
+        Constants.onRed = onRed;
         Mecanum = new MecanumDrive(hardwareMap);
         controlLoopTimer = new ElapsedTime();
-        collector = new Collector(hardwareMap);
         /*
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
@@ -50,21 +43,6 @@ public class Teleop {
         if (driver.dpadDownWasReleased()) {
             Mecanum.resetIMU();
         }
-
-
-        if (operator.b && !lastOperator.b) {
-            if (clawOpen) collector.closeClaw();
-            else collector.openClaw();
-            clawOpen = !clawOpen;
-        }
-
-        if (operator.a && !lastOperator.a) collector.setFloorPosition();
-        if (operator.x && !lastOperator.x) collector.setDiamondPositions();
-        if (operator.y && !lastOperator.y) collector.setBinPositions();
-
-        collector.armControl(operator.left_stick_y);
-        collector.wristControl(operator.right_stick_y);
-        collector.updateHardware();
 
         lastOperator.copy(operator);
         lastDriver.copy(driver);

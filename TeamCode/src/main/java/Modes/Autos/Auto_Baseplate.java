@@ -3,27 +3,21 @@ package Modes.Autos;
 import static com.pedropathing.ivy.commands.Commands.lazy;
 import static com.pedropathing.ivy.commands.Commands.match;
 
-import static Utilities.AutoConstants.followerConstants;
 import static Utilities.AutoConstants.posTolerance;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.geometry.Pose2d;
-import com.pedropathing.ErrorCalculator;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.*;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.math.MathFunctions;
-import com.pedropathing.paths.*;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.EnumMap;
 
-import Commands.Collector;
 import Utilities.AutoConstants;
 import Utilities.Constants;
 

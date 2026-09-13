@@ -1,13 +1,22 @@
 package Utilities;
 
 import com.acmerobotics.dashboard.config.Config;
+
 @Config
 public final class ConfigVariables {
-        //Sample:
-        /*
-        public static double P = 0.2;
-        public static double I = 0.2;
-        public static double D = 0.05;
-        public static double F = 0.25;
-         */
+    public static double p = 500;
+    public static double i = 0.273;
+    public static double d = 0;
+    public static double f = 24;
+
+    public static int velocity = 200;
+    public static double neckp = 0.0033;
+    public static double necki = 0.0001;
+    public static double neckd = 0;
+    public static double neckf = 0;
+
+    public static double shooterP = 0;
+    public static double shooterI = 0;
+    public static double shooterD = 0;
+    public static double shooterF = 0;
 }

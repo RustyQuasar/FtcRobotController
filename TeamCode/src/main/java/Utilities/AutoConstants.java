@@ -9,18 +9,21 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.ftc.localization.constants.TwoWheelConstants;
 import com.pedropathing.paths.PathConstraints;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public final class AutoConstants {
     //This was all tuned using PedroPathing's Quickstart repo
 
     //Inches per encoder tick
     public static double posTolerance = 0.05, velocityTolerance = 0.1;
-    public static double inPerTick = (4.851219394942177E-4 + 4.8359208265628294E-4) / 2 * 24.0/14;
     //Y-axis difference for the parallel deadwheel (explained on pedropathing tuning)
     public static double parYIn =
             //0;
@@ -46,7 +49,7 @@ public final class AutoConstants {
             ;
     //Movement constraints on the path, these don't matter as much to tune but can still be good at high levels
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 0, 0.736, 1);
-    //Two deadwheel information; our odometry
+    /*
     public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
             //Inches per tick are the same for our deadwheels, so I initialized them with the same value
             .forwardTicksToInches(inPerTick)
@@ -64,6 +67,8 @@ public final class AutoConstants {
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.DOWN))
             ;
+
+     */
 
 
     //Mecanum drive constants
@@ -85,12 +90,22 @@ public final class AutoConstants {
             .yVelocity(64.78823469902159)
             ;
 
+    public static PinpointConstants localizerConstants = new PinpointConstants()
+            .forwardPodY(parYIn)
+            .strafePodX(perpXIn)
+            .distanceUnit(DistanceUnit.INCH)
+            .hardwareMapName("pinpoint")
+            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+
     //The follower puts everything together
     public static Follower createFollower(HardwareMap hardwareMap) {
         PedroDrivetrain drivetrain = new PedroDrivetrain(hardwareMap, driveConstants);
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
-                .twoWheelLocalizer(localizerConstants)
+                .pinpointLocalizer(localizerConstants)
                 .setDrivetrain(drivetrain)
                 .build();
     }

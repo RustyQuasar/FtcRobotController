@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import Modes.Ops.Teleop;
+import Utilities.Constants;
 
 public class AllianceTeleop {
     @TeleOp(name = "Red TeleOp", group = "Teleop")
@@ -11,7 +12,7 @@ public class AllianceTeleop {
         Teleop teleop = new Teleop();
         @Override
         public void init(){
-            teleop.init(hardwareMap, "RED");
+            teleop.init(hardwareMap, true);
         }
         @Override
         public void loop() {
@@ -24,7 +25,7 @@ public class AllianceTeleop {
         Teleop teleop = new Teleop();
         @Override
         public void init(){
-            teleop.init(hardwareMap, "BLUE");
+            teleop.init(hardwareMap, false);
         }
         @Override
         public void loop() {

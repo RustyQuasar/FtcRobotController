@@ -1,7 +1,14 @@
 package Utilities;
 
+import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.geometry.Vector2d;
+import com.pedropathing.geometry.Pose;
+
+import java.util.Vector;
+
 public final class Constants {
-    public static String TEAM;
+    public static boolean onRed;
     public static final int StudickaMotorMax = 24; //360 degrees
     public static final int GoBildaMotorMax = 28;
 
@@ -19,22 +26,61 @@ public final class Constants {
         public static double autoAlignmentD = 0.05;
         public static double autoAlignmentF = 0.25;
         public static double autoAlignmentTolerance = 1.0/20;
+    }
 
+    public static final class ShooterConstants {
+        public static final int hoodMax = 255;
+        public static final double flyWheelDiameter = 3;
+        public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
+        public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
+        public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
+        public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
+        public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
+        public static final double maxHeadAngle = 50;
+        public static final double maxNeckAngle = 90;
     }
-    public static final class CollectorConstants {
-        public static final String claw = "claw";
-        public static final String elevator = "elevator";
-        public static final String colourSensor = "colourSensor"; //I2C Bus 2
-        public static final String arm1 = "arm1";
-        public static final String arm2 = "arm2";
-        public static final String wrist = "wrist";
-        public static final double armServoDeg = 270;
+
+    public static final class OdometryConstants{
+        public static Pose fieldPos = new Pose(0, 0, 0);
+        public static Double[] fieldVels = {0.0, 0.0};
+        public static boolean[] directions = new boolean[2];
     }
-    public static final class ClimberConstants {
-        public static final String climber = "climber";
+
+    public static final class TurretConstants {
+        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
+        public static final double turretNeckGearRatio = 19.2 * 197 / 36; //Gear multiplier
     }
+
+    public static final class IntakeConstants {
+        public static final String intake = "intake"; //Expansion hub Motor port 0
+        public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
+        public static final String transferServo2 = "transferServo2"; //Expansion hub Servo port 3
+    }
+
+    public static final class VisionConstants {
+        //Webcam
+        public static double shooterCamDist =0;//inch
+        public static double shooterCenterDist =0;//inch
+        public static final String camera = "Webcam"; //USB port
+        public static final int resX = 320;
+        public static final int resY = 240;
+        public static final int FOV = 54;
+        public static final double inOffset = 4.798 + 0.5;
+        public static int cameraAngle = 11;
+        public static int pipeline = 0;
+    }
+
+    public static final class Sizes {
+        public static final double robotWidth = 15.586;
+        public static final double robotHeight = 18;
+        public static final double robotLength = 17.496;
+        public static final double robotOffset = Math.sqrt(Math.pow(robotWidth, 2) + Math.pow(robotLength, 2)) / 2;
+        public static final double field = 72;
+        public static final double artifactRadius = 2.50;
+    }
+
     public static double heading(double angle) {
-        if (TEAM.equals("BLUE")) angle *= -1;
+        if (onRed) angle *= -1;
         return angle;
     }
 }
