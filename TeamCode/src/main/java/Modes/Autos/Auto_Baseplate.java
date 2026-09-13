@@ -24,7 +24,7 @@ import Utilities.Constants;
 public class Auto_Baseplate {
     Telemetry telemetry; //Dashboard (pretty much)
     public static Follower follower; //Follower
-    Collector collector; //Need this for the commands to exist
+    //Collector collector; //Need this for the commands to exist
     CollectorCommands command = CollectorCommands.CONE; //The active command (servo positions in this case), starting with cone
     int currentPath = 1; //Current path being followed
     long pathCooldown = 500, pathStartTime;
@@ -48,7 +48,7 @@ public class Auto_Baseplate {
                 newCommand = false;
             }
             Scheduler.execute();
-            collector.updateHardware();
+            //collector.updateHardware();
             telemetry.addData("Action: ", command.name());
             telemetry.addData("Phase: ", currentPath);
             telemetry.addData("Done previous action", !Scheduler.isRunning(priorCommand));
@@ -60,21 +60,23 @@ public class Auto_Baseplate {
         pathStartTime = System.currentTimeMillis();
     }
 
-    public void init(HardwareMap hardwareMap, String team) {
+    public void init(HardwareMap hardwareMap, boolean onRed) {
         telemetry = FtcDashboard.getInstance().getTelemetry();
-        Constants.TEAM = team;
-        collector = new Collector(hardwareMap);
+        Constants.onRed = onRed;
+        //collector = new Collector(hardwareMap);
         follower = AutoConstants.createFollower(hardwareMap);
 
-        collector.openClaw();
+        //collector.openClaw();
         follower.setStartingPose(new Pose(x(38), 28, heading(180)));
 
+        /*
         cases.put(CollectorCommands.CONE, lazy(() -> collector.pickupCone()));
         cases.put(CollectorCommands.DIAMOND, lazy(() -> collector.pickupDiamond()));
         cases.put(CollectorCommands.GEM, lazy(() -> collector.pickupGem()));
         cases.put(CollectorCommands.BIN_DIAMOND, lazy(() -> collector.bin().then(collector.pickupDiamond())));
         cases.put(CollectorCommands.BIN_GEM, lazy(() -> collector.bin().then(collector.pickupGem())));
         cases.put(CollectorCommands.BIN, lazy(() -> collector.bin()));
+         */
 
         //Insert paths here
 
@@ -97,12 +99,12 @@ public class Auto_Baseplate {
     }
 
     private static double x(double offset) { //Swaps the x depending on alliance
-        if (Constants.TEAM.equals("RED")) offset = 144 - offset;
+        if (Constants.onRed) offset = 144 - offset;
         return offset;
     }
 
     private static double heading(double angle) { //Swaps the heading depending on alliance
-        if (Constants.TEAM.equals("RED")) angle += (90 - angle) * 2;
+        if (Constants.onRed) angle += (90 - angle) * 2;
         return Math.toRadians(angle);
     }
 
