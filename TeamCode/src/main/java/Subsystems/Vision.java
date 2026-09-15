@@ -1,18 +1,23 @@
 package Subsystems;
+
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
 import java.util.List;
+
 import Utilities.Constants;
 
 public class Vision {
@@ -31,7 +36,8 @@ public class Vision {
     public LLResult getDetections() {
         return result;
     }
-    public boolean hasTarget(){
+
+    public boolean hasTarget() {
         return result.isValid() && limelight.isConnected() && limelight.isRunning();
     }
 
@@ -40,15 +46,14 @@ public class Vision {
     }
 
 
-
     public Pose getPose(double neckHeading) {
         limelight.updateRobotOrientation(Math.toDegrees(neckHeading));
         Pose3D botpose = result.getBotpose_MT2();
-        return PoseConverter.pose2DToPose(new Pose2D(DistanceUnit.INCH, botpose.getPosition().x * 39.37007874, botpose.getPosition().y * 39.37007874, AngleUnit.RADIANS,0), FTCCoordinates.INSTANCE);
+        return PoseConverter.pose2DToPose(new Pose2D(DistanceUnit.INCH, botpose.getPosition().x * 39.37007874, botpose.getPosition().y * 39.37007874, AngleUnit.RADIANS, 0), FTCCoordinates.INSTANCE);
     }
 
-    public int tiltedSide(){
-
+    public int tiltedSide() {
+        return 1;
     }
 
     public void telemetry(Telemetry telemetry) {
@@ -62,9 +67,24 @@ public class Vision {
         telemetry.addData("Connected: ", limelight.isConnected());
         telemetry.addData("Reading tag: ", result.isValid());
 
-        if (result.isValid()) {
-            // Access general information
-            Pose3D botpose = result.getBotpose_MT2();
+        if (result != null && result.isValid()) {
+            // 1. Get the list of all detected AprilTags (Fiducials)
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                // 2. Extract the 3D pose of the AprilTag relative to the camera
+                Pose3D targetPose = fiducial.getTargetPoseCameraSpace();
+
+                // 3. Read the pitch angle out of the Orientation object (in degrees)
+                double pitch = targetPose.getOrientation().getPitch();
+                long tagId = fiducial.getFiducialId();
+
+                telemetry.addData("Tag ID " + tagId + " Pitch", pitch);
+            }
+
+            if (result.isValid()) {
+                // Access general information
+                Pose3D botpose = result.getBotpose_MT2();
             /*
             double captureLatency = result.getCaptureLatency();
             double targetingLatency = result.getTargetingLatency();
@@ -78,8 +98,9 @@ public class Vision {
             telemetry.addData("ty", result.getTy());
             telemetry.addData("tync", result.getTyNC());
              */
-            telemetry.addData("Botpose", botpose.getPosition().x / 0.0254 + " " + botpose.getPosition().y / 0.0254 + " " + botpose.getPosition().z / 0.0254);
-            telemetry.addData("Heading: ", botpose.getOrientation());
+                telemetry.addData("Botpose", botpose.getPosition().x / 0.0254 + " " + botpose.getPosition().y / 0.0254 + " " + botpose.getPosition().z / 0.0254);
+                telemetry.addData("Heading: ", botpose.getOrientation());
+
             /*
             // Access barcode results
             List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
@@ -114,6 +135,7 @@ public class Vision {
             telemetry.addData("Limelight", "No data available");
         }
              */
+            }
         }
     }
 }

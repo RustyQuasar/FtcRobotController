@@ -25,14 +25,15 @@ public final class Constants {
 
     public static final class FlywheelConstants {
         public static final int hoodMax = 255;
-        public static final String leftShooter = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
-        public static final String rightShooter = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
+        public static final String flywheel = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
+        public static final String transfer = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
         public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
         public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
         public enum FlywheelState {
             SCORE,
             PASS,
             FLOWER,
+            FIREATWILL
         }
 
 
@@ -58,8 +59,6 @@ public final class Constants {
 
     public static final class IntakeConstants {
         public static final String intake = "intake"; //Expansion hub Motor port 0
-        public static final String transferServo = "transferServo"; //Expansion hub Servo port 2
-        public static final String transferServo2 = "transferServo2"; //Expansion hub Servo port 3
     }
 
     public static final class VisionConstants {

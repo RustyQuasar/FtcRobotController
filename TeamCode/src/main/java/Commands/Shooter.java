@@ -12,10 +12,10 @@ import Subsystems.Vision;
 import Utilities.Constants;
 
 public class Shooter {
-    private final DcMotorEx turretNeckMotor;
-    private final DcMotorEx leftShooter, rightShooter;
+    private final DcMotorEx turretNeckMotor, flywheelMotor;
+    private final DcMotor transfer;
     private final Servo turretHead;
-    private double flywheelVel, flywheelPower;
+    private double flywheelVel, flywheelPower, transferPower;
     private double neckCurrentPos, neckTargetPos, neckPower, headPos;
     Flywheel flywheel;
     Turret turret;
@@ -35,16 +35,13 @@ public class Shooter {
         turretNeckMotor = hardwareMap.get(DcMotorEx.class, Constants.TurretConstants.turretNeckMotor);
         turretNeckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftShooter = hardwareMap.get(DcMotorEx.class, Constants.FlywheelConstants.leftShooter);
-        rightShooter = hardwareMap.get(DcMotorEx.class, Constants.FlywheelConstants.rightShooter);
+        flywheelMotor = hardwareMap.get(DcMotorEx.class, Constants.FlywheelConstants.flywheel);
         turretHead = hardwareMap.get(Servo.class, Constants.FlywheelConstants.turretHeadServo);
+        transfer = hardwareMap.get(DcMotor.class, Constants.FlywheelConstants.transfer);
 
-        leftShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftShooter.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        flywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         turretNeckMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turretHead.setDirection(Servo.Direction.FORWARD);
@@ -64,6 +61,11 @@ public class Shooter {
         updateTarget();
 
         boolean redidMath = false;
+
+        if (turretState == Constants.TurretConstants.TurretState.MANUAL)
+            neckTargetPos = turret.aim(manualX, manualY, neckCurrentPos, offset);
+        if (turretState == Constants.TurretConstants.TurretState.LOCKED) neckTargetPos = 0;
+
         if (Constants.OdometryConstants.fieldPos.roughlyEquals(lastPos, 1) || offset != lastOffset) {
             double xChange = Constants.OdometryConstants.fieldPos.getX() - targetPose.getX();
             double yChange = Constants.OdometryConstants.fieldPos.getY() - targetPose.getY();
@@ -78,9 +80,6 @@ public class Shooter {
 
             if (turretState == Constants.TurretConstants.TurretState.AUTO)
                 neckTargetPos = turret.aim(xChange, yChange, neckCurrentPos, offset);
-            else if (turretState == Constants.TurretConstants.TurretState.MANUAL)
-                neckTargetPos = turret.aim(manualX, manualY, neckCurrentPos, offset);
-            else neckTargetPos = 0;
 
             lastOffset = offset;
             redidMath = true;
@@ -89,22 +88,8 @@ public class Shooter {
         neckPower = turret.calculateNeckPower(neckTargetPos, neckCurrentPos);
         return redidMath;
     }
-    private void updateVariables() {
-        neckCurrentPos = turretNeckMotor.getCurrentPosition();
-        flywheelVel = leftShooter.getVelocity();
-    }
 
-    public void updateFlywheelHardware() {
-        leftShooter.setPower(flywheelPower);
-        rightShooter.setPower(flywheelPower);
-        turretHead.setPosition(headPos);
-    }
-
-    public void updateTurretHardware() {
-        turretNeckMotor.setPower(neckPower);
-    }
-
-    public Pose getVisionPos(){
+    public Pose getVisionPos() {
         return vision.getPose(turret.getNeckHeading());
     }
 
@@ -113,7 +98,7 @@ public class Shooter {
         if (rightTrigger) offset += 4;
     }
 
-    public void updateTarget(){
+    public void updateTarget() {
         if (vision.tiltedSide() == lastTarget) return;
         if (lastTarget == 1) {
             if (Constants.onRed) targetPose = redTarget2;
@@ -126,14 +111,27 @@ public class Shooter {
         }
     }
 
-    public void target2() {
-        if (Constants.onRed) targetPose = redTarget2;
-        else targetPose = blueTarget2;
+    private void updateVariables() {
+        neckCurrentPos = turretNeckMotor.getCurrentPosition();
+        flywheelVel = flywheelMotor.getVelocity();
+    }
+
+    public void updateFlywheelHardware() {
+        flywheelMotor.setPower(flywheelPower);
+        turretHead.setPosition(headPos);
+    }
+
+    public void updateTranfer() {
+        transfer.setPower(transferPower);
+    }
+
+
+    public void updateTurretHardware() {
+        turretNeckMotor.setPower(neckPower);
     }
 
     public void chill() {
-        leftShooter.setPower(0);
-        rightShooter.setPower(0);
+        flywheelMotor.setPower(0);
         turretNeckMotor.setPower(0);
     }
 
