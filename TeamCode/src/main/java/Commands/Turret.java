@@ -20,7 +20,7 @@ public class Turret {
     }
 
     public double aim(double xChange, double yChange, double neckCurrentPos, int offset) {
-        double botHeading = Constants.OdometryConstants.fieldPos.getHeading();
+        double botHeading = Constants.OdometryConstants.fieldPos.heading();
         if (botHeading < 0) {
             botHeading += radianMax;
         }

@@ -1,113 +1,78 @@
 package Utilities;
 
-import com.pedropathing.control.FilteredPIDFCoefficients;
-import com.pedropathing.control.PIDFCoefficients;
-import com.pedropathing.control.PredictiveBrakingCoefficients;
-import com.pedropathing.drivetrain.Drivetrain;
+import com.pedropathing.algorithm.Foresight;
+import com.pedropathing.algorithm.ForesightConfig;
+import com.pedropathing.controllers.Controller;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
-import com.pedropathing.ftc.FollowerBuilder;
-import com.pedropathing.ftc.drivetrains.MecanumConstants;
-import com.pedropathing.ftc.localization.Encoder;
-import com.pedropathing.ftc.localization.constants.PinpointConstants;
-import com.pedropathing.ftc.localization.constants.TwoWheelConstants;
-import com.pedropathing.paths.PathConstraints;
+import com.pedropathing.math.Matrix;
+import com.pedropathing.math.Vector2D;
+import com.pedropathing.revhub.drivetrains.Mecanum;
+import com.pedropathing.revhub.drivetrains.MecanumConfig;
+import com.pedropathing.revhub.localizers.PinpointConfig;
+import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+public class AutoConstants {
+    public static MecanumConfig drivetrainConfig = new MecanumConfig(
+            c -> {
+                c.frontLeftName.set("lf");
+                c.backLeftName.set("lr");
+                c.frontRightName.set("rf");
+                c.backRightName.set("rr");
 
-public final class AutoConstants {
-    //This was all tuned using PedroPathing's Quickstart repo
+                c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+                c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+                c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
+                c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
 
-    //Inches per encoder tick
-    public static double posTolerance = 0.05, velocityTolerance = 0.1;
-    //Y-axis difference for the parallel deadwheel (explained on pedropathing tuning)
-    public static double parYIn =
-            //0;
-            -3.6;
-    //X-axis difference for the perpendicular deadwheel (explained on pedropathing tuning)
-    public static double perpXIn =
-            //0;
-            -2.5;
-    //Information used to control the drivetrain, values change with any bot change
-    public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(7.8) //Mass (kg)
-            .forwardZeroPowerAcceleration(-24.029400059336396) //Forward acceleration without power, in/s
-            .lateralZeroPowerAcceleration(-65.19757687965621) //Sideways acceleration without power, in/s
-            //Numbers automatically tuned, used to accurately predict how well the bot brakes
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients( 0.1, 0.08749315601799938, 0.0037664233965230168))
-            //PID used when the bot goes off track
-            .translationalPIDFCoefficients(new PIDFCoefficients(.5, .2, 0, 0.05))
-            //PID used to turn the bot
-            .headingPIDFCoefficients(new PIDFCoefficients(0.2, 0.04, 0, 0.05))
-            //PID used to drive the bot
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(.02, 0.004, 0, 0.0, 0.05))
-            .stuckTimeout(.5)
-            ;
-    //Movement constraints on the path, these don't matter as much to tune but can still be good at high levels
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 0, 0.736, 1);
-    /*
-    public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
-            //Inches per tick are the same for our deadwheels, so I initialized them with the same value
-            .forwardTicksToInches(inPerTick)
-            .strafeTicksToInches(inPerTick)
-            //Variables made prior for this
-            .strafePodX(perpXIn)
-            .forwardPodY(parYIn)
-            //Hardware map names, these are the encoder ports the pods are plugged into
-            .forwardEncoder_HardwareMapName("backLeft")
-            .strafeEncoder_HardwareMapName("backRight")
-            //Encoder directions, forward and left should increase your x/y axis in tuning
-            .forwardEncoderDirection(Encoder.REVERSE)
-            .strafeEncoderDirection(Encoder.REVERSE)
-            //IMU initialization, "imu" is the hardware map name and the orientation determines the gyro direction tracked
-            .IMU_HardwareMapName("imu")
-            .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.DOWN))
-            ;
+                c.manualBrakeMode.set(true);
+            }
+    );
 
-     */
+    public static PinpointConfig localizerConfig = new PinpointConfig(
+            c -> {
+                c.name.set("pinpoint");
+                c.xPodOffset.set(2.187);
+                c.yPodOffset.set(-4.572);
+                c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            }
+    );
 
+    public static ForesightConfig foresightConfig = new ForesightConfig(
+            c -> {
+                Controller primaryTranslationalForward = Controller.proportional(0.3);
+                Controller secondaryTranslationalForward = Controller.proportional(0.1);
+                Controller primaryTranslationalLateral = Controller.proportional(0.3);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.1);
 
-    //Mecanum drive constants
-    public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(1) //I used this to cap the speed, any higher and there's unmanageable drift
-            .useVoltageCompensation(true) //Makes sure we drive the same, whether we have a dead battery or a new, fully charged one
-            //Hardware map names of wheels
-            .rightFrontMotorName("frontRight")
-            .rightRearMotorName("backRight")
-            .leftRearMotorName("backLeft")
-            .leftFrontMotorName("frontLeft")
-            //Wheel directions, usually the right rear motor would also be reversed but we did that in wiring
-            .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            //Max velocity of the drivetrain in in/s
-            .xVelocity(79.07768059937501)
-            .yVelocity(64.78823469902159)
-            ;
+                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
+                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
 
-    public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(parYIn)
-            .strafePodX(perpXIn)
-            .distanceUnit(DistanceUnit.INCH)
-            .hardwareMapName("pinpoint")
-            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                c.coast.set(Controller.proportionalFeedforward(0.010978350889324107));
+                c.brake.set(Controller.proportionalFeedforward(0.008731598255925491));
 
+                c.headingFeedback.set(Controller.proportional(5.258721785960744));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.05642143125655298, 0.0063829525363003695));
 
-    //The follower puts everything together
-    public static Follower createFollower(HardwareMap hardwareMap) {
-        PedroDrivetrain drivetrain = new PedroDrivetrain(hardwareMap, driveConstants);
-        return new FollowerBuilder(followerConstants, hardwareMap)
-                .pathConstraints(pathConstraints)
-                .pinpointLocalizer(localizerConstants)
-                .setDrivetrain(drivetrain)
-                .build();
+                c.linearBrakeCoefficients.set(Matrix.diag(0.10605894992901523, 0.08719146175596092));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0014663966976606565, 0.0013837064502458813));
+
+                c.maxAchievableForwardVelocity.set(72.72923108818539);
+                c.maxAchievableStrafeVelocity.set(52.34323936525474);
+                c.naturalForwardDeceleration.set(85.01144677379789);
+                c.naturalStrafeDeceleration.set(104.49787535782846);
+            }
+    );
+
+    public static Follower create(HardwareMap h) {
+        return new Follower(
+                new PinpointLocalizer(h, localizerConfig),
+                new Mecanum(h, drivetrainConfig),
+                new Foresight(foresightConfig)
+        );
     }
-
 }
+

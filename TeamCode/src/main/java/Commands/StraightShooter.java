@@ -11,93 +11,76 @@ import com.qualcomm.robotcore.hardware.Servo;
 import Subsystems.Vision;
 import Utilities.Constants;
 
-public class Shooter {
+public class StraightShooter {
     private final DcMotorEx flywheelMotor1, flywheelMotor2;
-    private final Servo turretNeck;
-    private final DcMotor transfer;
-    private final Servo turretHead;
-    private double distance = 0;
-    private double flywheelVel, flywheelPower, transferPower, lastFlywheelPower, lastTransferPower;
-    private double neckCurrentPos, neckTargetPos, neckPower, headPos;
-    Constants.FlywheelConstants.FlywheelState lastFlywheelState;
-    Constants.TurretConstants.TurretState lastTurretState;
+    //private final DcMotor transfer;
+    private final Servo turretHood;
+    private double flywheelVel, flywheelPower, lastFlywheelPower, transferPower, lastTransferPower, hoodPos, distance;
     Flywheel flywheel;
-    Turret turret;
     Vision vision;
+    private Constants.FlywheelConstants.FlywheelState lastFlywheelState = Constants.FlywheelConstants.FlywheelState.SCORE;
     private Pose lastPos = Constants.OdometryConstants.fieldPos;
     private int offset, lastOffset, lastTarget = 1;
-    double shooterToBotCenter = 1.541;
     private Vector2d targetPose;
     private final Vector2d redTarget1 = new Vector2d(58, 53), redTarget2 = new Vector2d(58, 91);
     private final Vector2d blueTarget1 = new Vector2d(84, 53), blueTarget2 = new Vector2d(84, 91);
 
 
-    public Shooter(HardwareMap hardwareMap) {
+    public StraightShooter(HardwareMap hardwareMap) {
 
         vision = new Vision(hardwareMap);
 
-        turretNeck = hardwareMap.get(Servo.class, Constants.TurretConstants.turretNeckServo);
-        turretHead = hardwareMap.get(Servo.class, Constants.FlywheelConstants.turretHeadServo);
 
-        flywheelMotor1 = hardwareMap.get(DcMotorEx.class, Constants.FlywheelConstants.flywheel2);
+        flywheelMotor1 = hardwareMap.get(DcMotorEx.class, Constants.FlywheelConstants.flywheel1);
         flywheelMotor2 = hardwareMap.get(DcMotorEx.class, Constants.FlywheelConstants.flywheel2);
-        transfer = hardwareMap.get(DcMotor.class, Constants.FlywheelConstants.transfer);
+        turretHood = hardwareMap.get(Servo.class, Constants.FlywheelConstants.turretHeadServo);
+        //transfer = hardwareMap.get(DcMotor.class, Constants.FlywheelConstants.transfer);
 
         flywheelMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheelMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheelMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheelMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
 
         flywheelMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheelMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheelMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        turretNeck.setDirection(Servo.Direction.FORWARD);
-        turretHead.setDirection(Servo.Direction.FORWARD);
 
         if (Constants.onRed) targetPose = redTarget1;
         else targetPose = blueTarget1;
 
         flywheel = new Flywheel();
-        turret = new Turret(hardwareMap);
 
-        aim(Constants.FlywheelConstants.FlywheelState.SCORE, Constants.TurretConstants.TurretState.AUTO, 0, 0);
+        aim(Constants.FlywheelConstants.FlywheelState.SCORE);
     }
 
-    public void aim(Constants.FlywheelConstants.FlywheelState flywheelState, Constants.TurretConstants.TurretState turretState, double manualX, double manualY) {
+    public boolean aim(Constants.FlywheelConstants.FlywheelState flywheelState) {
         vision.updateAprilTags();
         updateVariables();
         updateTarget();
 
-        boolean stateSwapped = flywheelState != lastFlywheelState || turretState != lastTurretState;
+        boolean redidMath = flywheelState != lastFlywheelState;
 
-        lastFlywheelState = flywheelState;
-        lastTurretState = turretState;
-
-        if (turretState == Constants.TurretConstants.TurretState.MANUAL)
-            neckTargetPos = turret.aim(manualX, manualY, neckCurrentPos, offset);
-        if (turretState == Constants.TurretConstants.TurretState.LOCKED) neckTargetPos = 0;
-
-        if (Constants.OdometryConstants.fieldPos.distance(lastPos) < 1 || offset != lastOffset || stateSwapped) {
+        if (Constants.OdometryConstants.fieldPos.distance(lastPos) < 1 || offset != lastOffset || redidMath) {
+            lastFlywheelState = flywheelState;
             double xChange = Constants.OdometryConstants.fieldPos.x() - targetPose.getX();
             double yChange = Constants.OdometryConstants.fieldPos.y() - targetPose.getY();
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
+            /*
             double time = Math.sqrt(Math.pow((distance - 20) / 39.37, 2) / 9.8) * 2; //TODO: FIND A BETTER WAY TO GET TIME
             xChange += Constants.OdometryConstants.fieldVels[0] * time;
             yChange += Constants.OdometryConstants.fieldVels[1] * time;
             distance = Math.sqrt(Math.pow(xChange, 2) + Math.pow(yChange, 2));
+             */
 
-            flywheelPower = flywheel.getFlywheelPower(distance, flywheelVel, flywheelState);
-            headPos = flywheel.getHeadPositions(flywheelState, distance);
-
-            if (turretState == Constants.TurretConstants.TurretState.AUTO)
-                neckTargetPos = turret.aim(xChange, yChange, neckCurrentPos, offset);
-
+            hoodPos = flywheel.getHeadPositions(flywheelState, distance);
             lastOffset = offset;
+            redidMath = true;
             lastPos = Constants.OdometryConstants.fieldPos;
         }
 
         if (transferPower != lastTransferPower) {
-            updateTransfer();
+            //updateTransfer();
             lastTransferPower = transferPower;
         }
 
@@ -106,16 +89,13 @@ public class Shooter {
             updateFlywheelHardware();
             lastFlywheelPower = flywheelPower;
         }
-        neckPower = turret.calculateNeckPower(neckTargetPos, neckCurrentPos);
+
+        return redidMath;
     }
 
-    public Pose getVisionPos() {
-        return vision.getPose(turret.getNeckHeading());
-    }
-
-    public void manualOffset(boolean leftTrigger, boolean rightTrigger) {
-        if (leftTrigger) offset -= 4;
-        if (rightTrigger) offset += 4;
+    public void transfer(boolean transferring){
+        if (transferring && flywheel.atTargetVel()) transferPower = 1;
+        else transferPower = 0;
     }
 
     public void updateTarget() {
@@ -132,23 +112,17 @@ public class Shooter {
     }
 
     private void updateVariables() {
-        neckCurrentPos = turretNeck.getPosition();
         flywheelVel = flywheelMotor1.getVelocity();
     }
 
     public void updateFlywheelHardware() {
         flywheelMotor1.setPower(flywheelPower);
         flywheelMotor2.setPower(flywheelPower);
-        turretHead.setPosition(headPos);
+        turretHood.setPosition(hoodPos);
     }
 
     public void updateTransfer() {
-        transfer.setPower(transferPower);
-    }
-
-
-    public void updateTurretHardware() {
-        turretNeck.setPosition(neckPower);
+        //transfer.setPower(transferPower);
     }
 
     public void chill() {

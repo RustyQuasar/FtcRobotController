@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Commands.Intake;
 import Commands.MecanumDrive;
 import Commands.Shooter;
+import Commands.StraightShooter;
 import Utilities.Constants;
 
 public class Teleop {
@@ -21,7 +22,7 @@ public class Teleop {
     ElapsedTime controlLoopTimer;
     //List<LynxModule> allHubs;
     Gamepad lastDriver = new Gamepad(), lastOperator = new Gamepad();
-    Shooter shooter;
+    StraightShooter shooter;
     Intake intake;
     Constants.TurretConstants.TurretState turretState = Constants.TurretConstants.TurretState.AUTO;
     Constants.FlywheelConstants.FlywheelState flywheelState = Constants.FlywheelConstants.FlywheelState.SCORE;
@@ -30,7 +31,8 @@ public class Teleop {
         Constants.onRed = onRed;
         Mecanum = new MecanumDrive(hardwareMap);
         controlLoopTimer = new ElapsedTime();
-        shooter = new Shooter(hardwareMap);
+        //shooter = new Shooter(hardwareMap);
+        //shooter = new StraightShooter(hardwareMap);
         intake = new Intake(hardwareMap);
         /*
         allHubs = hardwareMap.getAll(LynxModule.class);
@@ -41,6 +43,7 @@ public class Teleop {
     }
 
     public void run(Gamepad driver, Gamepad operator) {
+        //shooter.aim(flywheelState);
             Mecanum.drive(
                     -driver.left_stick_y,
                     driver.left_stick_x,
@@ -51,8 +54,8 @@ public class Teleop {
             Mecanum.resetIMU();
         }
 
-        if (shooter.aim(flywheelState, turretState, operator.left_stick_x, operator.left_stick_y)) shooter.updateFlywheelHardware();
-        shooter.updateTurretHardware();
+        //shooter.transfer(driver.left_trigger > 0.4);
+        intake.intake(driver.right_trigger > 0.4, driver.a);
 
         lastOperator.copy(operator);
         lastDriver.copy(driver);

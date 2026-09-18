@@ -11,6 +11,8 @@ import Utilities.Constants;
 
 public class Intake {
     private final DcMotor motorIntake;
+    private double lastMotorPower = 0;
+
     public Intake(HardwareMap hardwareMap) {
         motorIntake = hardwareMap.get(DcMotor.class, Constants.IntakeConstants.intake);
         motorIntake.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -19,14 +21,12 @@ public class Intake {
     public void intake(boolean trigger, boolean a) {
         double motorPower = 0.8;
         if (!trigger && a) motorPower *= -1;
-        boolean buttonPressed = trigger || a;
-        if (buttonPressed) {
-            motorIntake.setPower(motorPower);
-        } else {
-            motorIntake.setPower(0);
-        }
+        else if (!trigger) motorPower = 0;
+        if (motorPower == lastMotorPower) return;
+        lastMotorPower = motorPower;
+        motorIntake.setPower(motorPower);
     }
-    
+
     public void chill() {
         motorIntake.setPower(0);
     }

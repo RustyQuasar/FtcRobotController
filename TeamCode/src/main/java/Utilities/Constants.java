@@ -1,6 +1,6 @@
 package Utilities;
 
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 
 public final class Constants {
     public static boolean onRed;
@@ -9,10 +9,10 @@ public final class Constants {
 
     public static final class DriveTrainConstants {
         //Wheel constants (Studica Mavericks)
-        public static final String frontLeftMotor = "frontLeft"; //Control hub Motor port 0, connected to perpendicular deadwheel
-        public static final String frontRightMotor = "frontRight"; //Control hub Motor port 1, connected to parallel (1) deadwheel
-        public static final String backLeftMotor = "backLeft"; //Control hub Motor port 2 connected to parallel (2) deadwheel
-        public static final String backRightMotor = "backRight"; //Control hub Motor port 3
+        public static final String frontLeftMotor = "frontLeft"; //Control hub Motor port 1e, connected to perpendicular deadwheel
+        public static final String frontRightMotor = "frontRight"; //Expansion hub Motor port 3e, connected to parallel (1) deadwheel
+        public static final String backLeftMotor = "backLeft"; //Control hub Motor port 0e connected to parallel (2) deadwheel
+        public static final String backRightMotor = "backRight"; //Expansion hub Motor port 1e
         //Gyro (12ICU 0) Something like that idk
         public static final String imu = "imu";
         //PIDF Heading constants
@@ -25,10 +25,10 @@ public final class Constants {
 
     public static final class FlywheelConstants {
         public static final int hoodMax = 255;
-        public static final String flywheel = "rightShooter"; //Expansion hub Motor port 3, rr parallel deadwheel 1
-        public static final String transfer = "leftShooter"; //Expansion hub Motor port 2, rr parallel deadwheel 2
-        public static final String turretHeadServo = "turretHead"; //Expansion hub Servo port 0
-        public static final String fingerServo = "flipServo"; //Expansion hub Servo 1
+        public static final String flywheel1 = "flywheel1"; //Expansion hub Motor port 0e, rr parallel deadwheel 1
+        public static final String flywheel2 = "flywheel2"; //Control hub Motor port 2e, rr parallel deadwheel 2
+        public static final String transfer = "transfer"; //Expansion hub Motor port 1
+        public static final String turretHeadServo = "turretHood"; //Expansion hub Servo pbort 0
         public enum FlywheelState {
             SCORE,
             PASS,
@@ -46,7 +46,7 @@ public final class Constants {
     }
 
     public static final class TurretConstants {
-        public static final String turretNeckMotor = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
+        public static final String turretNeckServo = "turretNeck"; //Expansion hub Motor port 1, rr perpendicular deadwheel
         public static final double turretNeckGearRatio = 19.2 * 197 / 36; //Gear multiplier
         public static final double turretHeadGearRatio = (double) 16 /165; //Gear multiplier
         public enum TurretState {
@@ -58,7 +58,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final String intake = "intake"; //Expansion hub Motor port 0
+        public static final String intake = "intake"; //Control hub Motor port 3
     }
 
     public static final class VisionConstants {

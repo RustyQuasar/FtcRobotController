@@ -3,12 +3,16 @@ repositories {
     google()
     maven { url = 'https://maven.brott.dev/' }
     maven { url = "https://mymaven.bylazar.com/releases" }
+    maven { url = "https://repo.dairy.foundation/releases" }
+
 }
 
 dependencies {
     implementation 'com.acmerobotics.dashboard:dashboard:0.5.0'
     implementation 'com.pedropathing:ftc:2.1.1'
     implementation 'com.pedropathing:telemetry:1.0.0'
+    implementation 'com.pedropathing:revhub:3.0.0'
+    implementation 'com.pedropathing:tuning:1.0.0'
     implementation 'com.pedropathing:ivy:1.0.0'
     implementation 'org.firstinspires.ftc:Inspection:12.0.0'
     implementation 'org.firstinspires.ftc:Blocks:12.0.0'
